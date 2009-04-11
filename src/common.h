@@ -14,11 +14,13 @@ typedef struct {
     int modified;                       /* any local changes? */
 } result_t;
 
+void set_options(options_t*);
+    
 result_t* init_result();
 void free_result(result_t*);
 
-void debug(options_t*, char*, ...);
+void debug(char*, ...);
 
-int isdir(options_t*, char*);
+int isdir(char*);
 
 #endif

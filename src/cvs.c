@@ -5,9 +5,9 @@
 
 #include "cvs.h"
 
-int cvs_probe(options_t* options)
+int cvs_probe()
 {
-    return isdir(options, "CVS");
+    return isdir("CVS");
 }
 
 result_t* cvs_get_info(options_t* options)
@@ -18,7 +18,7 @@ result_t* cvs_get_info(options_t* options)
 
     tagfile = fopen("CVS/Tag", "r");
     if (tagfile == NULL) {
-        debug(options, "could not read CVS/Tag (%s): assuming trunk",
+        debug("could not read CVS/Tag (%s): assuming trunk",
               strerror(errno));
         result->branch = "trunk";
         return result;

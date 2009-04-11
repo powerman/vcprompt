@@ -37,6 +37,7 @@ int main(int argc, char** argv)
 #endif
     result_t* result = NULL;
 
+    set_options(&options);
     if (cvs_probe(&options))
         result = cvs_get_info(&options);
     /*

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -18,11 +19,18 @@ void free_result(result_t* result)
     free(result);
 }
 
-void debug(options_t* options, char* fmt, ...)
+static options_t* _options = NULL;
+
+void set_options(options_t* options)
+{
+    _options = options;
+}
+
+void debug(char* fmt, ...)
 {
     va_list args;
 
-    if (!options->debug)
+    if (!_options->debug)
         return;
 
     va_start(args, fmt);
@@ -32,15 +40,15 @@ void debug(options_t* options, char* fmt, ...)
     va_end(args);
 }
 
-int isdir(options_t* options, char* name)
+int isdir(char* name)
 {
     struct stat statbuf;
     if (stat(name, &statbuf) < 0) {
-        debug(options, "failed to stat() '%s': %s", name, strerror(errno));
+        debug("failed to stat() '%s': %s", name, strerror(errno));
         return 0;
     }
     if (!S_ISDIR(statbuf.st_mode)) {
-        debug(options, "'%s' not a directory", name);
+        debug("'%s' not a directory", name);
         return 0;
     }
     return 1;
