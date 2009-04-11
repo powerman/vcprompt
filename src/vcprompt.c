@@ -24,7 +24,7 @@ void print_result(options_t* options, result_t* result)
 
 int main(int argc, char** argv)
 {
-    options_t options = { 1,            /* debug */
+    options_t options = { 0,            /* debug */
                           1,            /* show branch */
                           0,            /* show unknown */
                           0,            /* show local changes */
