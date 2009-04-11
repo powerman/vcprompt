@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
 
 #include "common.h"
 
@@ -26,4 +30,18 @@ void debug(options_t* options, char* fmt, ...)
     vfprintf(stdout, fmt, args);
     fputc('\n', stdout);
     va_end(args);
+}
+
+int isdir(options_t* options, char* name)
+{
+    struct stat statbuf;
+    if (stat(name, &statbuf) < 0) {
+        debug(options, "failed to stat() '%s': %s", name, strerror(errno));
+        return 0;
+    }
+    if (!S_ISDIR(statbuf.st_mode)) {
+        debug(options, "'%s' not a directory", name);
+        return 0;
+    }
+    return 1;
 }

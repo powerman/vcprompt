@@ -19,4 +19,6 @@ void free_result(result_t*);
 
 void debug(options_t*, char*, ...);
 
+int isdir(options_t*, char*);
+
 #endif
