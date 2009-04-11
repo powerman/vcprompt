@@ -3,9 +3,9 @@
 #include "common.h"
 #include "cvs.h"
 #include "git.h"
+#include "hg.h"
 /*
 #include "svn.h"
-#include "hg.h"
 #include "bzr.h"
 */
 
@@ -38,15 +38,15 @@ int main(int argc, char** argv)
     result_t* result = NULL;
 
     set_options(&options);
-    if (cvs_probe(&options))
+    if (cvs_probe())
         result = cvs_get_info(&options);
     else if (git_probe())
         result = git_get_info(&options);
+    else if (hg_probe())
+        result = hg_get_info(&options);
     /*
     else if (svn_probe())
         svn_get_info(options, &result);
-    else if (hg_probe())
-        hg_get_info(options, &result);
     else if (bzr_probe())
         bzr_get_info(options, &result);
     */
