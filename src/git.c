@@ -2,12 +2,14 @@
 #include <string.h>
 #include "git.h"
 
-int git_probe()
+static int
+git_probe(vccontext_t* context)
 {
     return isdir(".git");
 }
 
-result_t* git_get_info(options_t* options)
+static result_t*
+git_get_info(vccontext_t* context)
 {
     result_t* result = init_result();
     char buf[1024];
@@ -32,4 +34,9 @@ result_t* git_get_info(options_t* options)
     }
 
     return result;
+}
+
+vccontext_t* get_git_context(options_t* options)
+{
+    return init_context(options, git_probe, git_get_info);
 }

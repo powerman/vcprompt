@@ -2,12 +2,14 @@
 #include "common.h"
 #include "hg.h"
 
-int hg_probe()
+static int
+hg_probe(vccontext_t* context)
 {
     return isdir(".hg");
 }
 
-result_t* hg_get_info(options_t* options)
+static result_t*
+hg_get_info(vccontext_t* context)
 {
     result_t* result = init_result();
     char buf[1024];
@@ -22,4 +24,9 @@ result_t* hg_get_info(options_t* options)
     }
 
     return result;
+}
+
+vccontext_t* get_hg_context(options_t* options)
+{
+    return init_context(options, hg_probe, hg_get_info);
 }

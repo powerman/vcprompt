@@ -3,7 +3,6 @@
 
 #include "common.h"
 
-int hg_probe();
-result_t* hg_get_info(options_t*);
+vccontext_t* get_hg_context(options_t* options);
 
 #endif

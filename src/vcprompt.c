@@ -35,22 +35,23 @@ int main(int argc, char** argv)
                         0,              /* local changes? */
     };
 #endif
-    result_t* result = NULL;
 
     set_options(&options);
-    if (cvs_probe())
-        result = cvs_get_info(&options);
-    else if (git_probe())
-        result = git_get_info(&options);
-    else if (hg_probe())
-        result = hg_get_info(&options);
-    /*
-    else if (svn_probe())
-        svn_get_info(options, &result);
-    else if (bzr_probe())
-        bzr_get_info(options, &result);
-    */
 
+    vccontext_t* contexts[] = {
+        get_cvs_context(&options),
+        get_git_context(&options),
+        get_hg_context(&options),
+    };
+    int num_contexts = sizeof(contexts) / sizeof(vccontext_t*);
+
+    result_t* result = NULL;
+    int i;
+    for (i = 0; i < num_contexts; i++) {
+        vccontext_t* context = contexts[i];
+        if (context->probe(context))
+            result = context->get_info(context);
+    }
     if (result != NULL) {
         print_result(&options, result);
         free_result(result);

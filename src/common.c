@@ -26,6 +26,22 @@ void set_options(options_t* options)
     _options = options;
 }
 
+vccontext_t* init_context(options_t* options,
+                          int (*probe)(vccontext_t*),
+                          result_t* (*get_info)(vccontext_t*))
+{
+    vccontext_t* context = (vccontext_t*) calloc(1, sizeof(vccontext_t));
+    context->options = options;
+    context->probe = probe;
+    context->get_info = get_info;
+    return context;
+}
+
+void free_context(vccontext_t* context)
+{
+    free(context);
+}
+
 void debug(char* fmt, ...)
 {
     va_list args;

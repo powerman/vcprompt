@@ -3,7 +3,6 @@
 
 #include "common.h"
 
-int git_probe();
-result_t* git_get_info(options_t*);
+vccontext_t* get_git_context(options_t* options);
 
 #endif

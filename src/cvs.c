@@ -5,12 +5,14 @@
 
 #include "cvs.h"
 
-int cvs_probe()
+static int
+cvs_probe(vccontext_t* context)
 {
     return isdir("CVS");
 }
 
-result_t* cvs_get_info(options_t* options)
+static result_t*
+cvs_get_info(vccontext_t* context)
 {
     result_t* result = init_result();
     char buf[1024];
@@ -31,4 +33,9 @@ result_t* cvs_get_info(options_t* options)
         }
     }
     return result;
+}
+
+vccontext_t* get_cvs_context(options_t* options)
+{
+    return init_context(options, cvs_probe, cvs_get_info);
 }

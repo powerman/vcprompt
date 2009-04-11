@@ -14,7 +14,19 @@ typedef struct {
     int modified;                       /* any local changes? */
 } result_t;
 
+typedef struct vccontext_t vccontext_t;
+struct vccontext_t {
+    options_t* options;
+
+    int (*probe)(vccontext_t*);
+    result_t* (*get_info)(vccontext_t*);
+};
+
 void set_options(options_t*);
+vccontext_t* init_context(options_t* options,
+                          int (*probe)(vccontext_t*),
+                          result_t* (*get_info)(vccontext_t*));
+void free_context(vccontext_t* context);
     
 result_t* init_result();
 void free_result(result_t*);

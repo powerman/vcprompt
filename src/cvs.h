@@ -3,7 +3,6 @@
 
 #include "common.h"
 
-int cvs_probe();
-result_t* cvs_get_info(options_t*);
+vccontext_t* get_cvs_context(options_t* options);
 
 #endif
