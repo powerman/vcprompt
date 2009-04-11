@@ -2,9 +2,9 @@
 
 #include "common.h"
 #include "cvs.h"
+#include "git.h"
 /*
 #include "svn.h"
-#include "git.h"
 #include "hg.h"
 #include "bzr.h"
 */
@@ -40,11 +40,11 @@ int main(int argc, char** argv)
     set_options(&options);
     if (cvs_probe(&options))
         result = cvs_get_info(&options);
+    else if (git_probe())
+        result = git_get_info(&options);
     /*
     else if (svn_probe())
         svn_get_info(options, &result);
-    else if (git_probe())
-        git_get_info(options, &result);
     else if (hg_probe())
         hg_get_info(options, &result);
     else if (bzr_probe())
