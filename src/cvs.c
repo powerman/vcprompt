@@ -13,26 +13,22 @@ int cvs_probe()
 result_t* cvs_get_info(options_t* options)
 {
     result_t* result = init_result();
-    FILE* tagfile;
     char buf[1024];
 
-    tagfile = fopen("CVS/Tag", "r");
-    if (tagfile == NULL) {
-        debug("could not read CVS/Tag (%s): assuming trunk",
-              strerror(errno));
+    if (!read_first_line("CVS/Tag", buf, 1024)) {
+        debug("unable to read CVS/Tag: assuming trunk");
         result->branch = "trunk";
-        return result;
     }
-    
-    fgets(buf, 1024, tagfile);
-    if (buf[0] == 'T') {                /* sticky tag and it's a branch tag */
-        int len = strlen(buf);
-        if (buf[len-1] == '\n')
-            buf[len-1] = '\0';
-        result->branch = strdup(buf+1);  /* XXX leak! */
-    }
-    else {                              /* sticky non-branch tag or date */
-        result->branch = "(unknown)";
+    else {
+        debug("read first line of CVS/Tag: '%s'", buf);
+        if (buf[0] == 'T') {
+            /* there is a sticky tag and it's a branch tag */
+            result->branch = strdup(buf+1); /* XXX mem leak! */
+        }
+        else {
+            /* non-branch sticky tag or sticky date */            
+            result->branch = "(unknown)";
+        }
     }
     return result;
 }

@@ -53,3 +53,29 @@ int isdir(char* name)
     }
     return 1;
 }
+
+int read_first_line(char* filename, char* buf, int size)
+{
+    FILE* file;
+
+    file = fopen(filename, "r");
+    if (file == NULL) {
+        debug("error opening '%s': %s", filename, strerror(errno));
+        return 0;
+    }
+
+    int ok = (fgets(buf, size, file) != NULL);
+    fclose(file);
+    if (!ok) {
+        debug("error or EOF reading from '%s'", filename);
+        return 0;
+    }
+
+    /* chop trailing newline */
+    int len = strlen(buf);
+    if (buf[len-1] == '\n')
+        buf[len-1] = '\0';
+
+    return 1;
+}
+ 

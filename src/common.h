@@ -22,5 +22,6 @@ void free_result(result_t*);
 void debug(char*, ...);
 
 int isdir(char*);
+int read_first_line(char*, char*, int);
 
 #endif
