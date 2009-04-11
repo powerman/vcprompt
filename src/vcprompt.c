@@ -29,12 +29,6 @@ int main(int argc, char** argv)
                           0,            /* show unknown */
                           0,            /* show local changes */
     };
-#if 0
-    result_t result = { NULL,           /* current branch */
-                        0,              /* unknown files? */
-                        0,              /* local changes? */
-    };
-#endif
 
     set_options(&options);
 
