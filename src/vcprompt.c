@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "common.h"
 #include "cvs.h"
@@ -81,6 +84,44 @@ void print_result(options_t* options, result_t* result)
     }
 }
 
+vccontext_t* probe_all(vccontext_t** contexts, int num_contexts)
+{
+    int idx;
+    for (idx = 0; idx < num_contexts; idx++) {
+        vccontext_t* ctx = contexts[idx];
+        if (ctx->probe(ctx)) {
+            return ctx;
+        }
+    }
+    return NULL;
+}
+
+/* walk up the directory tree until the probes work or we hit / */
+vccontext_t* probe_parents(vccontext_t** contexts, int num_contexts)
+{
+    vccontext_t* context;
+    struct stat rootdir;
+    struct stat curdir;
+
+    debug("no context claimed current dir: walking up the tree");
+    stat("/", &rootdir);
+    while (1) {
+        stat(".", &curdir);
+        int isroot = (rootdir.st_dev == curdir.st_dev &&
+                      rootdir.st_ino == curdir.st_ino);
+        if (isroot) {
+            return NULL;
+        }
+
+        chdir("..");
+        context = probe_all(contexts, num_contexts);
+        if (context != NULL) {
+            debug("found a context");
+            return context;
+        }
+    }
+}
+
 int main(int argc, char** argv)
 {
     options_t options = { 0,            /* debug */
@@ -101,17 +142,24 @@ int main(int argc, char** argv)
     int num_contexts = sizeof(contexts) / sizeof(vccontext_t*);
 
     result_t* result = NULL;
-    int i;
-    for (i = 0; i < num_contexts; i++) {
-        vccontext_t* context = contexts[i];
-        if (context->probe(context))
-            result = context->get_info(context);
+    vccontext_t* context = NULL;
+
+    context = probe_all(contexts, num_contexts);
+
+    if (context == NULL) {
+        /* current dir not claimed: walk up the directory tree */
+        context = probe_parents(contexts, num_contexts);
     }
+    if (context == NULL) {              /* nobody claimed it */
+        return 0;
+    }
+
+    result = context->get_info(context);
     if (result != NULL) {
         print_result(&options, result);
         free_result(result);
+        if (options.debug)
+            putc('\n', stdout);
     }
-    if (options.debug)
-        putc('\n', stdout);
     return 0;
 }
