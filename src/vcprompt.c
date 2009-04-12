@@ -13,6 +13,20 @@
 #include "bzr.h"
 */
 
+void parse_args(int argc, char** argv, options_t* options)
+{
+    int opt;
+    while ((opt = getopt(argc, argv, "f:d")) != -1) {
+        switch (opt) {
+            case 'f':
+                options->format = optarg;
+                break;
+            case 'd':
+                options->debug = 1;
+                break;
+        }
+    }
+}
 
 void parse_format(options_t* options)
 {
@@ -131,6 +145,7 @@ int main(int argc, char** argv)
                           0,            /* show local changes */
     };
 
+    parse_args(argc, argv, &options);
     parse_format(&options);
     set_options(&options);
 
