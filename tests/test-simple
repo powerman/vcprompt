@@ -1,0 +1,87 @@
+#!/bin/sh
+
+# Simple tests that do not require any external tools: i.e.
+# these just setup little fake working copies and make sure
+# that vcprompt does the right thing in them.
+
+vcprompt=$(dirname $(dirname $(readlink -f $0)))/vcprompt
+if [ ! -x $vcprompt ]; then
+    echo "error: vcprompt executable not found (expected $vcprompt)" >&2
+    exit 1
+fi
+
+setup()
+{
+    tmpdir=`mktemp -d`
+    trap cleanup 0 1 2 15
+}
+
+cleanup()
+{
+    rm -rf $tmpdir
+}
+
+failed=""
+assert_vcprompt()
+{
+    message=$1
+    expect=$2
+    actual=`$vcprompt`
+    if [ "$expect" != "$actual" ]; then
+        echo "fail: $message: expected \"$expect\", but got \"$actual\"" >&2
+        failed="y"
+        return 1
+    else
+        echo "pass: $message"
+    fi
+}
+
+test_no_vc()
+{
+    cd $tmpdir
+    mkdir novc && cd novc
+    assert_vcprompt "no vc" ""
+}
+
+test_simple_cvs()
+{
+    cd $tmpdir
+    return
+}
+
+test_simple_git()
+{
+    cd $tmpdir
+    return
+}
+
+test_simple_hg()
+{
+    cd $tmpdir
+    mkdir hg && cd hg
+    mkdir .hg
+    echo foo > .hg/branch
+    assert_vcprompt "hg top" "[foo] "
+
+    mkdir subdir
+    cd subdir
+    assert_vcprompt "hg subdir" "[foo] "
+}
+
+
+#set -e
+
+setup
+
+test_no_vc
+test_simple_cvs
+test_simple_git
+test_simple_hg
+
+if [ "$failed" ]; then
+    echo "tests failed"
+    exit 1
+else
+    echo "all tests passed"
+    exit 0
+fi
