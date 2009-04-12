@@ -46,7 +46,23 @@ test_no_vc()
 test_simple_cvs()
 {
     cd $tmpdir
-    return
+    mkdir cvs && cd cvs
+    mkdir CVS
+
+    assert_vcprompt "cvs notag" "[trunk] "
+
+    echo "Nsometag" > CVS/Tag
+    assert_vcprompt "cvs nobranch" "[(unknown)] "
+
+    echo "Tfoo" > CVS/Tag
+    assert_vcprompt "cvs branch" "[foo] "
+
+    mkdir build && cd build
+    assert_vcprompt "cvs subdir 1" "[foo] "
+
+    mkdir CVS
+    echo "Tblah" > CVS/Tag
+    assert_vcprompt "cvs subdir 2" "[blah] "
 }
 
 test_simple_git()
@@ -54,11 +70,11 @@ test_simple_git()
     cd $tmpdir
     mkdir git && cd git
     mkdir .git
+
+    assert_vcprompt "git broken" ""
+
     echo 0928349328 > .git/HEAD
     assert_vcprompt "git nobranch" "[(unknown)] "
-
-    rm .git/HEAD
-    assert_vcprompt "git broken" ""
 
     echo "ref: refs/heads/foo" > .git/HEAD
     assert_vcprompt "git branch" "[foo] "
@@ -72,6 +88,9 @@ test_simple_hg()
     cd $tmpdir
     mkdir hg && cd hg
     mkdir .hg
+
+    assert_vcprompt "hg broken" ""
+
     echo foo > .hg/branch
     assert_vcprompt "hg top" "[foo] "
 

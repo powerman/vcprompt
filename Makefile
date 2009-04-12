@@ -11,5 +11,9 @@ vcprompt: $(objects)
 # Maximally pessimistic view of header dependencies.
 $(objects): $(headers)
 
+.PHONY: check
+check:
+	./tests/test-simple
+
 clean:
 	rm -f $(objects) vcprompt
