@@ -12,7 +12,7 @@ vcprompt: $(objects)
 $(objects): $(headers)
 
 .PHONY: check
-check:
+check: vcprompt
 	./tests/test-simple
 
 clean:

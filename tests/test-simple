@@ -43,6 +43,12 @@ test_no_vc()
     assert_vcprompt "no vc" ""
 }
 
+test_root()
+{
+    cd /
+    assert_vcprompt "root dir" ""
+}
+
 test_simple_cvs()
 {
     cd $tmpdir
@@ -105,6 +111,7 @@ test_simple_hg()
 setup
 
 test_no_vc
+test_root
 test_simple_cvs
 test_simple_git
 test_simple_hg
