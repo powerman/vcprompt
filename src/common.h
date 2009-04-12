@@ -3,9 +3,10 @@
 
 typedef struct {
     int debug;
-    int branch;                         /* show current branch? */
-    int unknown;                        /* show ? if unknown files? */
-    int modified;                       /* show ! if local changes? */
+    char* format;                       /* e.g. "[%b%u%m]" */
+    int show_branch;                    /* show current branch? */
+    int show_unknown;                   /* show ? if unknown files? */
+    int show_modified;                  /* show ! if local changes? */
 } options_t;
 
 typedef struct {

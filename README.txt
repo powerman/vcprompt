@@ -28,14 +28,10 @@ To install it:
 
 To use it with bash, just call it in PS1:
 
-  PS1='\u@\h:\w [$(vcprompt)]\$ '
+  PS1='\u@\h:\w $(vcprompt)\$'
 
 To use it with zsh, you need to enable shell option PROMPT_SUBST, and
 then do similarly to bash:
 
   setopt prompt_subst
-  PROMPT='[%n@%m] [%~] [$(vcprompt)] '
-
-An obvious flaw is that if you are not in a version control working
-copy, your prompt will include an empty "[]" for the above two
-examples.  Suggestions and/or patches are welcome!
+  PROMPT='[%n@%m] [%~] $(vcprompt)'
