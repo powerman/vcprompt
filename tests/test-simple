@@ -52,7 +52,19 @@ test_simple_cvs()
 test_simple_git()
 {
     cd $tmpdir
-    return
+    mkdir git && cd git
+    mkdir .git
+    echo 0928349328 > .git/HEAD
+    assert_vcprompt "git nobranch" "[(unknown)] "
+
+    rm .git/HEAD
+    assert_vcprompt "git broken" ""
+
+    echo "ref: refs/heads/foo" > .git/HEAD
+    assert_vcprompt "git branch" "[foo] "
+
+    mkdir subdir && cd subdir
+    assert_vcprompt "git subdir" "[foo] "
 }
 
 test_simple_hg()
