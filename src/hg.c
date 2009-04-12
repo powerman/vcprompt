@@ -19,8 +19,8 @@ hg_get_info(vccontext_t* context)
         result->branch = strdup(buf);   /* XXX mem leak */
     }
     else {
-        debug("failed to read from .hg/branch: unknown branch");
-        result->branch = "(unknown)";
+        debug("failed to read from .hg/branch: assuming not an hg repo");
+        return NULL;
     }
 
     return result;

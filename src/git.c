@@ -15,8 +15,8 @@ git_get_info(vccontext_t* context)
     char buf[1024];
 
     if (!read_first_line(".git/HEAD", buf, 1024)) {
-        debug("unable to read .git/HEAD: unknown branch");
-        result->branch = "(unknown)";
+        debug("unable to read .git/HEAD: assuming not a git repo");
+        return NULL;
     }
     else {
         char* prefix = "ref: refs/heads/";
