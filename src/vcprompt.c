@@ -106,19 +106,19 @@ vccontext_t* probe_parents(vccontext_t** contexts, int num_contexts)
     debug("no context claimed current dir: walking up the tree");
     stat("/", &rootdir);
     while (1) {
+        context = probe_all(contexts, num_contexts);
+        if (context != NULL) {
+            debug("found a context");
+            return context;
+        }
+
         stat(".", &curdir);
         int isroot = (rootdir.st_dev == curdir.st_dev &&
                       rootdir.st_ino == curdir.st_ino);
         if (isroot) {
             return NULL;
         }
-
         chdir("..");
-        context = probe_all(contexts, num_contexts);
-        if (context != NULL) {
-            debug("found a context");
-            return context;
-        }
     }
 }
 
@@ -144,16 +144,16 @@ int main(int argc, char** argv)
     result_t* result = NULL;
     vccontext_t* context = NULL;
 
-    context = probe_all(contexts, num_contexts);
+    /* Starting in the current dir, walk up the directory tree until
+       someone claims that this is a working copy. */
+    context = probe_parents(contexts, num_contexts);
 
+    /* Nobody claimed it: bail now without printing anything. */
     if (context == NULL) {
-        /* current dir not claimed: walk up the directory tree */
-        context = probe_parents(contexts, num_contexts);
-    }
-    if (context == NULL) {              /* nobody claimed it */
         return 0;
     }
 
+    /* Analyze the working copy metadata and print the result. */
     result = context->get_info(context);
     if (result != NULL) {
         print_result(&options, result);
