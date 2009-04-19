@@ -26,7 +26,12 @@ assert_vcprompt()
 {
     message=$1
     expect=$2
-    actual=`$vcprompt -f "%b"`
+    format=$3
+    if [ -z "$format" ]; then
+        format="%b"
+    fi
+
+    actual=`$vcprompt -f "$format"`
     if [ "$expect" != "$actual" ]; then
         echo "fail: $message: expected \"$expect\", but got \"$actual\"" >&2
         failed="y"
@@ -40,7 +45,8 @@ test_no_vc()
 {
     cd $tmpdir
     mkdir novc && cd novc
-    assert_vcprompt "no vc" ""
+    assert_vcprompt "no vc 1" ""
+    assert_vcprompt "no vc 2" "" "%n:%b"
 }
 
 test_root()
@@ -55,10 +61,10 @@ test_simple_cvs()
     mkdir cvs && cd cvs
     mkdir CVS
 
-    assert_vcprompt "cvs notag" "trunk"
+    assert_vcprompt "cvs notag" "cvs:trunk" "%n:%b"
 
     echo "Nsometag" > CVS/Tag
-    assert_vcprompt "cvs nobranch" "(unknown)"
+    assert_vcprompt "cvs nobranch" "cvs:(unknown)" "%n:%b"
 
     echo "Tfoo" > CVS/Tag
     assert_vcprompt "cvs branch" "foo"
@@ -77,13 +83,14 @@ test_simple_git()
     mkdir git && cd git
     mkdir .git
 
-    assert_vcprompt "git broken" ""
+    assert_vcprompt "git broken 1" ""
+    assert_vcprompt "git broken 2" "" "%n:%b"
 
     echo 0928349328 > .git/HEAD
     assert_vcprompt "git nobranch" "(unknown)"
 
     echo "ref: refs/heads/foo" > .git/HEAD
-    assert_vcprompt "git branch" "foo"
+    assert_vcprompt "git branch" "git:foo" "%n:%b"
 
     mkdir subdir && cd subdir
     assert_vcprompt "git subdir" "foo"
@@ -98,7 +105,7 @@ test_simple_hg()
     assert_vcprompt "hg broken" ""
 
     echo foo > .hg/branch
-    assert_vcprompt "hg top" "foo"
+    assert_vcprompt "hg top" "hg:foo" "%n:%b"
 
     mkdir subdir
     cd subdir
