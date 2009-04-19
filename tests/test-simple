@@ -18,6 +18,7 @@ setup()
 
 cleanup()
 {
+    chmod -R u+rwx $tmpdir
     rm -rf $tmpdir
 }
 
@@ -112,6 +113,17 @@ test_simple_hg()
     assert_vcprompt "hg subdir" "foo"
 }
 
+test_bad_dir()
+{
+    cd $tmpdir
+    set -e
+    mkdir -p d1/d2
+    cd d1/d2
+    chmod a-rx ..
+    assert_vcprompt "bad dir" ""
+    chmod a+rx ..
+}
+
 
 #set -e
 
@@ -122,6 +134,7 @@ test_root
 test_simple_cvs
 test_simple_git
 test_simple_hg
+test_bad_dir
 
 if [ "$failed" ]; then
     echo "$0: some tests failed"
