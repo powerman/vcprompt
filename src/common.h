@@ -17,14 +17,17 @@ typedef struct {
 
 typedef struct vccontext_t vccontext_t;
 struct vccontext_t {
+    const char *name;                   /* name of the VC system */
     options_t* options;
 
+    /* context methods */
     int (*probe)(vccontext_t*);
     result_t* (*get_info)(vccontext_t*);
 };
 
 void set_options(options_t*);
-vccontext_t* init_context(options_t* options,
+vccontext_t* init_context(const char *name,
+                          options_t* options,
                           int (*probe)(vccontext_t*),
                           result_t* (*get_info)(vccontext_t*));
 void free_context(vccontext_t* context);

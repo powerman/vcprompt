@@ -26,12 +26,14 @@ void set_options(options_t* options)
     _options = options;
 }
 
-vccontext_t* init_context(options_t* options,
+vccontext_t* init_context(const char *name,
+                          options_t* options,
                           int (*probe)(vccontext_t*),
                           result_t* (*get_info)(vccontext_t*))
 {
     vccontext_t* context = (vccontext_t*) calloc(1, sizeof(vccontext_t));
     context->options = options;
+    context->name = name;
     context->probe = probe;
     context->get_info = get_info;
     return context;

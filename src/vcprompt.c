@@ -52,6 +52,7 @@ void parse_format(options_t* options)
                 case 'm':
                     options->show_modified = 1;
                     break;
+                case 'n':               /* name of VC system */
                 case '%':
                     break;
                 default:
@@ -64,7 +65,7 @@ void parse_format(options_t* options)
     }
 }
 
-void print_result(options_t* options, result_t* result)
+void print_result(vccontext_t* context, options_t* options, result_t* result)
 {
     int i;
     char* format = options->format;
@@ -87,6 +88,9 @@ void print_result(options_t* options, result_t* result)
                 case 'm':
                     if (result->modified)
                         putc('!', stdout);
+                    break;
+                case 'n':
+                    fputs(context->name, stdout);
                     break;
                 default:                /* %x printed as x */
                     putc(format[i], stdout);
@@ -139,7 +143,7 @@ vccontext_t* probe_parents(vccontext_t** contexts, int num_contexts)
 int main(int argc, char** argv)
 {
     options_t options = { 0,            /* debug */
-                          "[%b%m%u] ",  /* format string */
+                          "[%n:%b%m%u] ",  /* format string */
                           0,            /* show branch */
                           0,            /* show unknown */
                           0,            /* show local changes */
@@ -171,7 +175,7 @@ int main(int argc, char** argv)
     /* Analyze the working copy metadata and print the result. */
     result = context->get_info(context);
     if (result != NULL) {
-        print_result(&options, result);
+        print_result(context, &options, result);
         free_result(result);
         if (options.debug)
             putc('\n', stdout);

@@ -37,5 +37,5 @@ cvs_get_info(vccontext_t* context)
 
 vccontext_t* get_cvs_context(options_t* options)
 {
-    return init_context(options, cvs_probe, cvs_get_info);
+    return init_context("cvs", options, cvs_probe, cvs_get_info);
 }
