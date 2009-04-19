@@ -133,10 +133,9 @@ vccontext_t* probe_parents(vccontext_t** contexts, int num_contexts)
         stat(".", &curdir);
         int isroot = (rootdir.st_dev == curdir.st_dev &&
                       rootdir.st_ino == curdir.st_ino);
-        if (isroot) {
+        if (isroot || (-1 == chdir(".."))) {
             return NULL;
         }
-        chdir("..");
     }
 }
 
