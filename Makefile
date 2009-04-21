@@ -1,5 +1,5 @@
 
-CFLAGS = -Wall -g -O0
+CFLAGS = -Wall -g -O2
 
 headers = $(wildcard src/*.h)
 sources = $(wildcard src/*.c)
