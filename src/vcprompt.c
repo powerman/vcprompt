@@ -46,6 +46,9 @@ void parse_format(options_t* options)
                 case 'b':
                     options->show_branch = 1;
                     break;
+                case 'r':
+                    options->show_revision = 1;
+                    break;
                 case 'u':
                     options->show_unknown = 1;
                     break;
@@ -80,6 +83,10 @@ void print_result(vccontext_t* context, options_t* options, result_t* result)
                     break;
                 case 'b':
                     fputs(result->branch, stdout);
+                    break;
+                case 'r':
+                    if (result->revision != NULL)
+                        fputs(result->revision, stdout);
                     break;
                 case 'u':
                     if (result->unknown)

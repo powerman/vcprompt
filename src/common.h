@@ -5,12 +5,14 @@ typedef struct {
     int debug;
     char* format;                       /* e.g. "[%b%u%m]" */
     int show_branch;                    /* show current branch? */
+    int show_revision;                  /* show current revision? */
     int show_unknown;                   /* show ? if unknown files? */
     int show_modified;                  /* show ! if local changes? */
 } options_t;
 
 typedef struct {
-    char* branch;                       /* name of branch */
+    char* branch;                       /* name of current branch */
+    char* revision;                     /* current revision */
     int unknown;                        /* any unknown files? */
     int modified;                       /* any local changes? */
 } result_t;
