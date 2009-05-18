@@ -8,8 +8,8 @@
 #include "cvs.h"
 #include "git.h"
 #include "hg.h"
-/*
 #include "svn.h"
+/*
 #include "bzr.h"
 */
 
@@ -82,7 +82,8 @@ void print_result(vccontext_t* context, options_t* options, result_t* result)
                     putc('%', stdout);
                     break;
                 case 'b':
-                    fputs(result->branch, stdout);
+                    if (result->branch != NULL)
+                        fputs(result->branch, stdout);
                     break;
                 case 'r':
                     if (result->revision != NULL)
@@ -163,6 +164,7 @@ int main(int argc, char** argv)
         get_cvs_context(&options),
         get_git_context(&options),
         get_hg_context(&options),
+        get_svn_context(&options),
     };
     int num_contexts = sizeof(contexts) / sizeof(vccontext_t*);
 
