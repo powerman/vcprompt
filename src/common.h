@@ -41,5 +41,6 @@ void debug(char*, ...);
 
 int isdir(char*);
 int read_first_line(char*, char*, int);
+void chop_newline(char*);
 
 #endif

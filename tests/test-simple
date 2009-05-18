@@ -116,7 +116,7 @@ test_simple_hg()
 test_simple_svn()
 {
     cd $tmpdir
-    mkdir svn && cd svn
+    mkdir simple_svn && cd simple_svn
     mkdir .svn
 
     assert_vcprompt "svn broken" "" "%n:%r"
@@ -135,6 +135,22 @@ file:///whatever
 123
 EOF
     assert_vcprompt "svn revision" "svn:123" "%n:%r"
+}
+
+test_truncated_svn()
+{
+    cd $tmpdir
+    mkdir truncated_svn && cd truncated_svn
+    mkdir .svn
+    cat > .svn/entries <<EOF
+10
+
+EOF
+    assert_vcprompt "svn truncated 1" "" "%n:%r"
+
+    # Add one more line to the entries file: it's still truncated!
+    echo "dir" >> .svn/entries
+    assert_vcprompt "svn truncated 2" "" "%n:%r"
 }
 
 test_bad_dir()
@@ -159,6 +175,7 @@ test_simple_cvs
 test_simple_git
 test_simple_hg
 test_simple_svn
+test_truncated_svn
 test_bad_dir
 
 if [ "$failed" ]; then

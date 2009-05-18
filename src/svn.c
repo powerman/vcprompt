@@ -31,18 +31,30 @@ svn_get_info(vccontext_t* context)
         if (fgets(line, sizeof(line), fp)) {
             if(isdigit(line[0])) {
                 // Custom file format (working copy created by svn >= 1.4)
-                fgets(line, sizeof(line), fp); // Get the name
-                fgets(line, sizeof(line), fp); // Get the entries kind
-                if(fgets(line, sizeof(line), fp)) { // Get the rev numver
-                    int len = strlen(line);
-                    if (line[len-1] == '\n')
-                        line[len-1] = '\0';
+
+                // Read and discard line 2 (name), 3 (entries kind)
+                if (fgets(line, sizeof(line), fp) == NULL ||
+                    fgets(line, sizeof(line), fp) == NULL) {
+                    debug("early EOF reading .svn/entries");
+                    fclose(fp);
+                    return NULL;
+                }
+
+                // Get the revision number
+                if (fgets(line, sizeof(line), fp)) {
+                    chop_newline(line);
                     result->revision = strdup(line);
                     debug("read a svn revision from .svn/entries: '%s'", line);
                 }
-            } else {
+                else {
+                    debug("early EOF: expected revision number");
+                    fclose(fp);
+                    return NULL;
+                }
+            }
+            else {
                 // XML file format (working copy created by svn < 1.4)
-                while (fgets(line, sizeof(line),fp))
+                while (fgets(line, sizeof(line), fp))
                     if (strstr(line, "revision=")) {
                         break;
                     }

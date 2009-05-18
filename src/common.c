@@ -90,10 +90,14 @@ int read_first_line(char* filename, char* buf, int size)
     }
 
     /* chop trailing newline */
-    int len = strlen(buf);
-    if (buf[len-1] == '\n')
-        buf[len-1] = '\0';
+    chop_newline(buf);
 
     return 1;
 }
  
+void chop_newline(char* buf)
+{
+    int len = strlen(buf);
+    if (buf[len-1] == '\n')
+        buf[len-1] = '\0';
+}
