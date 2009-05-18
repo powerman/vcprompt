@@ -26,7 +26,7 @@ svn_get_info(vccontext_t* context)
         FILE *fp;
         fp = fopen(".svn/entries", "r");
         char line[1024];
-        int rev;
+
         // Check the version
         if (fgets(line, sizeof(line), fp)) {
             if(isdigit(line[0])) {
@@ -54,13 +54,19 @@ svn_get_info(vccontext_t* context)
             }
             else {
                 // XML file format (working copy created by svn < 1.4)
+                char* rev = calloc(100, sizeof(char)); /* XXX leak */
+                char* marker = "revision=";
+                char* p = NULL;
                 while (fgets(line, sizeof(line), fp))
-                    if (strstr(line, "revision=")) {
+                    if ((p = strstr(line, marker)) != NULL)
                         break;
-                    }
-                if (sscanf(line, " %*[^\"]\"%d%*[^\n]", &rev) == 1) {
-                    result->revision = strdup((char *)rev);
-                    debug("read a svn revision from .svn/entries: '%s'", rev);
+                if (p == NULL) {
+                    debug("no 'revision=' line found in .svn/entries");
+                    return NULL;
+                }
+                if (sscanf(p, " %*[^\"]\"%[0-9]\"", rev) == 1) {
+                    result->revision = rev;
+                    debug("read svn revision from .svn/entries: '%s'", rev);
                 }
             }
         }

@@ -137,6 +137,32 @@ EOF
     assert_vcprompt "svn revision" "svn:123" "%n:%r"
 }
 
+test_xml_svn()
+{
+    cd $tmpdir
+    mkdir xml_svn && cd xml_svn
+    mkdir .svn
+
+    cat > .svn/entries <<EOF
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="14"
+   name=""
+   committed-date="2007-01-02T23:04:49.013976Z"
+   url="svn+ssh://blah/home/svn/project/trunk"
+   last-author="greg"
+   kind="dir"
+   uuid="8d4eacf1-9596-41ff-ba68-66ac5da389ce"
+   url="svn+ssh://blah/home/svn/project"
+   prop-time="2007-01-04T01:48:15.000000Z"
+   revision="14"/>
+EOF
+
+   assert_vcprompt "svn xml 1" "svn:14" "%n:%r"
+}
+
 test_truncated_svn()
 {
     cd $tmpdir
@@ -175,6 +201,7 @@ test_simple_cvs
 test_simple_git
 test_simple_hg
 test_simple_svn
+test_xml_svn
 test_truncated_svn
 test_bad_dir
 
