@@ -94,7 +94,32 @@ int read_first_line(char* filename, char* buf, int size)
 
     return 1;
 }
- 
+
+int read_last_line(char* filename, char* buf, int size)
+{
+    FILE* file;
+
+    file = fopen(filename, "r");
+    if (file == NULL) {
+        debug("error opening '%s': %s", filename, strerror(errno));
+        return 0;
+    }
+
+    buf[0] = '\0';
+    while (fgets(buf, size, file));
+    fclose(file);
+
+    if (!buf[0]) {
+        debug("empty line read from '%s'", filename);
+        return 0;
+    }
+
+    /* chop trailing newline */
+    chop_newline(buf);
+
+    return 1;
+}
+
 void chop_newline(char* buf)
 {
     int len = strlen(buf);
