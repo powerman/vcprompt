@@ -8,6 +8,27 @@ hg_probe(vccontext_t* context)
     return isdir(".hg");
 }
 
+static void
+update_mq_info(vccontext_t* context, result_t* result)
+{
+    char buf[1024], *patch;
+
+    // we treat the name of the mq patch as the revision
+    if (!context->options->show_revision) return;
+
+    if (read_last_line(".hg/patches/status", buf, 1024)) {
+        debug("read last line from .hg/patches/status: '%s'", buf);
+        patch = strchr(buf, ':');
+        if (!patch) return;
+        patch += 1;
+        debug("patch name found: '%s'", patch);
+        result->revision = strdup(patch);   /* XXX mem leak */
+    }
+    else {
+        debug("failed to read from .hg/patches/status: assuming no mq patch applied");
+    }
+}
+
 static result_t*
 hg_get_info(vccontext_t* context)
 {
@@ -22,6 +43,8 @@ hg_get_info(vccontext_t* context)
         debug("failed to read from .hg/branch: assuming default branch");
         result->branch = "default";
     }
+
+    update_mq_info(context, result);
 
     return result;
 }
