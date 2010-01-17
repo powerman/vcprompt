@@ -103,7 +103,8 @@ test_simple_hg()
     mkdir hg && cd hg
     mkdir .hg
 
-    assert_vcprompt "hg broken" ""
+    # Mercurial 1.4 does not create .hg/branch by default
+    assert_vcprompt "hg nobranch" "hg:default" "%n:%b"
 
     echo foo > .hg/branch
     assert_vcprompt "hg top" "hg:foo" "%n:%b"
