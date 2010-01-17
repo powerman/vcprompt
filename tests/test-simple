@@ -114,6 +114,20 @@ test_simple_hg()
     assert_vcprompt "hg subdir" "foo"
 }
 
+test_simple_hg_bookmarks ()
+{
+    cd $tmpdir
+    mkdir hg_bookmarks && cd hg_bookmarks
+    mkdir .hg
+    echo default > .hg/branch
+
+    touch .hg/bookmarks.current
+    assert_vcprompt "hg_bookmarks nobookmark" "hg:default" "%n:%b"
+
+    echo -n blah > .hg/bookmarks.current
+    assert_vcprompt "hg_bookmarks bookmark" "hg:blah" "%n:%b"
+}
+
 test_simple_hg_mq ()
 {
     cd $tmpdir
@@ -221,6 +235,7 @@ test_root
 test_simple_cvs
 test_simple_git
 test_simple_hg
+test_simple_hg_bookmarks
 test_simple_hg_mq
 test_simple_svn
 test_xml_svn

@@ -35,7 +35,12 @@ hg_get_info(vccontext_t* context)
     result_t* result = init_result();
     char buf[1024];
 
-    if (read_first_line(".hg/branch", buf, 1024)) {
+    // prefers bookmark because it tends to be more informative
+    if (read_first_line(".hg/bookmarks.current", buf, 1024) && buf[0]) {
+        debug("read first line from .hg/bookmarks.current: '%s'", buf);
+        result->branch = strdup(buf);  /* XXX mem leak */
+    }
+    else if (read_first_line(".hg/branch", buf, 1024)) {
         debug("read first line from .hg/branch: '%s'", buf);
         result->branch = strdup(buf);   /* XXX mem leak */
     }
