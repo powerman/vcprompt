@@ -144,3 +144,17 @@ void chop_newline(char* buf)
     if (buf[len-1] == '\n')
         buf[len-1] = '\0';
 }
+
+void dump_hex(const char* data, char* buf, int datasize)
+{
+    const char HEXSTR[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
+                             '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    int i;
+
+    for (i = 0; i < datasize; ++i) {
+        buf[i * 2] = HEXSTR[(unsigned char) data[i] >> 4];
+        buf[i * 2 + 1] = HEXSTR[(unsigned char) data[i] & 0x0f];
+    }
+
+    buf[i * 2] = '\0';
+}

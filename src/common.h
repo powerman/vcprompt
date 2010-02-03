@@ -45,4 +45,6 @@ int read_last_line(char*, char*, int);
 int read_file(const char*, char*, int);
 void chop_newline(char*);
 
+void dump_hex(const char* data, char* buf, int datasize);
+
 #endif
