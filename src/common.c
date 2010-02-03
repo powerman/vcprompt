@@ -120,6 +120,24 @@ int read_last_line(char* filename, char* buf, int size)
     return 1;
 }
 
+int read_file(const char* filename, char* buf, int size)
+{
+    FILE* file;
+    int readsize;
+
+    file = fopen(filename, "r");
+    if (file == NULL) {
+        debug("error opening '%s': %s", filename, strerror(errno));
+        return 0;
+    }
+
+    readsize = fread(buf, sizeof(char), size, file);
+
+    fclose(file);
+
+    return readsize;
+}
+
 void chop_newline(char* buf)
 {
     int len = strlen(buf);
