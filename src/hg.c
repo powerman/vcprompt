@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 #include "common.h"
 #include "hg.h"
@@ -6,6 +7,41 @@ static int
 hg_probe(vccontext_t* context)
 {
     return isdir(".hg");
+}
+
+static int sum_bytes(const unsigned char* data, int size)
+{
+    int i, sum = 0;
+    for (i = 0; i < size; ++i) {
+        sum += data[i];
+    }
+    return sum;
+}
+
+static void
+update_nodeid(vccontext_t* context, result_t* result)
+{
+    char buf[40];
+    size_t readsize;
+
+    if (!context->options->show_revision) return;
+
+    readsize = read_file(".hg/dirstate", buf, 40);
+    if (readsize == 40) {
+        debug("read nodeids from .hg/dirstate");
+        result->revision = malloc(32);  /* XXX mem leak */
+
+        // first parent
+        dump_hex(buf, result->revision, 6);
+        if (!sum_bytes((unsigned char *) buf + 20, 20)) return;
+
+        // second parent
+        result->revision[12] = ',';
+        dump_hex(buf + 20, result->revision + 13, 6);
+    }
+    else {
+        debug("failed to read from .hg/dirstate");
+    }
 }
 
 static void
@@ -50,6 +86,7 @@ hg_get_info(vccontext_t* context)
     }
 
     update_mq_info(context, result);
+    if (!result->revision) update_nodeid(context, result);
 
     return result;
 }

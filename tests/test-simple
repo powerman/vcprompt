@@ -109,6 +109,14 @@ test_simple_hg()
     echo foo > .hg/branch
     assert_vcprompt "hg top" "hg:foo" "%n:%b"
 
+    printf '0123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
+        > .hg/dirstate
+    assert_vcprompt "hg nodeid" "hg:303132333435" "%n:%r"
+
+    printf '0123456789abcdefghijABCDEFGHIJKLMNOPQRST' \
+        > .hg/dirstate
+    assert_vcprompt "hg merge nodeid" "hg:303132333435,414243444546" "%n:%r"
+
     mkdir subdir
     cd subdir
     assert_vcprompt "hg subdir" "foo"
@@ -146,6 +154,10 @@ test_simple_hg_mq ()
 
     echo 'b03082a7915ea408d1ebb01bedda9a665a8bcbd7:baz.diff' >> .hg/patches/status
     assert_vcprompt "hg_mq applied 2" "hg:baz.diff/foo" "%n:%r/%b"
+
+    printf '0123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
+        > .hg/dirstate
+    assert_vcprompt "hg_mq override nodeid" "hg:baz.diff" "%n:%r"
 }
 
 test_simple_svn()
