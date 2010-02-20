@@ -21,23 +21,25 @@ static int sum_bytes(const unsigned char* data, int size)
 static void
 update_nodeid(vccontext_t* context, result_t* result)
 {
-    char buf[40];
+    const size_t NODEID_LEN = 20;
+    char buf[NODEID_LEN * 2];
     size_t readsize;
 
     if (!context->options->show_revision) return;
 
-    readsize = read_file(".hg/dirstate", buf, 40);
-    if (readsize == 40) {
+    readsize = read_file(".hg/dirstate", buf, NODEID_LEN * 2);
+    if (readsize == NODEID_LEN * 2) {
         debug("read nodeids from .hg/dirstate");
         result->revision = malloc(32);  /* XXX mem leak */
 
         // first parent
+        if (!sum_bytes((unsigned char *) buf, NODEID_LEN)) return;
         dump_hex(buf, result->revision, 6);
-        if (!sum_bytes((unsigned char *) buf + 20, 20)) return;
 
         // second parent
+        if (!sum_bytes((unsigned char *) buf + NODEID_LEN, NODEID_LEN)) return;
         result->revision[12] = ',';
-        dump_hex(buf + 20, result->revision + 13, 6);
+        dump_hex(buf + NODEID_LEN, result->revision + 13, 6);
     }
     else {
         debug("failed to read from .hg/dirstate");

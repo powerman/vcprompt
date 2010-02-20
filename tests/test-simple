@@ -117,6 +117,10 @@ test_simple_hg()
         > .hg/dirstate
     assert_vcprompt "hg merge nodeid" "hg:303132333435,414243444546" "%n:%r"
 
+    printf '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' > .hg/dirstate
+    printf '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' >> .hg/dirstate
+    assert_vcprompt "hg initial nodeid" "hg:" "%n:%r"
+
     mkdir subdir
     cd subdir
     assert_vcprompt "hg subdir" "foo"
