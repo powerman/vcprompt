@@ -19,7 +19,7 @@
 void parse_args(int argc, char** argv, options_t* options)
 {
     int opt;
-    while ((opt = getopt(argc, argv, "f:d")) != -1) {
+    while ((opt = getopt(argc, argv, "hf:d")) != -1) {
         switch (opt) {
             case 'f':
                 options->format = optarg;
@@ -27,6 +27,22 @@ void parse_args(int argc, char** argv, options_t* options)
             case 'd':
                 options->debug = 1;
                 break;
+            case 'h':
+            default:
+                printf("usage: %s [-h] [-d] [-f FORMAT]\n", argv[0]);
+                printf("FORMAT (default=\"%s\") may contain:\n%s",
+                DEFAULT_FORMAT,
+                " %b  show branch\n"
+                " %r  show revision\n"
+                " %u  show unknown\n"
+                " %m  show modified\n"
+                " %n  show VC name\n"
+                " %%  show '%'\n"
+                );
+                printf("Environment Variables:\n"
+                " VCPROMPT_FORMAT\n"
+                );
+                exit(1);
         }
     }
 }
