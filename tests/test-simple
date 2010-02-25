@@ -257,6 +257,26 @@ test_env_var()
     VCPROMPT_FORMAT='foo:%n' assert_vcprompt 'env var override' 'bar:hg' 'bar:%n'
 }
 
+test_help()
+{
+    cd $tmpdir
+
+    if $vcprompt -h > /dev/null; then
+        echo "fail: help exit status: expected non-zero" >&2
+        failed="y"
+    else
+        echo "pass: help exit status"
+    fi
+
+    for pat in '%b' '%r' '%u' '%m' '%n' '%%'; do
+        if ! $vcprompt -h | grep "$pat" > /dev/null; then
+            echo "fail: help text should contain '$pat'" >&2
+            failed="y"
+        fi
+    done
+    echo "pass: help text"
+}
+
 
 #set -e
 
@@ -274,6 +294,7 @@ test_xml_svn
 test_truncated_svn
 test_bad_dir
 test_env_var
+test_help
 
 if [ "$failed" ]; then
     echo "$0: some tests failed"
