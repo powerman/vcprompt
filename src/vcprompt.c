@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -12,6 +13,8 @@
 /*
 #include "bzr.h"
 */
+
+#define DEFAULT_FORMAT "[%n:%b%m%u] "
 
 void parse_args(int argc, char** argv, options_t* options)
 {
@@ -149,11 +152,16 @@ vccontext_t* probe_parents(vccontext_t** contexts, int num_contexts)
 
 int main(int argc, char** argv)
 {
-    options_t options = { 0,            /* debug */
-                          "[%n:%b%m%u] ",  /* format string */
-                          0,            /* show branch */
-                          0,            /* show unknown */
-                          0,            /* show local changes */
+    char* format = getenv("VCPROMPT_FORMAT");
+    if (format == NULL)
+        format = DEFAULT_FORMAT;
+    options_t options = {
+        .debug         = 0,
+        .format        = format,
+        .show_branch   = 0,
+        .show_revision = 0,
+        .show_unknown  = 0,
+        .show_modified = 0,
     };
 
     parse_args(argc, argv, &options);
