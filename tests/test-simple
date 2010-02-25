@@ -32,7 +32,12 @@ assert_vcprompt()
         format="%b"
     fi
 
-    actual=`$vcprompt -f "$format"`
+    if [ "$format" != '-' ]; then
+        actual=`VCPROMPT_FORMAT="$VCPROMPT_FORMAT" $vcprompt -f "$format"`
+    else
+        actual=`VCPROMPT_FORMAT="$VCPROMPT_FORMAT" $vcprompt`
+    fi
+
     if [ "$expect" != "$actual" ]; then
         echo "fail: $message: expected \"$expect\", but got \"$actual\"" >&2
         failed="y"
@@ -241,6 +246,17 @@ test_bad_dir()
     chmod a+rx ..
 }
 
+test_env_var()
+{
+    cd $tmpdir
+
+    mkdir env_var && cd env_var
+    mkdir .hg
+
+    VCPROMPT_FORMAT='foo:%n' assert_vcprompt 'env var' 'foo:hg' '-'
+    VCPROMPT_FORMAT='foo:%n' assert_vcprompt 'env var override' 'bar:hg' 'bar:%n'
+}
+
 
 #set -e
 
@@ -257,6 +273,7 @@ test_simple_svn
 test_xml_svn
 test_truncated_svn
 test_bad_dir
+test_env_var
 
 if [ "$failed" ]; then
     echo "$0: some tests failed"
