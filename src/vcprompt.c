@@ -56,7 +56,8 @@ void parse_format(options_t* options)
     options->show_modified = 0;
 
     char* format = options->format;
-    for (i = 0; i < strlen(format); i++) {
+    size_t len = strlen(format);
+    for (i = 0; i < len; i++) {
         if (format[i] == '%') {
             i++;
             switch (format[i]) {
@@ -91,8 +92,9 @@ void print_result(vccontext_t* context, options_t* options, result_t* result)
 {
     size_t i;
     char* format = options->format;
+    size_t len = strlen(format);
 
-    for (i = 0; i < strlen(format); i++) {
+    for (i = 0; i < len; i++) {
         if (format[i] == '%') {
             i++;
             switch (format[i]) {
