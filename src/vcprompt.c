@@ -49,7 +49,7 @@ void parse_args(int argc, char** argv, options_t* options)
 
 void parse_format(options_t* options)
 {
-    int i;
+    size_t i;
 
     options->show_branch = 0;
     options->show_unknown = 0;
@@ -89,7 +89,7 @@ void parse_format(options_t* options)
 
 void print_result(vccontext_t* context, options_t* options, result_t* result)
 {
-    int i;
+    size_t i;
     char* format = options->format;
 
     for (i = 0; i < strlen(format); i++) {
