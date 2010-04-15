@@ -39,6 +39,13 @@ update_mq_info(vccontext_t* context, result_t* result)
     }
 }
 
+static size_t put_nodeid(char* str, const char* nodeid)
+{
+    const size_t SHORT_NODEID_LEN = 6;  // size in binary repr
+    dump_hex(nodeid, str, SHORT_NODEID_LEN);
+    return SHORT_NODEID_LEN * 2;
+}
+
 static void
 update_nodeid(vccontext_t* context, result_t* result)
 {
@@ -51,16 +58,16 @@ update_nodeid(vccontext_t* context, result_t* result)
     readsize = read_file(".hg/dirstate", buf, NODEID_LEN * 2);
     if (readsize == NODEID_LEN * 2) {
         debug("read nodeids from .hg/dirstate");
-        result->revision = malloc(32);  /* XXX mem leak */
+        char *p = result->revision = malloc(32);  /* XXX mem leak */
 
         // first parent
         if (!sum_bytes((unsigned char *) buf, NODEID_LEN)) return;
-        dump_hex(buf, result->revision, 6);
+        p += put_nodeid(p, buf);
 
         // second parent
         if (!sum_bytes((unsigned char *) buf + NODEID_LEN, NODEID_LEN)) return;
-        result->revision[12] = ',';
-        dump_hex(buf + NODEID_LEN, result->revision + 13, 6);
+        *p = ','; ++p;
+        p += put_nodeid(p, buf + NODEID_LEN);
     }
     else {
         debug("failed to read from .hg/dirstate");
