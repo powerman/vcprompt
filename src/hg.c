@@ -19,6 +19,27 @@ static int sum_bytes(const unsigned char* data, int size)
 }
 
 static void
+update_mq_info(vccontext_t* context, result_t* result)
+{
+    char buf[1024], *patch;
+
+    // we treat the name of the mq patch as the revision
+    if (!context->options->show_revision) return;
+
+    if (read_last_line(".hg/patches/status", buf, 1024)) {
+        debug("read last line from .hg/patches/status: '%s'", buf);
+        patch = strchr(buf, ':');
+        if (!patch) return;
+        patch += 1;
+        debug("patch name found: '%s'", patch);
+        result->revision = strdup(patch);   /* XXX mem leak */
+    }
+    else {
+        debug("failed to read from .hg/patches/status: assuming no mq patch applied");
+    }
+}
+
+static void
 update_nodeid(vccontext_t* context, result_t* result)
 {
     const size_t NODEID_LEN = 20;
@@ -43,27 +64,6 @@ update_nodeid(vccontext_t* context, result_t* result)
     }
     else {
         debug("failed to read from .hg/dirstate");
-    }
-}
-
-static void
-update_mq_info(vccontext_t* context, result_t* result)
-{
-    char buf[1024], *patch;
-
-    // we treat the name of the mq patch as the revision
-    if (!context->options->show_revision) return;
-
-    if (read_last_line(".hg/patches/status", buf, 1024)) {
-        debug("read last line from .hg/patches/status: '%s'", buf);
-        patch = strchr(buf, ':');
-        if (!patch) return;
-        patch += 1;
-        debug("patch name found: '%s'", patch);
-        result->revision = strdup(patch);   /* XXX mem leak */
-    }
-    else {
-        debug("failed to read from .hg/patches/status: assuming no mq patch applied");
     }
 }
 
