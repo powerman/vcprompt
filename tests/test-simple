@@ -158,15 +158,15 @@ test_simple_hg_mq ()
     touch .hg/patches/status
     assert_vcprompt "hg_mq applied 0" "hg:/foo" "%n:%r/%b"
 
-    echo '6177348a28081b6c12ef98bf564d9b6d052fe852:bar.diff' >> .hg/patches/status
-    assert_vcprompt "hg_mq applied 1" "hg:bar.diff/foo" "%n:%r/%b"
-
-    echo 'b03082a7915ea408d1ebb01bedda9a665a8bcbd7:baz.diff' >> .hg/patches/status
-    assert_vcprompt "hg_mq applied 2" "hg:baz.diff/foo" "%n:%r/%b"
-
     printf '0123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
-    assert_vcprompt "hg_mq override nodeid" "hg:baz.diff" "%n:%r"
+    echo '303132333435363738396162636465666768696a:bar.diff' >> .hg/patches/status
+    assert_vcprompt "hg_mq applied 1" "hg:303132333435[bar.diff]/foo" "%n:%r/%b"
+
+    printf 'a123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
+        > .hg/dirstate
+    echo '613132333435363738396162636465666768696a:baz.diff' >> .hg/patches/status
+    assert_vcprompt "hg_mq applied 2" "hg:613132333435[baz.diff]/foo" "%n:%r/%b"
 }
 
 test_simple_svn()
