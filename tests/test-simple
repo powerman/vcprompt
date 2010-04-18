@@ -169,6 +169,49 @@ test_simple_hg_mq ()
     assert_vcprompt "hg_mq applied 2" "hg:613132333435[baz.diff]/foo" "%n:%r/%b"
 }
 
+test_simple_hg_revlog ()
+{
+    cd $tmpdir
+    mkdir hg_tip && cd hg_tip
+    mkdir .hg .hg/store
+
+    # not inlined
+    (
+        printf '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'
+        printf '0123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0'
+
+        printf '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'
+        printf 'a123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0'
+    ) > .hg/store/00changelog.i
+
+    printf '0123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
+        > .hg/dirstate
+    assert_vcprompt "hg_revlog notip" "hg:303132333435" "%n:%r"
+
+    printf 'a123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
+        > .hg/dirstate
+    assert_vcprompt "hg_revlog tip" "hg:613132333435[tip]" "%n:%r"
+
+    # inlined
+    (
+        printf '\0\001\0\0\0\0\0\0\0\0\0\002\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'
+        printf '0123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0'
+        printf '\0\0'  # inlined data
+
+        printf '\0\0\0\0\0\0\0\0\0\0\0\001\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'
+        printf 'a123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0'
+        printf '\0'  # inlined data
+    ) > .hg/store/00changelog.i
+
+    printf '0123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
+        > .hg/dirstate
+    assert_vcprompt "hg_revlog inlined notip" "hg:303132333435" "%n:%r"
+
+    printf 'a123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
+        > .hg/dirstate
+    assert_vcprompt "hg_revlog inlined tip" "hg:613132333435[tip]" "%n:%r"
+}
+
 test_simple_svn()
 {
     cd $tmpdir
@@ -289,6 +332,7 @@ test_simple_git
 test_simple_hg
 test_simple_hg_bookmarks
 test_simple_hg_mq
+test_simple_hg_revlog
 test_simple_svn
 test_xml_svn
 test_truncated_svn
