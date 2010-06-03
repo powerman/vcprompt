@@ -12,7 +12,7 @@
 #include "common.h"
 #include "hg.h"
 
-static const size_t NODEID_LEN = 20;
+#define NODEID_LEN 20
 
 static int
 hg_probe(vccontext_t* context)
@@ -43,7 +43,14 @@ static int is_revlog_inlined(FILE *f)
     return (rlen == 1) ? revlog_ver & REVLOGNGINLINEDATA : 0;
 }
 
-static const char* get_tip_nodeid(char* dest)
+typedef struct {
+	char nodeid[NODEID_LEN];
+	int rev;
+	int istip;
+} csinfo_t;
+
+//! get changeset info for the specified nodeid
+static csinfo_t get_csinfo(const char* nodeid)
 {
     // only supports RevlogNG. See mercurial/parsers.c for details.
     const char* REVLOG_FILENAME = ".hg/store/00changelog.i";
@@ -52,12 +59,12 @@ static const char* get_tip_nodeid(char* dest)
     char buf[ENTRY_LEN];
     FILE* f;
     int inlined;
+    csinfo_t csinfo = {"", -1, 0};
 
     f = fopen(REVLOG_FILENAME, "rb");
     if (!f) {
         debug("error opening '%s': %s", REVLOG_FILENAME, strerror(errno));
-        memset(dest, '\0', NODEID_LEN);
-        return dest;
+        return csinfo;
     }
 
     inlined = is_revlog_inlined(f);
@@ -70,20 +77,27 @@ static const char* get_tip_nodeid(char* dest)
         if (rlen != ENTRY_LEN) {
             debug("error while reading '%s': incomplete entry (read = %d)",
                   REVLOG_FILENAME, rlen);
-            memset(dest, '\0', NODEID_LEN);
+            break;
+        }
+
+        // already found node but it's not the last one
+        if (csinfo.rev >= 0) {
+            csinfo.istip = 0;
             break;
         }
 
         comp_len = ntohl(*((uint32_t *) (buf + COMP_LEN_OFS)));
-        memcpy(dest, buf + NODEID_OFS, NODEID_LEN);
+        if (memcmp(nodeid, buf + NODEID_OFS, NODEID_LEN) == 0) {
+            memcpy(csinfo.nodeid, buf + NODEID_OFS, NODEID_LEN);
+            csinfo.rev = 0;  // FIXME
+            csinfo.istip = 1;
+        }
 
         if (inlined) fseek(f, comp_len, SEEK_CUR);
     }
 
-    debug("read tip nodeid: %08x", ntohl(*((uint32_t *) dest)));
-
     fclose(f);
-    return dest;
+    return csinfo;
 }
 
 static size_t get_mq_patchname(char* str, const char* nodeid, size_t n)
@@ -130,8 +144,8 @@ static size_t put_nodeid(char* str, const char* nodeid)
         *p = ']'; ++p;
         *p = '\0';
     } else {
-        get_tip_nodeid(buf);
-        if (memcmp(nodeid, buf, NODEID_LEN) == 0) {
+        csinfo_t csinfo = get_csinfo(nodeid);
+        if (csinfo.istip) {
             strcpy(p, "[tip]");
             p += 5;
         }
