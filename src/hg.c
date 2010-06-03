@@ -60,6 +60,7 @@ static csinfo_t get_csinfo(const char* nodeid)
     FILE* f;
     int inlined;
     csinfo_t csinfo = {"", -1, 0};
+    int i;
 
     f = fopen(REVLOG_FILENAME, "rb");
     if (!f) {
@@ -69,7 +70,7 @@ static csinfo_t get_csinfo(const char* nodeid)
 
     inlined = is_revlog_inlined(f);
 
-    while (!feof(f)) {
+    for (i = 0; !feof(f); ++i) {
         size_t comp_len, rlen;
 
         rlen = fread(buf, 1, ENTRY_LEN, f);
@@ -89,7 +90,7 @@ static csinfo_t get_csinfo(const char* nodeid)
         comp_len = ntohl(*((uint32_t *) (buf + COMP_LEN_OFS)));
         if (memcmp(nodeid, buf + NODEID_OFS, NODEID_LEN) == 0) {
             memcpy(csinfo.nodeid, buf + NODEID_OFS, NODEID_LEN);
-            csinfo.rev = 0;  // FIXME
+            csinfo.rev = i;  // FIXME
             csinfo.istip = 1;
         }
 
@@ -134,6 +135,10 @@ static size_t put_nodeid(char* str, const char* nodeid)
     char buf[512], *p = str;
     size_t n;
 
+    csinfo_t csinfo = get_csinfo(nodeid);
+
+    if (csinfo.rev >= 0) p += sprintf(p, "%d:", csinfo.rev);
+
     dump_hex(nodeid, p, SHORT_NODEID_LEN);
     p += SHORT_NODEID_LEN * 2;
 
@@ -144,7 +149,6 @@ static size_t put_nodeid(char* str, const char* nodeid)
         *p = ']'; ++p;
         *p = '\0';
     } else {
-        csinfo_t csinfo = get_csinfo(nodeid);
         if (csinfo.istip) {
             strcpy(p, "[tip]");
             p += 5;

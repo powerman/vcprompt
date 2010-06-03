@@ -186,11 +186,11 @@ test_simple_hg_revlog ()
 
     printf '0123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
-    assert_vcprompt "hg_revlog notip" "hg:303132333435" "%n:%r"
+    assert_vcprompt "hg_revlog notip" "hg:0:303132333435" "%n:%r"
 
     printf 'a123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
-    assert_vcprompt "hg_revlog tip" "hg:613132333435[tip]" "%n:%r"
+    assert_vcprompt "hg_revlog tip" "hg:1:613132333435[tip]" "%n:%r"
 
     # inlined
     (
@@ -205,11 +205,11 @@ test_simple_hg_revlog ()
 
     printf '0123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
-    assert_vcprompt "hg_revlog inlined notip" "hg:303132333435" "%n:%r"
+    assert_vcprompt "hg_revlog inlined notip" "hg:0:303132333435" "%n:%r"
 
     printf 'a123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
-    assert_vcprompt "hg_revlog inlined tip" "hg:613132333435[tip]" "%n:%r"
+    assert_vcprompt "hg_revlog inlined tip" "hg:1:613132333435[tip]" "%n:%r"
 }
 
 test_simple_svn()
