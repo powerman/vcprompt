@@ -22,14 +22,24 @@ git_get_info(vccontext_t* context)
         char* prefix = "ref: refs/heads/";
         int prefixlen = strlen(prefix);
 
-        if (strncmp(prefix, buf, prefixlen) == 0) {
-            /* yep, we're on a known branch */
-            debug("read a head ref from .git/HEAD: '%s'", buf);
-            result->branch = strdup(buf+prefixlen); /* XXX mem leak! */
+        if (context->options->show_branch) {
+            if (strncmp(prefix, buf, prefixlen) == 0) {
+                /* yep, we're on a known branch */
+                debug("read a head ref from .git/HEAD: '%s'", buf);
+                result->branch = strdup(buf + prefixlen); /* XXX mem leak! */
+            }
+            else {
+                debug(".git/HEAD doesn't look like a head ref: unknown branch");
+                result->branch = "(unknown)";
+            }
         }
-        else {
-            debug(".git/HEAD doesn't look like a head ref: unknown branch");
-            result->branch = "(unknown)";
+        if (context->options->show_modified) {
+            if (system("git diff --no-ext-diff --quiet --exit-code"))
+                result->modified = 1;
+        }
+        if (context->options->show_unknown) {
+            if (!system("test -n \"$(git ls-files --others --exclude-standard)\""))
+                result->unknown = 1;
         }
     }
 
