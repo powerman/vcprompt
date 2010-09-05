@@ -22,15 +22,28 @@ git_get_info(vccontext_t* context)
         char* prefix = "ref: refs/heads/";
         int prefixlen = strlen(prefix);
 
-        if (context->options->show_branch) {
+        if (context->options->show_branch || context->options->show_revision) {
+            int found_branch = 0;
             if (strncmp(prefix, buf, prefixlen) == 0) {
                 /* yep, we're on a known branch */
                 debug("read a head ref from .git/HEAD: '%s'", buf);
                 result->branch = strdup(buf + prefixlen); /* XXX mem leak! */
+                found_branch = 1;
             }
             else {
                 debug(".git/HEAD doesn't look like a head ref: unknown branch");
                 result->branch = "(unknown)";
+            }
+            if (context->options->show_revision && found_branch) {
+                char buf[1024];
+                char filename[1024];
+                strcat(filename, ".git/refs/heads/");
+                strncat(filename, result->branch, 1000);
+                if (read_first_line(filename, buf, 1024)) {
+                    result->revision = malloc(13); /* XXX mem leak! */
+                    strncpy(result->revision, buf, 12);
+                    result->revision[12] = '\0';
+                }
             }
         }
         if (context->options->show_modified) {
