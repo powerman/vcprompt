@@ -2,7 +2,7 @@
 
 # Tests that require a real git repository and executable.
 
-source ./common.sh
+. ./common.sh
 
 find_gitrepo()
 {

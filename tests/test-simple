@@ -4,7 +4,7 @@
 # these just setup little fake working copies and make sure
 # that vcprompt does the right thing in them.
 
-source ./common.sh
+. ./common.sh
 
 test_no_vc()
 {
