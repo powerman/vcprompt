@@ -34,12 +34,18 @@ git_get_info(vccontext_t* context)
             }
         }
         if (context->options->show_modified) {
-            if (system("git diff --no-ext-diff --quiet --exit-code"))
+            int status = system("git diff --no-ext-diff --quiet --exit-code");
+            if (WEXITSTATUS(status) == 1)       /* files modified */
                 result->modified = 1;
+            /* any other outcome (including failure to fork/exec,
+               failure to run git, or diff error): assume no
+               modifications */
         }
         if (context->options->show_unknown) {
-            if (!system("test -n \"$(git ls-files --others --exclude-standard)\""))
+            int status = system("test -n \"$(git ls-files --others --exclude-standard)\"");
+            if (WEXITSTATUS(status) == 0)
                 result->unknown = 1;
+            /* again, ignore other errors and assume no unknown files */
         }
     }
 
