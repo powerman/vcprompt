@@ -162,7 +162,6 @@ static void
 update_nodeid(vccontext_t* context, result_t* result)
 {
     char buf[NODEID_LEN * 2];
-    char rev[32];
     size_t readsize;
 
     if (!context->options->show_revision) return;
