@@ -28,14 +28,14 @@ git_get_info(vccontext_t* context)
             if (strncmp(prefix, buf, prefixlen) == 0) {
                 /* yep, we're on a known branch */
                 debug("read a head ref from .git/HEAD: '%s'", buf);
-                result->branch = strdup(buf + prefixlen); /* XXX mem leak! */
-                found_branch = 1;
+                if (result_set_branch(result, buf + prefixlen))
+                    found_branch = 1;
             }
             else {
                 /* if it's not a branch name, assume it is a commit ID */
                 debug(".git/HEAD doesn't look like a head ref: unknown branch");
-                result->branch = "(unknown)";
-                result->revision = strndup(buf, 12); /* XXX mem leak! */
+                result_set_branch(result, "(unknown)");
+                result_set_revision(result, buf);
             }
             if (context->options->show_revision && found_branch) {
                 char buf[1024];
@@ -43,9 +43,8 @@ git_get_info(vccontext_t* context)
                 strcat(filename, ".git/refs/heads/");
                 strncat(filename, result->branch, 1000);
                 if (read_first_line(filename, buf, 1024)) {
-                    result->revision = malloc(13); /* XXX mem leak! */
-                    strncpy(result->revision, buf, 12);
-                    result->revision[12] = '\0';
+                    buf[12] = '0';
+                    result_set_revision(result, buf);
                 }
             }
         }

@@ -19,17 +19,17 @@ cvs_get_info(vccontext_t* context)
 
     if (!read_first_line("CVS/Tag", buf, 1024)) {
         debug("unable to read CVS/Tag: assuming trunk");
-        result->branch = "trunk";
+        result_set_branch(result, "trunk");
     }
     else {
         debug("read first line of CVS/Tag: '%s'", buf);
         if (buf[0] == 'T') {
             /* there is a sticky tag and it's a branch tag */
-            result->branch = strdup(buf+1); /* XXX mem leak! */
+            result_set_branch(result, buf + 1);
         }
         else {
             /* non-branch sticky tag or sticky date */            
-            result->branch = "(unknown)";
+           result_set_branch(result, "(unknown)");
         }
     }
     return result;

@@ -23,6 +23,7 @@ update_nodeid(vccontext_t* context, result_t* result)
 {
     const size_t NODEID_LEN = 20;
     char buf[NODEID_LEN * 2];
+    char rev[32];
     size_t readsize;
 
     if (!context->options->show_revision) return;
@@ -30,20 +31,23 @@ update_nodeid(vccontext_t* context, result_t* result)
     readsize = read_file(".hg/dirstate", buf, NODEID_LEN * 2);
     if (readsize == NODEID_LEN * 2) {
         debug("read nodeids from .hg/dirstate");
-        result->revision = malloc(32);  /* XXX mem leak */
 
         // first parent
-        if (!sum_bytes((unsigned char *) buf, NODEID_LEN)) return;
-        dump_hex(buf, result->revision, 6);
+        if (!sum_bytes((unsigned char *) buf, NODEID_LEN)) goto push;
+        dump_hex(buf, rev, 6);
 
         // second parent
-        if (!sum_bytes((unsigned char *) buf + NODEID_LEN, NODEID_LEN)) return;
-        result->revision[12] = ',';
-        dump_hex(buf + NODEID_LEN, result->revision + 13, 6);
+        if (!sum_bytes((unsigned char *) buf + NODEID_LEN, NODEID_LEN)) goto push;
+        rev[12] = ',';
+        dump_hex(buf + NODEID_LEN, rev + 13, 6);
     }
     else {
         debug("failed to read from .hg/dirstate");
+        return;
     }
+
+push:
+    result_set_revision(result, rev);
 }
 
 static void
@@ -60,7 +64,7 @@ update_mq_info(vccontext_t* context, result_t* result)
         if (!patch) return;
         patch += 1;
         debug("patch name found: '%s'", patch);
-        result->revision = strdup(patch);   /* XXX mem leak */
+        result_set_revision(result, patch);
     }
     else {
         debug("failed to read from .hg/patches/status: assuming no mq patch applied");
@@ -76,15 +80,15 @@ hg_get_info(vccontext_t* context)
     // prefers bookmark because it tends to be more informative
     if (read_first_line(".hg/bookmarks.current", buf, 1024) && buf[0]) {
         debug("read first line from .hg/bookmarks.current: '%s'", buf);
-        result->branch = strdup(buf);  /* XXX mem leak */
+        result_set_branch(result, buf);
     }
     else if (read_first_line(".hg/branch", buf, 1024)) {
         debug("read first line from .hg/branch: '%s'", buf);
-        result->branch = strdup(buf);   /* XXX mem leak */
+        result_set_branch(result, buf);
     }
     else {
         debug("failed to read from .hg/branch: assuming default branch");
-        result->branch = "default";
+        result_set_branch(result, "default");
     }
 
     update_mq_info(context, result);
