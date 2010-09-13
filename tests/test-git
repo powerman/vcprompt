@@ -1,0 +1,83 @@
+#!/bin/sh
+
+# Tests that require a real git repository and executable.
+
+source ./common.sh
+
+find_gitrepo()
+{
+    gitrepo="$testdir/git-repo.tar"
+    if [ ! -f $gitrepo ]; then
+        echo "$gitrepo not found" >&2
+        exit 1
+    fi
+}
+
+pretest()
+{
+    cd $tmpdir
+    if [ ! -d git-repo -o -f git-repo/.git/tainted ]; then
+        #echo "unpacking $gitrepo"
+        rm -rf git-repo
+        tar -xf $gitrepo
+    fi
+    cd git-repo
+
+    # weird: git diff --quiet gives incorrect results on the 
+    # first run after untar'ing, so run it once now to get
+    # past that
+    git diff --quiet || true
+}
+
+posttest()
+{
+    :
+}
+
+# default prompt format in our test repo
+test_basics()
+{
+    pretest
+    assert_vcprompt "show branch" "master" "%b"
+    assert_vcprompt "show modified" "!" "%m"
+    assert_vcprompt "show unknown" "?" "%u"
+    posttest
+}
+
+# "%m" expands to nothing if no uncommitted changes
+test_no_modified()
+{
+    pretest
+    touch .git/tainted
+    assert_vcprompt "modified and unknown" "master!?" "%b%m%u"
+    git reset -q --hard HEAD
+    assert_vcprompt "no modified files, still 1 unknown" "master?" "%b%m%u"
+    posttest
+}
+
+# "%u" expands to nothing if no unknown files
+test_no_unknown()
+{
+    pretest
+    touch .git/tainted
+    rm -f junk
+    assert_vcprompt "modified and ignore, no unknown" "master!" "%b%m%u"
+    rm -f a.o
+    assert_vcprompt "modified, no ignored, no unknown" "master!" "%b%m%u"
+    git reset -q --hard HEAD
+    assert_vcprompt "no modified, no ignored, no unknown" "master" "%b%m%u"
+    posttest
+}
+
+find_vcprompt
+find_gitrepo
+setup
+
+failed=""
+
+#set -e
+test_basics
+test_no_modified
+test_no_unknown
+
+report
