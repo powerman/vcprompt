@@ -51,11 +51,18 @@ test_simple_git()
     assert_vcprompt "git broken 1" ""
     assert_vcprompt "git broken 2" "" "%n:%b"
 
-    echo 0928349328 > .git/HEAD
+    echo 3f786850e387550fdab836ed7e6dc881de23001b > .git/HEAD
     assert_vcprompt "git nobranch" "(unknown)"
+
+    # XXX this case not handled yet
+    #assert_vcprompt "git nobranch (show rev)" "(unknown):3f786850e385" "%b:%r"
 
     echo "ref: refs/heads/foo" > .git/HEAD
     assert_vcprompt "git branch" "git:foo" "%n:%b"
+
+    mkdir -p .git/refs/heads
+    echo ffca1632148005094dc0d491aa19f8ba7f68b81c > .git/refs/heads/foo
+    assert_vcprompt "git branch and rev" "foo:ffca16321480" "%b:%r"
 
     mkdir subdir && cd subdir
     assert_vcprompt "git subdir" "foo"
