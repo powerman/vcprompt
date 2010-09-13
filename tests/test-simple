@@ -53,9 +53,7 @@ test_simple_git()
 
     echo 3f786850e387550fdab836ed7e6dc881de23001b > .git/HEAD
     assert_vcprompt "git nobranch" "(unknown)"
-
-    # XXX this case not handled yet
-    #assert_vcprompt "git nobranch (show rev)" "(unknown):3f786850e385" "%b:%r"
+    assert_vcprompt "git nobranch (show rev)" "(unknown):3f786850e387" "%b:%r"
 
     echo "ref: refs/heads/foo" > .git/HEAD
     assert_vcprompt "git branch" "git:foo" "%n:%b"

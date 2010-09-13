@@ -31,8 +31,10 @@ git_get_info(vccontext_t* context)
                 found_branch = 1;
             }
             else {
+                /* if it's not a branch name, assume it is a commit ID */
                 debug(".git/HEAD doesn't look like a head ref: unknown branch");
                 result->branch = "(unknown)";
+                result->revision = strndup(buf, 12); /* XXX mem leak! */
             }
             if (context->options->show_revision && found_branch) {
                 char buf[1024];
