@@ -47,7 +47,7 @@ update_nodeid(vccontext_t* context, result_t* result)
     }
 
 push:
-    result_set_revision(result, rev);
+    result_set_revision(result, rev, -1);
 }
 
 static void
@@ -64,7 +64,7 @@ update_mq_info(vccontext_t* context, result_t* result)
         if (!patch) return;
         patch += 1;
         debug("patch name found: '%s'", patch);
-        result_set_revision(result, patch);
+        result_set_revision(result, patch, -1);
     }
     else {
         debug("failed to read from .hg/patches/status: assuming no mq patch applied");

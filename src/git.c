@@ -35,7 +35,7 @@ git_get_info(vccontext_t* context)
                 /* if it's not a branch name, assume it is a commit ID */
                 debug(".git/HEAD doesn't look like a head ref: unknown branch");
                 result_set_branch(result, "(unknown)");
-                result_set_revision(result, buf);
+                result_set_revision(result, buf, 12);
             }
             if (context->options->show_revision && found_branch) {
                 char buf[1024];
@@ -43,8 +43,7 @@ git_get_info(vccontext_t* context)
                 strcat(filename, ".git/refs/heads/");
                 strncat(filename, result->branch, 1000);
                 if (read_first_line(filename, buf, 1024)) {
-                    buf[12] = '0';
-                    result_set_revision(result, buf);
+                    result_set_revision(result, buf, 12);
                 }
             }
         }

@@ -28,11 +28,14 @@ void set_options(options_t* options)
     _options = options;
 }
 
-int result_set_revision(result_t* result, const char *revision)
+int result_set_revision(result_t* result, const char *revision, int len)
 {
     if (result->revision)
         free(result->revision);
-    result->revision = strdup(revision);
+    if (len == -1)
+        result->revision = strdup(revision);
+    else
+        result->revision = strndup(revision, len);
     return !!result->revision;
 }
 

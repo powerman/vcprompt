@@ -17,7 +17,7 @@ typedef struct {
     int modified;                       /* any local changes? */
 } result_t;
 
-int result_set_revision(result_t* result, const char *revision);
+int result_set_revision(result_t* result, const char *revision, int len);
 int result_set_branch(result_t* result, const char *branch);
 
 typedef struct vccontext_t vccontext_t;

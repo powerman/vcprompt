@@ -65,7 +65,7 @@ svn_get_info(vccontext_t* context)
                     return NULL;
                 }
                 if (sscanf(p, " %*[^\"]\"%[0-9]\"", rev) == 1) {
-                    result_set_revision(result, rev);
+                    result_set_revision(result, rev, -1);
                     debug("read svn revision from .svn/entries: '%s'", rev);
                 }
             }
