@@ -4,48 +4,7 @@
 # these just setup little fake working copies and make sure
 # that vcprompt does the right thing in them.
 
-vcprompt=$(dirname $(dirname $(readlink -f $0)))/vcprompt
-if [ ! -x $vcprompt ]; then
-    echo "error: vcprompt executable not found (expected $vcprompt)" >&2
-    exit 1
-fi
-
-setup()
-{
-    tmpdir=`mktemp -d`
-    trap cleanup 0 1 2 15
-}
-
-cleanup()
-{
-    chmod -R u+rwx $tmpdir
-    rm -rf $tmpdir
-}
-
-failed=""
-assert_vcprompt()
-{
-    message=$1
-    expect=$2
-    format=$3
-    if [ -z "$format" ]; then
-        format="%b"
-    fi
-
-    if [ "$format" != '-' ]; then
-        actual=`VCPROMPT_FORMAT="$VCPROMPT_FORMAT" $vcprompt -f "$format"`
-    else
-        actual=`VCPROMPT_FORMAT="$VCPROMPT_FORMAT" $vcprompt`
-    fi
-
-    if [ "$expect" != "$actual" ]; then
-        echo "fail: $message: expected \"$expect\", but got \"$actual\"" >&2
-        failed="y"
-        return 1
-    else
-        echo "pass: $message"
-    fi
-}
+source ./common.sh
 
 test_no_vc()
 {
@@ -277,10 +236,12 @@ test_help()
     echo "pass: help text"
 }
 
-
 #set -e
 
+find_vcprompt
 setup
+
+failed=""
 
 test_no_vc
 test_root
@@ -296,10 +257,4 @@ test_bad_dir
 test_env_var
 test_help
 
-if [ "$failed" ]; then
-    echo "$0: some tests failed"
-    exit 1
-else
-    echo "$0: all tests passed"
-    exit 0
-fi
+report

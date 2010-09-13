@@ -13,7 +13,7 @@ $(objects): $(headers)
 
 .PHONY: check
 check: vcprompt
-	./tests/test-simple
+	cd tests && ./test-simple
 
 clean:
 	rm -f $(objects) vcprompt
