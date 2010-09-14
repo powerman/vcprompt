@@ -114,6 +114,9 @@ Patches are welcome.  Please follow these guidelines:
     - C99 comments and variable declarations are OK, at least until
       someone complains that their compiler cannot handle them
 
+  * Feel free to add yourself to the contributors list below.
+    (If you don't do it, I'll probably forget.)
+
   
 Author Contact
 ==============
@@ -124,7 +127,7 @@ The latest version is available from either of my public Mercurial
 repositories:
 
   http://hg.gerg.ca/vcprompt/
-  https://bitbucket.org/gward/vcprompt/overview
+  http://bitbucket.org/gward/vcprompt/overview
 
 
 Other Contributors
