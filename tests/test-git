@@ -39,7 +39,7 @@ test_basics()
 {
     pretest
     assert_vcprompt "show branch" "master" "%b"
-    assert_vcprompt "show modified" "!" "%m"
+    assert_vcprompt "show modified" "+" "%m"
     assert_vcprompt "show unknown" "?" "%u"
     posttest
 }
@@ -49,7 +49,7 @@ test_no_modified()
 {
     pretest
     touch .git/tainted
-    assert_vcprompt "modified and unknown" "master!?" "%b%m%u"
+    assert_vcprompt "modified and unknown" "master+?" "%b%m%u"
     git reset -q --hard HEAD
     assert_vcprompt "no modified files, still 1 unknown" "master?" "%b%m%u"
     posttest
@@ -61,9 +61,9 @@ test_no_unknown()
     pretest
     touch .git/tainted
     rm -f junk
-    assert_vcprompt "modified and ignore, no unknown" "master!" "%b%m%u"
+    assert_vcprompt "modified and ignore, no unknown" "master+" "%b%m%u"
     rm -f a.o
-    assert_vcprompt "modified, no ignored, no unknown" "master!" "%b%m%u"
+    assert_vcprompt "modified, no ignored, no unknown" "master+" "%b%m%u"
     git reset -q --hard HEAD
     assert_vcprompt "no modified, no ignored, no unknown" "master" "%b%m%u"
     posttest
