@@ -139,7 +139,7 @@ In chronological order:
   Jannis Leidel
   Yuya Nishihara
   KOIE Hidetaka
-  Armin Ronache
+  Armin Ronacher
 
 Thanks to all!
 
