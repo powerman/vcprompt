@@ -43,8 +43,13 @@ int result_set_revision(result_t* result, const char *revision, int len)
         free(result->revision);
     if (len == -1)
         result->revision = strdup(revision);
-    else
-        result->revision = strndup(revision, len);
+    else {
+        result->revision = malloc(len + 1);
+        if (!result->revision)
+            return 0;
+        strncpy(result->revision, revision, len);
+        result->revision[len] = 0;
+    }
     return !!result->revision;
 }
 
