@@ -19,7 +19,7 @@ To compile vcprompt:
 
 To install it:
 
-  cp -p vcprompt ~/bin
+  make install PREFIX=$HOME
 
 To use it with bash, just call it in PS1:
 

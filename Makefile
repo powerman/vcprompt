@@ -29,3 +29,10 @@ check-all: check check-git
 
 clean:
 	rm -f $(objects) vcprompt
+
+DESTDIR =
+PREFIX = /usr/local
+.PHONY: install
+install: vcprompt
+	install -d $(DESTDIR)$(PREFIX)/bin
+	install -m 755 -t $(DESTDIR)$(PREFIX)/bin vcprompt
