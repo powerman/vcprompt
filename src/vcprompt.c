@@ -159,7 +159,6 @@ vccontext_t* probe_parents(vccontext_t** contexts, int num_contexts)
     struct stat rootdir;
     struct stat curdir;
 
-    debug("no context claimed current dir: walking up the tree");
     stat("/", &rootdir);
     while (1) {
         context = probe_all(contexts, num_contexts);
@@ -174,6 +173,7 @@ vccontext_t* probe_parents(vccontext_t** contexts, int num_contexts)
         if (isroot || (-1 == chdir(".."))) {
             return NULL;
         }
+	debug("no context claimed current dir: walking up the tree");
     }
 }
 
