@@ -15,11 +15,14 @@ rm -rf git-repo
 git init git-repo
 cd git-repo
 
+git config user.name "test"
+git config user.email "test"
+
 # two files tracked by git
 echo a > a
 echo b > b
 git add -A
-git commit --author="test <test>" -m"add a, b"
+git commit -m"add a, b"
 
 # uncommitted change to b
 echo foo >> b
