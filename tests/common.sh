@@ -7,7 +7,7 @@ tmpdir=""
 
 find_vcprompt()
 {
-    vcprompt=$(dirname $(dirname $(readlink -f $0)))/vcprompt
+    vcprompt=$testdir/../vcprompt
     if [ ! -x $vcprompt ]; then
 	echo "error: vcprompt executable not found (expected $vcprompt)" >&2
 	exit 1
@@ -16,12 +16,17 @@ find_vcprompt()
 
 setup()
 {
-    tmpdir=`mktemp -d`
+    tmpdir=`mktemp -d /tmp/vcprompt.XXXXXX`
+    if [ $? != 0 -o -z "$tmpdir" -o ! -d "$tmpdir" ]; then
+        echo "error: unable to create temp dir '$tmpdir'" >&2
+        exit 1
+    fi
     trap cleanup 0 1 2 15
 }
 
 cleanup()
 {
+    echo "cleaning up $tmpdir"
     chmod -R u+rwx $tmpdir
     rm -rf $tmpdir
 }
