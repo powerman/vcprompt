@@ -5,6 +5,21 @@ testdir=`pwd`
 vcprompt=""
 tmpdir=""
 
+# Check if some external command is available by running it
+# and ensuring that it prints an expected string.  If not,
+# exit with optional message.
+check_available()
+{
+    cmd=$1
+    expect=$2
+    msg=$3
+
+    if ! $cmd 2>/dev/null | grep -q "$expect"; then
+        [ "$msg" ] && echo $msg
+        exit 0
+    fi
+}
+
 find_vcprompt()
 {
     vcprompt=$testdir/../vcprompt

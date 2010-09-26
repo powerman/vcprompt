@@ -11,21 +11,19 @@ vcprompt: $(objects)
 # Maximally pessimistic view of header dependencies.
 $(objects): $(headers)
 
-.PHONY: check
-check: vcprompt
-	cd tests && ./test-simple
+.PHONY: check check-simple check-git
+check: check-simple check-git
 
 gitrepo = tests/git-repo.tar
+
+check-simple: vcprompt
+	cd tests && ./test-simple
 
 check-git: vcprompt $(gitrepo)
 	cd tests && ./test-git
 
 $(gitrepo): tests/setup-git
 	cd tests && ./setup-git
-
-# target check-all requires that all supported VC tools be
-# installed
-check-all: check check-git
 
 clean:
 	rm -f $(objects) vcprompt

@@ -6,6 +6,9 @@
 # way tests can modify the repo and/or working dir without harming
 # other tests.
 
+. ./common.sh
+
+check_available "git --version " "git version"
 set -ex
 cd `dirname $0`
 rm -rf git-repo

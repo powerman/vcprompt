@@ -4,6 +4,15 @@
 
 . ./common.sh
 
+# check if git is available; exit if not
+check_git()
+{
+    check_available \
+      "git --version" \
+      "git version" \
+      "git not found: skipping this test script"
+}
+
 find_gitrepo()
 {
     gitrepo="$testdir/git-repo.tar"
@@ -69,6 +78,7 @@ test_no_unknown()
     posttest
 }
 
+check_git
 find_vcprompt
 find_gitrepo
 setup
