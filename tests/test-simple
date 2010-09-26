@@ -24,7 +24,7 @@ test_simple_cvs()
 {
     cd $tmpdir
     mkdir cvs && cd cvs
-    mkdir CVS
+    mkdir CVS && touch CVS/Entries
 
     assert_vcprompt "cvs notag" "cvs:trunk" "%n:%b"
 
@@ -37,7 +37,7 @@ test_simple_cvs()
     mkdir build && cd build
     assert_vcprompt "cvs subdir 1" "foo"
 
-    mkdir CVS
+    mkdir CVS && touch CVS/Entries
     echo "Tblah" > CVS/Tag
     assert_vcprompt "cvs subdir 2" "blah"
 }

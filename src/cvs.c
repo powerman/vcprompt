@@ -17,7 +17,7 @@
 static int
 cvs_probe(vccontext_t* context)
 {
-    return isdir("CVS");
+    return isfile("CVS/Entries");
 }
 
 static result_t*

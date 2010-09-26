@@ -93,18 +93,28 @@ void debug(char* fmt, ...)
     va_end(args);
 }
 
-int isdir(char* name)
+static int _testmode(char* name, mode_t bits, char what[])
 {
     struct stat statbuf;
     if (stat(name, &statbuf) < 0) {
         debug("failed to stat() '%s': %s", name, strerror(errno));
         return 0;
     }
-    if (!S_ISDIR(statbuf.st_mode)) {
-        debug("'%s' not a directory", name);
-        return 0;
+    if ((statbuf.st_mode & bits) == 0) {
+        debug("'%s' not a %s", name, what);
+	return 0;
     }
     return 1;
+}
+
+int isdir(char* name)
+{
+    return _testmode(name, S_IFDIR, "directory");
+}
+
+int isfile(char* name)
+{
+    return _testmode(name, S_IFREG, "regular file");
 }
 
 int read_first_line(char* filename, char* buf, int size)

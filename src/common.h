@@ -52,6 +52,7 @@ void free_result(result_t*);
 void debug(char*, ...);
 
 int isdir(char*);
+int isfile(char*);
 int read_first_line(char*, char*, int);
 int read_last_line(char*, char*, int);
 int read_file(const char*, char*, int);
