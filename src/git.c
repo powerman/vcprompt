@@ -48,9 +48,9 @@ git_get_info(vccontext_t* context)
             }
             if (context->options->show_revision && found_branch) {
                 char buf[1024];
-                char filename[1024];
-                strcat(filename, ".git/refs/heads/");
-                strncat(filename, result->branch, 1000);
+                char filename[1024] = ".git/refs/heads/";
+                int nchars = sizeof(filename) - strlen(filename) - 1;
+                strncat(filename, result->branch, nchars);
                 if (read_first_line(filename, buf, 1024)) {
                     result_set_revision(result, buf, 12);
                 }
