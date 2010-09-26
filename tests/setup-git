@@ -19,7 +19,7 @@ cd git-repo
 echo a > a
 echo b > b
 git add -A
-git commit -m"add a, b"
+git commit --author="test <test>" -m"add a, b"
 
 # uncommitted change to b
 echo foo >> b
