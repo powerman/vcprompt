@@ -113,12 +113,22 @@ static csinfo_t get_csinfo(const char* nodeid)
 static size_t get_mq_patchname(char* str, const char* nodeid, size_t n)
 {
     char buf[1024];
+    char status_filename[] = ".hg/patches/status";
+    static const char QQ_STATUS_FILE_PAT[] = ".hg/patches-%s/status";
+    static const size_t MAX_QQ_NAME = sizeof(status_filename)
+        - (sizeof(QQ_STATUS_FILE_PAT) - 2 - 1);  // - "%s" - '\0'
 
-    if (read_last_line(".hg/patches/status", buf, 1024)) {
+    // multiple patch queues, introduced in Mercurial 1.6
+    if (read_first_line(".hg/patches.queue", buf, MAX_QQ_NAME) && buf[0]) {
+        debug("read first line from .hg/patches.queue: '%s'", buf);
+        sprintf(status_filename, QQ_STATUS_FILE_PAT, buf);
+    }
+
+    if (read_last_line(status_filename, buf, 1024)) {
         char nodeid_s[NODEID_LEN * 2 + 1], *p, *patch, *patch_nodeid_s;
         dump_hex(nodeid, nodeid_s, NODEID_LEN);
 
-        debug("read last line from .hg/patches/status: '%s'", buf);
+        debug("read last line from %s: '%s'", status_filename, buf);
         p = strchr(buf, ':');
         if (!p) return 0;
         *p = '\0';
