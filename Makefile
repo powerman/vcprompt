@@ -33,4 +33,4 @@ PREFIX = /usr/local
 .PHONY: install
 install: vcprompt
 	install -d $(DESTDIR)$(PREFIX)/bin
-	install -m 755 -t $(DESTDIR)$(PREFIX)/bin vcprompt
+	install -m 755 vcprompt $(DESTDIR)$(PREFIX)/bin
