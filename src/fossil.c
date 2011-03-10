@@ -19,7 +19,7 @@ fossil_probe(vccontext_t* context)
     return isfile("_FOSSIL_");
 }
 
-char *
+void
 get_till_eol(char *dest, const char *src, int n)
 {
     char *last = strchr(src, '\n');
@@ -27,10 +27,10 @@ get_till_eol(char *dest, const char *src, int n)
         int m = (last - src < n ? last - src : n);
         strncpy(dest, src, m);
         dest[m] = '\0';
-        return dest;
     }
     else {
-        return NULL;
+        // make sure caller doesn't use an uninitialized string
+        dest[0] = '\0';
     }
 }
 
