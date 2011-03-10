@@ -54,7 +54,8 @@ fossil_get_info(vccontext_t* context)
         return NULL;
     }
 
-    fread(buf, sizeof(char), 2048, stream);
+    size_t rlen = fread(buf, sizeof(char), 2047, stream);
+    buf[rlen] = '\0';
     pclose(stream);
 
     if (context->options->show_branch) {
