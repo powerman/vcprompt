@@ -19,6 +19,7 @@
 #include "git.h"
 #include "hg.h"
 #include "svn.h"
+#include "fossil.h"
 /*
 #include "bzr.h"
 */
@@ -200,6 +201,7 @@ int main(int argc, char** argv)
         get_git_context(&options),
         get_hg_context(&options),
         get_svn_context(&options),
+        get_fossil_context(&options),
     };
     int num_contexts = sizeof(contexts) / sizeof(vccontext_t*);
 
