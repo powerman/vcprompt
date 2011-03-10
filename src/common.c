@@ -61,10 +61,11 @@ int result_set_branch(result_t* result, const char *branch)
     return !!result->branch;
 }
 
-vccontext_t* init_context(const char *name,
-                          options_t* options,
-                          int (*probe)(vccontext_t*),
-                          result_t* (*get_info)(vccontext_t*))
+vccontext_t*
+init_context(const char *name,
+             options_t* options,
+             int (*probe)(vccontext_t*),
+             result_t* (*get_info)(vccontext_t*))
 {
     vccontext_t* context = (vccontext_t*) calloc(1, sizeof(vccontext_t));
     context->options = options;
@@ -74,12 +75,14 @@ vccontext_t* init_context(const char *name,
     return context;
 }
 
-void free_context(vccontext_t* context)
+void
+free_context(vccontext_t* context)
 {
     free(context);
 }
 
-void debug(char* fmt, ...)
+void
+debug(char* fmt, ...)
 {
     va_list args;
 
@@ -93,7 +96,8 @@ void debug(char* fmt, ...)
     va_end(args);
 }
 
-static int _testmode(char* name, mode_t bits, char what[])
+static int
+_testmode(char* name, mode_t bits, char what[])
 {
     struct stat statbuf;
     if (stat(name, &statbuf) < 0) {
@@ -107,17 +111,20 @@ static int _testmode(char* name, mode_t bits, char what[])
     return 1;
 }
 
-int isdir(char* name)
+int
+isdir(char* name)
 {
     return _testmode(name, S_IFDIR, "directory");
 }
 
-int isfile(char* name)
+int
+isfile(char* name)
 {
     return _testmode(name, S_IFREG, "regular file");
 }
 
-int read_first_line(char* filename, char* buf, int size)
+int
+read_first_line(char* filename, char* buf, int size)
 {
     FILE* file;
 
@@ -140,7 +147,8 @@ int read_first_line(char* filename, char* buf, int size)
     return 1;
 }
 
-int read_last_line(char* filename, char* buf, int size)
+int
+read_last_line(char* filename, char* buf, int size)
 {
     FILE* file;
 
@@ -165,7 +173,8 @@ int read_last_line(char* filename, char* buf, int size)
     return 1;
 }
 
-int read_file(const char* filename, char* buf, int size)
+int
+read_file(const char* filename, char* buf, int size)
 {
     FILE* file;
     int readsize;
@@ -183,14 +192,16 @@ int read_file(const char* filename, char* buf, int size)
     return readsize;
 }
 
-void chop_newline(char* buf)
+void
+chop_newline(char* buf)
 {
     int len = strlen(buf);
     if (buf[len-1] == '\n')
         buf[len-1] = '\0';
 }
 
-void dump_hex(const char* data, char* buf, int datasize)
+void
+dump_hex(const char* data, char* buf, int datasize)
 {
     const char HEXSTR[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
                              '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
