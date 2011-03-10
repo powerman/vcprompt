@@ -53,52 +53,51 @@ fossil_get_info(vccontext_t* context)
         debug("Unable to read output of 'fossil status'");
         return NULL;
     }
-    else {
-        fread(buf, sizeof(char), 2048, stream);
-        pclose(stream);
 
-        if (context->options->show_branch) {
-            if ((t = strstr(buf, "\ntags:"))) {
-                // This in fact shows also other tags than just the
-                // propagating ones (=branches).  So either we show all
-                // of them (as now), or we can show only the first one
-                // (which should be the branch name); or we use one more
-                // 'system' call to read the output of 'fossil branch'.
-                get_till_eol(buf2, t + tab_len + 1, 80);
-                debug("found tag line: '%s'", buf2);
-                result_set_branch(result, buf2);
-            }
-            else {
-                debug("tag line not found in fossil output; unknown branch");
-                result_set_branch(result, "(unknown)");
-            }
+    fread(buf, sizeof(char), 2048, stream);
+    pclose(stream);
+
+    if (context->options->show_branch) {
+        if ((t = strstr(buf, "\ntags:"))) {
+            // This in fact shows also other tags than just the
+            // propagating ones (=branches).  So either we show all
+            // of them (as now), or we can show only the first one
+            // (which should be the branch name); or we use one more
+            // 'system' call to read the output of 'fossil branch'.
+            get_till_eol(buf2, t + tab_len + 1, 80);
+            debug("found tag line: '%s'", buf2);
+            result_set_branch(result, buf2);
         }
-        if (context->options->show_revision) {
-            if ((t = strstr(buf, "\ncheckout:"))) {
-                get_till_eol(buf2, t + tab_len + 1, 80);
-                debug("found revision line: '%s'", buf2);
-                result_set_revision(result, buf2, 12);
-            }
-            else {
-                debug("revision line not found in fossil output; unknown revision");
-                result_set_revision(result, "unknown", 7);
-            }
+        else {
+            debug("tag line not found in fossil output; unknown branch");
+            result_set_branch(result, "(unknown)");
         }
-        if (context->options->show_modified) {
-            // This can be also done by 'test -n'ing 'fossil changes',
-            // but we save a system call this way.
-            if ( strstr(buf, "\nEDITED") || strstr(buf, "\nADDED")
-                || strstr(buf, "\nDELETED") || strstr(buf, "\nMISSING")
-                || strstr(buf, "\nRENAMED") || strstr(buf, "\nNOT_A_FILE")
-                || strstr(buf, "\nUPDATED") || strstr(buf, "\nMERGED") )
-                result->modified = 1;
+    }
+    if (context->options->show_revision) {
+        if ((t = strstr(buf, "\ncheckout:"))) {
+            get_till_eol(buf2, t + tab_len + 1, 80);
+            debug("found revision line: '%s'", buf2);
+            result_set_revision(result, buf2, 12);
         }
-        if (context->options->show_unknown) {
-            // This can't be read from 'fossil status' output
-            int status = system("test -n \"$(fossil extra)\"");
-            if (WEXITSTATUS(status) == 0)
-                result->unknown = 1;
+        else {
+            debug("revision line not found in fossil output; unknown revision");
+            result_set_revision(result, "unknown", 7);
         }
+    }
+    if (context->options->show_modified) {
+        // This can be also done by 'test -n'ing 'fossil changes',
+        // but we save a system() call this way.
+        if ( strstr(buf, "\nEDITED") || strstr(buf, "\nADDED")
+            || strstr(buf, "\nDELETED") || strstr(buf, "\nMISSING")
+            || strstr(buf, "\nRENAMED") || strstr(buf, "\nNOT_A_FILE")
+            || strstr(buf, "\nUPDATED") || strstr(buf, "\nMERGED") )
+            result->modified = 1;
+    }
+    if (context->options->show_unknown) {
+        // This can't be read from 'fossil status' output
+        int status = system("test -n \"$(fossil extra)\"");
+        if (WEXITSTATUS(status) == 0)
+            result->unknown = 1;
     }
 
     return result;
