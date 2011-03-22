@@ -116,13 +116,12 @@ chop_newline(char* buf);
 void
 dump_hex(const char* data, char* buf, int datasize);
 
-/* Copy up to n chars from src to dest, stopping at the first newline
- * and terminating dest with a NUL char.  It is guaranteed that dest
- * will not contain a newline and that strlen(dest) <= n.  If src
- * contains no newlines, dest will be an empty string.  Caller must
- * allocate n+1 chars for dest.
+/* Copy up to nchars chars from src to dest, stopping at the first
+ * newline and terminating dest with a NUL char.  On return, it is
+ * guaranteed that dest will not contain a newline and that strlen(dest)
+ * <= nchars.  Caller must allocate nchars+1 chars for dest.
  */
 void
-get_till_eol(char *dest, const char *src, int n);
+get_till_eol(char *dest, const char *src, int nchars);
 
 #endif

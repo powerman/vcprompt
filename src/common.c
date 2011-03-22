@@ -216,16 +216,11 @@ dump_hex(const char* data, char* buf, int datasize)
 }
 
 void
-get_till_eol(char *dest, const char *src, int n)
+get_till_eol(char *dest, const char *src, int nchars)
 {
     char *newline = strchr(src, '\n');
-    if (newline) {
-        int m = (newline - src < n ? newline - src : n);
-        strncpy(dest, src, m);
-        dest[m] = '\0';
-    }
-    else {
-        // make sure caller doesn't use an uninitialized string
-        dest[0] = '\0';
-    }
+    if (newline && newline - src < nchars)
+        nchars = newline - src;
+    strncpy(dest, src, nchars);
+    dest[nchars] = '\0';
 }
