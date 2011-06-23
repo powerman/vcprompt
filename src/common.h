@@ -18,7 +18,7 @@ typedef struct {
     int show_branch;                    /* show current branch? */
     int show_revision;                  /* show current revision? */
     int show_unknown;                   /* show ? if unknown files? */
-    int show_modified;                  /* show ! if local changes? */
+    int show_modified;                  /* show + if local changes? */
 } options_t;
 
 /* What we figured out by analyzing the working dir: info that
