@@ -17,6 +17,10 @@ To compile vcprompt:
 
   make
 
+(vcprompt requires GNU make, so if you are using a BSD variant where
+the default make is BSD make, you will need to install GNU make and
+run "gmake".)
+
 To install it:
 
   make install PREFIX=$HOME
