@@ -53,9 +53,9 @@ static int is_revlog_inlined(FILE *f)
 }
 
 typedef struct {
-	char nodeid[NODEID_LEN];
-	int rev;
-	int istip;
+    char nodeid[NODEID_LEN];
+    int rev;
+    int istip;
 } csinfo_t;
 
 //! get changeset info for the specified nodeid
@@ -178,7 +178,7 @@ static size_t put_nodeid(char* str, const char* nodeid)
 }
 
 static void
-update_nodeid(vccontext_t* context, result_t* result)
+read_parents(vccontext_t* context, result_t* result)
 {
     char buf[NODEID_LEN * 2];
     size_t readsize;
@@ -194,7 +194,6 @@ update_nodeid(vccontext_t* context, result_t* result)
         // first parent
         if (sum_bytes((unsigned char *) buf, NODEID_LEN)) {
             p += put_nodeid(p, buf);
-
         }
 
         // second parent
@@ -216,7 +215,7 @@ hg_get_info(vccontext_t* context)
     result_t* result = init_result();
     char buf[1024];
 
-    // prefers bookmark because it tends to be more informative
+    // prefer bookmark because it tends to be more informative
     if (read_first_line(".hg/bookmarks.current", buf, 1024) && buf[0]) {
         debug("read first line from .hg/bookmarks.current: '%s'", buf);
         result_set_branch(result, buf);
@@ -230,7 +229,7 @@ hg_get_info(vccontext_t* context)
         result_set_branch(result, "default");
     }
 
-    update_nodeid(context, result);
+    read_parents(context, result);
 
     return result;
 }
