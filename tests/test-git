@@ -16,10 +16,7 @@ check_git()
 find_gitrepo()
 {
     gitrepo="$testdir/git-repo.tar"
-    if [ ! -f $gitrepo ]; then
-        echo "$gitrepo not found" >&2
-        exit 1
-    fi
+    [ -f $gitrepo ] || die "$gitrepo not found"
 }
 
 pretest()

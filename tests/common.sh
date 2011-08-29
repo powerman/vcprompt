@@ -30,19 +30,15 @@ check_available()
 find_vcprompt()
 {
     vcprompt=$testdir/../vcprompt
-    if [ ! -x $vcprompt ]; then
-	echo "error: vcprompt executable not found (expected $vcprompt)" >&2
-	exit 1
-    fi
+    [ -x $vcprompt ] ||
+        die "vcprompt executable not found (expected $vcprompt)"
 }
 
 setup()
 {
     tmpdir=`mktemp -d /tmp/vcprompt.XXXXXX`
-    if [ $? != 0 -o -z "$tmpdir" -o ! -d "$tmpdir" ]; then
-        echo "error: unable to create temp dir '$tmpdir'" >&2
-        exit 1
-    fi
+    [ -n "$tmpdir" -a -d "$tmpdir" ] ||
+        die "unable to create temp dir '$tmpdir'"
     trap cleanup 0 1 2 15
 }
 
