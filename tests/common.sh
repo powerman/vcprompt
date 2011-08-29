@@ -5,6 +5,13 @@ testdir=`pwd`
 vcprompt=""
 tmpdir=""
 
+die()
+{
+    msg=$1
+    echo "error: $msg" >&2
+    exit 1
+}
+
 # Check if some external command is available by running it
 # and ensuring that it prints an expected string.  If not,
 # exit with optional message.

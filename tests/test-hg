@@ -1,0 +1,64 @@
+#!/bin/sh
+
+# Tests that require a real hg repository and executable.
+
+. ./common.sh
+
+check_hg()
+{
+    check_available \
+	"hg -q version" \
+	"Mercurial Distributed SCM" \
+	"hg not found: skipping this test script"
+}
+
+find_hgrepo()
+{
+    hgrepo="$testdir/hg-repo.tar"
+    if [ ! -f $hgrepo ]; then
+	echo "$hgrepo not found" >&2
+	exit 1
+    fi
+}
+
+pretest()
+{
+    [ -d "$tmpdir" ] || die "tmpdir ($tmpdir) does not exist"
+    cd $tmpdir
+    if [ ! -d hg-repo -o -f hg-repo/.hg/tainted ]; then
+	rm -rf hg-repo
+	tar -xf $hgrepo
+    fi
+    cd hg-repo
+}
+
+posttest()
+{
+    :
+}
+
+# default prompt format in test repo
+test_basics()
+{
+    pretest
+    assert_vcprompt "show branch 1" "default" "%b"
+    hg -q update stable
+    assert_vcprompt "show branch 2" "stable" "%b"
+
+    # not implemented yet
+    #echo foo >> b
+    #echo junk > junk
+    #assert_vcprompt "show modified" "+" "%m"
+    #assert_vcprompt "show unknown" "?" "%u"
+
+    posttest
+}
+
+check_hg
+find_vcprompt
+find_hgrepo
+setup
+
+test_basics
+
+report

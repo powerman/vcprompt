@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# Setup the test hg repository that will be used by test-hg.
+#
+# Output is hg-repo.tar, which will be unpacked for each test run.
+
+. ./common.sh
+
+check_available "hg -q version" "Mercurial Distributed SCM"
+set -ex
+cd `dirname $0`
+rm -rf hg-repo
+hg init hg-repo
+cd hg-repo
+
+echo a > a
+echo b > b
+hg commit -ualice -d'2010-01-01 00:00:00 +0000' -A -m"add a, b"
+
+cat > .hgignore <<EOF
+~$
+\.o$
+EOF
+hg commit -ualice -d'2010-01-01 00:00:01 +0000' -A -m"add hgignore"
+
+hg branch stable
+echo fix >> b
+hg commit -ualice -d'2010-01-01 00:00:02 +0000' -m"fix a bug"
+
+hg update default
+
+cd ..
+tar -cf hg-repo.tar hg-repo
+rm -rf hg-repo
