@@ -41,3 +41,4 @@ PREFIX = /usr/local
 install: vcprompt
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 755 vcprompt $(DESTDIR)$(PREFIX)/bin
+	install -m 755 vcprompt-hgst $(DESTDIR)$(PREFIX)/bin

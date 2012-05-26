@@ -1,0 +1,84 @@
+#!/usr/bin/perl
+# Author: Alex Efros <powerman-asdf@yandex.ru>, 2012
+# License: Public Domain
+# 
+# vcprompt-hgst: fast `hg st` replacement for vcprompt
+# 
+# This script should be executed in root directory of Mercurial repository.
+# 
+# In some cases false detection of modified files will happens (when
+# .hg/dirstate cache outdated), this can be fixed by updating cache (for
+# ex. by running real `hg st`).
+# 
+# Exit codes:
+#   0 - no modified or unknown files detected
+#   1 - modified files detected
+#   2 - unknown files detected
+#   3 - both modified and unknown files detected
+#   255 - error
+
+# use warnings;
+# use strict;
+
+our $VERSION = 1.00;
+
+my $hgignore = qr/\A\z/xms;
+if (open my $i, '<', '.hgignore') {
+    $hgignore = join q{|}, map {chomp; length $_ ? qr/$_/ : ()} <$i>;
+    close $i or exit 255;
+}
+
+open my $f, '<', '.hg/dirstate'     or exit 255;
+my @dirstate = unpack '@40 (a N l> N N/a)*', join q{}, <$f>;
+close $f                            or exit 255;
+
+my %stat;
+my ($status, $mode, $size, $mtime, $filename);
+for (my $i = 0; $i < $#dirstate; $i += 5) {
+    ($status, $mode, $size, $mtime, $filename) = @dirstate[$i .. $i+4];
+    next if $status eq 'r';
+    "./$filename" =~ m{\A(?:([^\0]*)/)?([^/\0]+)}xms    or exit 255;
+    my ($dir, $name) = ($1, $2);
+    $stat{$dir}{$name} = [ $size, $mtime ];
+}
+
+my $modified = 0;
+my $unknown  = 0;
+checkdir('.');
+exit $modified + $unknown;
+
+sub checkdir {
+    my ($dir) = @_;
+
+    return if $modified && $unknown;
+
+    opendir my $d, $dir     or exit 255;
+    my @names = readdir $d;
+    closedir $d             or exit 255;
+
+    my $stat = $stat{$dir} || {};
+    for my $name (@names) {
+        my $path = "$dir/$name";
+        if ($name eq '.' || $name eq '..' || $path eq './.hg' || substr($path,2) =~ /$hgignore/o) {
+            next;
+        }
+        if (-d $path) {
+            checkdir($path);
+        }
+        elsif (!$stat->{$name}) {
+            warn "unknown: $path\n";
+            $unknown = 2;
+        }
+        elsif (!$modified) {
+            my ($size, $mtime) = (stat $path)[7,9];
+            if ($size  != $stat->{$name}[0] ||
+                $mtime != $stat->{$name}[1]) {
+                $modified = 1;
+            }
+        }
+        last if $modified && $unknown;
+    }
+
+    return;
+}
+

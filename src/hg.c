@@ -231,6 +231,14 @@ hg_get_info(vccontext_t* context)
 
     read_parents(context, result);
 
+    if (context->options->show_modified || context->options->show_unknown) {
+	int status = system("vcprompt-hgst");
+	if (WEXITSTATUS(status) & 1)
+		result->modified = 1;
+	if (WEXITSTATUS(status) & 2)
+		result->unknown = 1;
+    }
+
     return result;
 }
 
