@@ -5,6 +5,9 @@ testdir=`pwd`
 vcprompt=""
 tmpdir=""
 
+LANG=
+PATH=$testdir/..:$PATH
+
 die()
 {
     msg=$1

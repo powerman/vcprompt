@@ -33,7 +33,7 @@ $(gitrepo): tests/setup-git
 	cd tests && ./setup-git
 
 clean:
-	rm -f $(objects) vcprompt
+	rm -f $(objects) vcprompt $(hgrepo) $(gitrepo)
 
 DESTDIR =
 PREFIX = /usr/local

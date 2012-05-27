@@ -15,10 +15,7 @@ check_hg()
 find_hgrepo()
 {
     hgrepo="$testdir/hg-repo.tar"
-    if [ ! -f $hgrepo ]; then
-	echo "$hgrepo not found" >&2
-	exit 1
-    fi
+    [ -f $hgrepo ] || die "$hgrepo not found"
 }
 
 pretest()
@@ -45,11 +42,13 @@ test_basics()
     hg -q update stable
     assert_vcprompt "show branch 2" "stable" "%b"
 
-    # not implemented yet
-    #echo foo >> b
-    #echo junk > junk
-    #assert_vcprompt "show modified" "+" "%m"
-    #assert_vcprompt "show unknown" "?" "%u"
+#     hg st
+#     assert_vcprompt "show no modified" "" "%m"
+    assert_vcprompt "show no unknown" "" "%u"
+    echo foo >> b
+    echo junk > junk
+    assert_vcprompt "show modified" "+" "%m"
+    assert_vcprompt "show unknown" "?" "%u"
 
     posttest
 }
