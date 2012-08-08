@@ -136,9 +136,9 @@ test_simple_hg_mq ()
     mkdir .hg/patches-foo
     printf 'a123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
-    echo '613132333435363738396162636465666768696a:baz.diff' >> .hg/patches-foo/status
+    echo '613132333435363738396162636465666768696a:qux.diff' >> .hg/patches-foo/status
     echo 'foo' > .hg/patches.queue  # named queue
-    assert_vcprompt "hg_mq applied named mq" "hg:613132333435[baz.diff]/foo" "%n:%r/%b"
+    assert_vcprompt "hg_mq applied named mq" "hg:613132333435[qux.diff]/foo" "%n:%r/%b"
 }
 
 test_simple_hg_revlog ()
