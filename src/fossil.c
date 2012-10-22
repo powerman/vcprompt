@@ -16,7 +16,7 @@
 static int
 fossil_probe(vccontext_t* context)
 {
-    return isfile("_FOSSIL_");
+    return isfile("_FOSSIL_") || isfile(".fslckout");
 }
 
 static result_t*
