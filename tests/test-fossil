@@ -1,0 +1,63 @@
+#!/bin/sh
+
+# Tests that require a real fossil repository and executable.
+
+. ./common.sh
+
+check_fossil()
+{
+    check_available \
+    "fossil version" \
+    "This is fossil" \
+    "fossil not found: skipping this test script"
+}
+
+find_fossilrepo()
+{
+    fossilrepo="$testdir/fossil-repo"
+    if [ ! -f $fossilrepo ]; then
+    echo "$fossilrepo not found" >&2
+    exit 1
+    fi
+}
+
+pretest()
+{
+    [ -d "$tmpdir" ] || die "tmpdir ($tmpdir) does not exist"
+    cd $tmpdir
+    rm -rf fossil-work
+    mkdir fossil-work
+    cd fossil-work
+    fossil open $fossilrepo > /dev/null
+}
+
+posttest()
+{
+    :
+}
+
+# default prompt format in test repo
+test_basics()
+{
+    pretest
+    assert_vcprompt "show branch 1" "trunk" "%b"
+    fossil checkout stable > /dev/null
+    assert_vcprompt "show branch 2" "stable" "%b"
+
+    # not implemented yet
+    echo foo >> b
+    echo junk > junk
+    assert_vcprompt "show modified" "+" "%m"
+    assert_vcprompt "show unknown" "?" "%u"
+
+    posttest
+}
+
+check_fossil
+find_vcprompt
+find_fossilrepo
+setup
+
+test_basics
+
+report

@@ -1,0 +1,39 @@
+#!/bin/sh
+
+# Setup the test fossil repository that will be used by test-fossil.
+#
+# Output is fossil-repo, which will be unpacked for each test run.
+
+. ./common.sh
+
+check_available "fossil version" "This is fossil"
+set -ex
+cd `dirname $0`
+rm -rf fossil-repo
+fossil init -A alice fossil-repo
+fossil user default alice -R fossil-repo
+rm -fr fossil-work
+mkdir fossil-work
+cd fossil-work
+fossil open ../fossil-repo
+
+echo a > a
+echo b > b
+fossil add a b
+fossil commit -m "add a, b"
+
+mkdir .fossil-settings
+cat > .fossil-settings/ignore-glob <<EOF
+~$
+\.o$
+EOF
+fossil add .fossil-settings/ignore-glob
+fossil commit -m "add ignore-glob"
+
+echo fix >> b
+fossil commit --branch stable -m "fix a bug"
+
+fossil checkout trunk
+
+cd ..
+rm -rf fossil-work

@@ -66,6 +66,22 @@ test_simple_git()
     assert_vcprompt "git subdir" "foo"
 }
 
+test_simple_fossil()
+{
+    cd $tmpdir
+    mkdir fossil && cd fossil
+
+    touch _FOSSIL_
+    assert_vcprompt "fossil broken" "fossil:(unknown)" "%n:%b"
+
+    rm _FOSSIL_
+    assert_vcprompt "fossil norepo" "" "%n:%b"
+    assert_vcprompt "fossil norepo" "" "%n:%b"
+
+    touch .fslckout
+    assert_vcprompt "fossil broken" "fossil:(unknown)" "%n:%b"
+}
+
 test_simple_hg()
 {
     cd $tmpdir
@@ -302,6 +318,7 @@ failed=""
 test_no_vc
 test_root
 test_simple_cvs
+test_simple_fossil
 test_simple_git
 test_simple_hg
 test_simple_hg_bookmarks
