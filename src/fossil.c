@@ -35,8 +35,8 @@ fossil_get_info(vccontext_t* context)
     // enough to cover all the usual fields (note that 'comment:' can be
     // several lines long) plus eventual output indicating changes in
     // the repo.
-    char *args[] = {"fossil", "status", NULL};
-    capture_t *capture = capture_child("fossil", args);
+    char *argv[] = {"fossil", "status", NULL};
+    capture_t *capture = capture_child("fossil", argv);
     if (capture == NULL) {
         debug("unable to execute 'fossil status'");
         return NULL;
@@ -73,16 +73,19 @@ fossil_get_info(vccontext_t* context)
     if (context->options->show_modified) {
         // This can be also done by checking if 'fossil changes'
         // prints anything, but we save a child process this way.
-        if ( strstr(cstdout, "\nEDITED") || strstr(cstdout, "\nADDED")
-            || strstr(cstdout, "\nDELETED") || strstr(cstdout, "\nMISSING")
-            || strstr(cstdout, "\nRENAMED") || strstr(cstdout, "\nNOT_A_FILE")
-            || strstr(cstdout, "\nUPDATED") || strstr(cstdout, "\nMERGED") )
-            result->modified = 1;
+        result->modified = (strstr(cstdout, "\nEDITED") ||
+                            strstr(cstdout, "\nADDED") ||
+                            strstr(cstdout, "\nDELETED") ||
+                            strstr(cstdout, "\nMISSING") ||
+                            strstr(cstdout, "\nRENAMED") ||
+                            strstr(cstdout, "\nNOT_A_FILE") ||
+                            strstr(cstdout, "\nUPDATED") ||
+                            strstr(cstdout, "\nMERGED"));
     }
     if (context->options->show_unknown) {
         // This can't be read from 'fossil status' output
-        args[1] = "extra";
-        capture = capture_child("fossil", args);
+        char *argv[] = {"fossil", "extra", NULL};
+        capture = capture_child("fossil", argv);
         if (capture == NULL) {
             debug("unable to execute 'fossil extra'");
             return NULL;
