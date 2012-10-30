@@ -49,7 +49,7 @@ fossil_get_info(vccontext_t* context)
             // propagating ones (=branches).  So either we show all
             // of them (as now), or we can show only the first one
             // (which should be the branch name); or we use one more
-            // 'system' call to read the output of 'fossil branch'.
+            // child process to read the output of 'fossil branch'.
             get_till_eol(buf2, t + tab_len + 1, 80);
             debug("found tag line: '%s'", buf2);
             result_set_branch(result, buf2);
@@ -71,8 +71,8 @@ fossil_get_info(vccontext_t* context)
         }
     }
     if (context->options->show_modified) {
-        // This can be also done by 'test -n'ing 'fossil changes',
-        // but we save a system() call this way.
+        // This can be also done by checking if 'fossil changes'
+        // prints anything, but we save a child process this way.
         if ( strstr(cstdout, "\nEDITED") || strstr(cstdout, "\nADDED")
             || strstr(cstdout, "\nDELETED") || strstr(cstdout, "\nMISSING")
             || strstr(cstdout, "\nRENAMED") || strstr(cstdout, "\nNOT_A_FILE")
