@@ -145,10 +145,20 @@ capture_child(const char *file, char *const argv[])
         done = result->stdout.eof && result->stderr.eof;
     }
 
-    waitpid(pid, &result->status, 0);
+    int status;
+    waitpid(pid, &status, 0);
+    result->status = result->signal = 0;
+    if (WIFEXITED(status))
+        result->status = WEXITSTATUS(status);
+    else if (WIFSIGNALED(status))
+        result->signal = WTERMSIG(status);
+
     if (result->status != 0)
         debug("child process %s exited with status %d",
-              file, WEXITSTATUS(result->status));
+              file, result->status);
+    if (result->signal != 0)
+        debug("child process %s killed by signal %d",
+              file, result->signal);
     if (result->stderr.len > 0)
         debug("child process %s wrote to stderr:\n%s",
               file, result->stderr.buf);
@@ -202,8 +212,8 @@ main(int argc, char *argv[])
            result->stdout.len, result->stdout.buf);
     printf("read %ld bytes from child stderr: >%s<\n",
            result->stderr.len, result->stderr.buf);
-    status = WEXITSTATUS(result->status);
-    printf("child exit status: %d\n", status);
+    status = result->status;
+    printf("child status = %d, signal =%d\n", status, result->signal);
     free_capture(result);
     return status;
 }

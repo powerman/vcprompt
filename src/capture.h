@@ -13,7 +13,8 @@ typedef struct {
 typedef struct {
     dynbuf stdout;
     dynbuf stderr;
-    int status;
+    int status;                 /* exit status that child passed (if any) */
+    int signal;                 /* signal that killed the child (if any) */
 } capture_t;
 
 /* fork() and exec() a child process, capturing its entire stdout and
