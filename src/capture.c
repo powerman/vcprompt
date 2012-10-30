@@ -76,6 +76,33 @@ free_capture(capture_t *result)
     }
 }
 
+static void
+print_cmd(char *const argv[])
+{
+    int bufsize = 100;
+    char cmd[bufsize];
+    int offs = 0;
+    int i;
+
+    for (i = 0; argv[i] != NULL; i++) {
+        if (i > 0 && offs + 1 < bufsize) {
+            cmd[offs++] = ' ';
+            cmd[offs] = '\0';
+        }
+        int arglen = strlen(argv[i]);
+        /* + 4 to leave room for " ..." */
+        if (offs + arglen + 4 < bufsize) {
+            strcpy(cmd+offs, argv[i]);
+            offs += arglen;
+        }
+        else {
+            strcpy(cmd+offs, "...");
+            break;
+        }
+    }
+    debug("spawning child process: %s", cmd);
+}
+
 capture_t *
 capture_child(const char *file, char *const argv[])
 {
@@ -87,6 +114,8 @@ capture_child(const char *file, char *const argv[])
     if (pipe(stderr_pipe) < 0)
         goto err;
 
+    if (debug_mode())
+        print_cmd(argv);
     pid_t pid = fork();
     if (pid < 0) {
         goto err;

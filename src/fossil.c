@@ -11,7 +11,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/wait.h>
+
 #include "fossil.h"
+#include "common.h"
+#include "capture.h"
 
 static int
 fossil_probe(vccontext_t* context)
@@ -23,9 +26,7 @@ static result_t*
 fossil_get_info(vccontext_t* context)
 {
     result_t* result = init_result();
-    char buf[2048];
     char *t;
-    FILE *stream;
     int tab_len = 14;
     char buf2[81];
 
@@ -34,17 +35,16 @@ fossil_get_info(vccontext_t* context)
     // enough to cover all the usual fields (note that 'comment:' can be
     // several lines long) plus eventual output indicating changes in
     // the repo.
-    if (!(stream = popen("fossil status", "r"))) {
-        debug("Unable to read output of 'fossil status'");
+    char *args[] = {"fossil", "status", NULL};
+    capture_t *capture = capture_child("fossil", args);
+    if (capture == NULL) {
+        debug("unable to execute 'fossil status'");
         return NULL;
     }
-
-    size_t rlen = fread(buf, sizeof(char), 2047, stream);
-    buf[rlen] = '\0';
-    pclose(stream);
+    char *cstdout = capture->stdout.buf;
 
     if (context->options->show_branch) {
-        if ((t = strstr(buf, "\ntags:"))) {
+        if ((t = strstr(cstdout, "\ntags:"))) {
             // This in fact shows also other tags than just the
             // propagating ones (=branches).  So either we show all
             // of them (as now), or we can show only the first one
@@ -60,7 +60,7 @@ fossil_get_info(vccontext_t* context)
         }
     }
     if (context->options->show_revision) {
-        if ((t = strstr(buf, "\ncheckout:"))) {
+        if ((t = strstr(cstdout, "\ncheckout:"))) {
             get_till_eol(buf2, t + tab_len + 1, 80);
             debug("found revision line: '%s'", buf2);
             result_set_revision(result, buf2, 12);
@@ -73,17 +73,21 @@ fossil_get_info(vccontext_t* context)
     if (context->options->show_modified) {
         // This can be also done by 'test -n'ing 'fossil changes',
         // but we save a system() call this way.
-        if ( strstr(buf, "\nEDITED") || strstr(buf, "\nADDED")
-            || strstr(buf, "\nDELETED") || strstr(buf, "\nMISSING")
-            || strstr(buf, "\nRENAMED") || strstr(buf, "\nNOT_A_FILE")
-            || strstr(buf, "\nUPDATED") || strstr(buf, "\nMERGED") )
+        if ( strstr(cstdout, "\nEDITED") || strstr(cstdout, "\nADDED")
+            || strstr(cstdout, "\nDELETED") || strstr(cstdout, "\nMISSING")
+            || strstr(cstdout, "\nRENAMED") || strstr(cstdout, "\nNOT_A_FILE")
+            || strstr(cstdout, "\nUPDATED") || strstr(cstdout, "\nMERGED") )
             result->modified = 1;
     }
     if (context->options->show_unknown) {
         // This can't be read from 'fossil status' output
-        int status = system("test -n \"$(fossil extra)\"");
-        if (WEXITSTATUS(status) == 0)
-            result->unknown = 1;
+        args[1] = "extra";
+        capture = capture_child("fossil", args);
+        if (capture == NULL) {
+            debug("unable to execute 'fossil extra'");
+            return NULL;
+        }
+        result->unknown = (capture->stdout.len > 0);
     }
 
     return result;

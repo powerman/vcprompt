@@ -47,6 +47,10 @@ struct vccontext_t {
 
 void
 set_options(options_t*);
+
+int
+debug_mode();
+
 vccontext_t*
 init_context(const char *name,
              options_t* options,
