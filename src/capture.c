@@ -177,6 +177,14 @@ capture_child(const char *file, char *const argv[])
     return NULL;
 }
 
+#if 0
+int
+capture_failed(capture_t *capture)
+{
+    return (capture == NULL || capture->status > 0 || capture->signal > 0);
+}
+#endif
+
 /*
  * To build a standalone executable for testing:
  *    make src/capture

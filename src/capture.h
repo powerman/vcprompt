@@ -31,4 +31,12 @@ capture_child(const char *file, char *const argv[]);
 void
 free_capture(capture_t *capture);
 
+#if 0
+/* return true if capture_child() failed: capture is NULL, or the
+ * child exited with non-zero status, or the child was killed by a signal
+ */
+int
+capture_failed(capture_t *capture);
+#endif
+
 #endif
