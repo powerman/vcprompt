@@ -8,6 +8,10 @@ objects = $(subst .c,.o,$(sources))
 vcprompt: $(objects)
 	$(CC) -o $@ $(objects)
 
+# build a standalone version of capture_child() library for testing
+src/capture: src/capture.c src/capture.h src/common.c src/common.h
+	$(CC) -DTEST_CAPTURE $(CFLAGS) -o $@ src/capture.c src/common.c
+
 # Maximally pessimistic view of header dependencies.
 $(objects): $(headers)
 
