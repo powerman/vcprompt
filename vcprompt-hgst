@@ -23,7 +23,7 @@
 # use warnings;
 # use strict;
 
-our $VERSION = 2.02;
+our $VERSION = 2.10;
 
 my $need_unknown = @ARGV && $ARGV[0] eq '-u';
 
@@ -33,11 +33,41 @@ my $found_unknown  = 0;
 
 my $hgignore = qr/\A\z/;
 if (open my $f, '<', '.hgignore') {
-    # TODO Implement real .hgignore syntax:
-    # http://www.selenic.com/mercurial/hgignore.5.html
-    # FIXME current implementation may lead to security issue - .hgignore
-    #       may contain perl code inside regex and it will be executed
-    $hgignore = join q{|}, map {chomp; length $_ ? qr/$_/ : ()} <$f>;
+    my @re;
+    my $is_glob = 0;
+    while (<$f>) {
+        chomp;
+        next                        if /\A\s*\z|\A\s*#/ms;
+        $is_glob = /glob/ms, next   if /\A\s*syntax:/ms;
+        if ($is_glob) {
+            my $re = q{};
+            my $in_paren = 0;
+            while (/\G([^\{\}\[]*)|\G({)|\G(})|\G\[([^\]]*)\]/gms) {
+                my ($text, $open_paren, $close_paren, $set) = ($1, $2, $3, $4);
+                if (defined $open_paren) {
+                    $in_paren = 1;
+                    $re .= '(';
+                }
+                elsif (defined $close_paren) {
+                    $in_paren = 0;
+                    $re .= ')';
+                }
+                elsif (defined $set) {
+                    $re .= '['.$set.']';
+                }
+                else {
+                    $text =~ s/([^?*,a-zA-Z0-9])/\\$1/gms;
+                    $text =~ s/\?/./gms;
+                    $text =~ s/\*/.*/gms;
+                    $text =~ s/,/|/gms if $in_paren;
+                    $re .= $text;
+                }
+            }
+            $_ = "(?:\\A|/)$re\\z";
+        }
+        push @re, qr/$_/;
+    }
+    $hgignore = join q{|}, @re;
 }
 
 open my $f, '<', '.hg/dirstate'     or exit 255;
