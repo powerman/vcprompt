@@ -232,16 +232,16 @@ hg_get_info(vccontext_t* context)
     read_parents(context, result);
 
     if (context->options->show_modified || context->options->show_unknown) {
-	int status = system("vcprompt-hgst");
-	if (WEXITSTATUS(status) <= 3) {
-		if (WEXITSTATUS(status) & 1<<0)
-			result->modified = 1;
-		if (WEXITSTATUS(status) & 1<<1)
-			result->unknown = 1;
-	}
-	/* any other outcome (including failure to fork/exec,
-	   failure to run git, or diff error): assume no
-	   modifications */
+        int status = system("vcprompt-hgst");
+        if (WEXITSTATUS(status) <= 3) {
+            if (WEXITSTATUS(status) & 1<<0)
+                result->modified = 1;
+            if (WEXITSTATUS(status) & 1<<1)
+                result->unknown = 1;
+        }
+        /* any other outcome (including failure to fork/exec,
+           failure to run git, or diff error): assume no
+           modifications */
     }
 
     return result;
