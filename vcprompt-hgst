@@ -20,7 +20,7 @@
 # use warnings;
 # use strict;
 
-our $VERSION = 2.00;
+our $VERSION = 2.01;
 
 my $found_modified = 0;
 my $found_unknown  = 0;
@@ -52,7 +52,7 @@ for my $i (0 .. $#dirstate/5) {
     $seen{$1}{$2} = 1;
 
     if (!$found_modified) {
-        my @stat = stat $filename;
+        my @stat = lstat $filename;
         if (@stat && !($stat[2]==$mode && $stat[7]==$size && $stat[9]==$mtime)) {
             $found_modified = 1;
         }
