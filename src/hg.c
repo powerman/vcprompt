@@ -232,7 +232,7 @@ hg_get_info(vccontext_t* context)
     read_parents(context, result);
 
     if (context->options->show_modified || context->options->show_unknown) {
-        int status = system("vcprompt-hgst");
+        int status = system(context->options->show_unknown ? "vcprompt-hgst -u" : "vcprompt-hgst");
         if (WEXITSTATUS(status) <= 3) {
             if (WEXITSTATUS(status) & 1<<0)
                 result->modified = 1;

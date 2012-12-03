@@ -10,6 +10,9 @@
 # .hg/dirstate cache outdated), this can be fixed by updating cache (for
 # ex. by running real `hg st`).
 # 
+# Options:
+#   -u      detect unknown files
+# 
 # Exit codes:
 #   0 - no modified or unknown files detected
 #   1 - modified files detected
@@ -20,7 +23,9 @@
 # use warnings;
 # use strict;
 
-our $VERSION = 2.01;
+our $VERSION = 2.02;
+
+my $need_unknown = @ARGV && $ARGV[0] eq '-u';
 
 my $found_modified = 0;
 my $found_unknown  = 0;
@@ -49,33 +54,36 @@ for my $i (0 .. $#dirstate/5) {
     $filename =~ s/\0.*//s;
 
     $filename =~ m{(.*/)?(.+)}s    or exit 255;
-    $seen{$1}{$2} = 1;
+    $seen{$1 || q{}}{$2} = 1;
 
     if (!$found_modified) {
         my @stat = lstat $filename;
         if (@stat && !($stat[2]==$mode && $stat[7]==$size && $stat[9]==$mtime)) {
             $found_modified = 1;
+            last if !$need_unknown;
         }
     }
 }
 
-my @dirs = (q{});   # dirs here must end with /, except root dir (empty string)
+if ($need_unknown) {
+    my @dirs = (q{});   # dirs here must end with /, except root dir (empty string)
 DIR: while (@dirs) {
-    my $dir = shift @dirs;
-    next if $dir eq '.hg/';
+        my $dir = shift @dirs;
+        next if $dir eq '.hg/';
 
-    my $known = $seen{$dir} || {};
-    $known->{'.'} = $known->{'..'} = 1;
+        my $known = $seen{$dir} || {};
+        $known->{'.'} = $known->{'..'} = 1;
 
-    opendir my $d, $dir || './'     or exit 255;
-    for my $name (readdir $d) {
-        if (!$known->{$name} && "$dir$name" !~ /$hgignore/o) {
-            if (-d "$dir$name") {
-                push @dirs, "$dir$name/";
-            }
-            else {
-                $found_unknown = 1;
-                last DIR;
+        opendir my $d, $dir || './'     or exit 255;
+        for my $name (readdir $d) {
+            if (!$known->{$name} && "$dir$name" !~ /$hgignore/o) {
+                if (-d "$dir$name") {
+                    push @dirs, "$dir$name/";
+                }
+                else {
+                    $found_unknown = 1;
+                    last DIR;
+                }
             }
         }
     }
