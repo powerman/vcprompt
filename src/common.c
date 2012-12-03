@@ -37,6 +37,11 @@ void set_options(options_t* options)
     _options = options;
 }
 
+int debug_mode()
+{
+    return _options->debug;
+}
+
 int result_set_revision(result_t* result, const char *revision, int len)
 {
     if (result->revision)

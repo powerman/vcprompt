@@ -113,7 +113,7 @@ static csinfo_t get_csinfo(const char* nodeid)
 static size_t get_mq_patchname(char* str, const char* nodeid, size_t n)
 {
     char buf[1024];
-    char status_filename[] = ".hg/patches/status";
+    char status_filename[512] = ".hg/patches/status";
     static const char QQ_STATUS_FILE_PAT[] = ".hg/patches-%s/status";
     static const size_t MAX_QQ_NAME = sizeof(status_filename)
         - (sizeof(QQ_STATUS_FILE_PAT) - 2 - 1);  // - "%s" - '\0'

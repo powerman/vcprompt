@@ -10,7 +10,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
+
 #include "git.h"
+#include "capture.h"
+#include "common.h"
+
 
 static int
 git_probe(vccontext_t* context)
@@ -57,18 +61,24 @@ git_get_info(vccontext_t* context)
             }
         }
         if (context->options->show_modified) {
-            int status = system("git diff --no-ext-diff --quiet --exit-code");
-            if (WEXITSTATUS(status) == 1)       /* files modified */
-                result->modified = 1;
+            char *argv[] = {
+                "git", "diff", "--no-ext-diff", "--quiet", "--exit-code", NULL};
+            capture_t *capture = capture_child("git", argv);
+            result->modified = (capture->status == 1);
+
             /* any other outcome (including failure to fork/exec,
                failure to run git, or diff error): assume no
                modifications */
+            free_capture(capture);
         }
         if (context->options->show_unknown) {
-            int status = system("test -n \"$(git ls-files --others --exclude-standard)\"");
-            if (WEXITSTATUS(status) == 0)
-                result->unknown = 1;
+            char *argv[] = {
+                "git", "ls-files", "--others", "--exclude-standard", NULL};
+            capture_t *capture = capture_child("git", argv);
+            result->unknown = (capture != NULL && capture->stdout.len > 0);
+
             /* again, ignore other errors and assume no unknown files */
+            free_capture(capture);
         }
     }
 
