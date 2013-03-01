@@ -19,6 +19,7 @@ typedef struct {
     int show_revision;                  /* show current revision? */
     int show_unknown;                   /* show ? if unknown files? */
     int show_modified;                  /* show + if local changes? */
+    unsigned int timeout;               /* timeout in milliseconds*/
 } options_t;
 
 /* What we figured out by analyzing the working dir: info that
@@ -58,7 +59,7 @@ init_context(const char *name,
              result_t* (*get_info)(vccontext_t*));
 void
 free_context(vccontext_t* context);
-    
+
 result_t*
 init_result();
 
