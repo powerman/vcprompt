@@ -16,15 +16,15 @@
 #include <ctype.h>
 
 static int
-svn_probe(vccontext_t* context)
+svn_probe(vccontext_t *context)
 {
     return isdir(".svn");
 }
 
 static result_t*
-svn_get_info(vccontext_t* context)
+svn_get_info(vccontext_t *context)
 {
-    result_t* result = init_result();
+    result_t *result = init_result();
     char buf[1024];
 
     if (!read_first_line(".svn/entries", buf, 1024)) {
@@ -64,8 +64,8 @@ svn_get_info(vccontext_t* context)
             else {
                 // XML file format (working copy created by svn < 1.4)
                 char rev[100];
-                char* marker = "revision=";
-                char* p = NULL;
+                char *marker = "revision=";
+                char *p = NULL;
                 while (fgets(line, sizeof(line), fp))
                     if ((p = strstr(line, marker)) != NULL)
                         break;
@@ -85,7 +85,7 @@ svn_get_info(vccontext_t* context)
 }
 
 vccontext_t*
-get_svn_context(options_t* options)
+get_svn_context(options_t *options)
 {
     return init_context("svn", options, svn_probe, svn_get_info);
 }

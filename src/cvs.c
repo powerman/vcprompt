@@ -15,15 +15,15 @@
 #include "cvs.h"
 
 static int
-cvs_probe(vccontext_t* context)
+cvs_probe(vccontext_t *context)
 {
     return isfile("CVS/Entries");
 }
 
 static result_t*
-cvs_get_info(vccontext_t* context)
+cvs_get_info(vccontext_t *context)
 {
-    result_t* result = init_result();
+    result_t *result = init_result();
     char buf[1024];
 
     if (!read_first_line("CVS/Tag", buf, 1024)) {
@@ -37,15 +37,15 @@ cvs_get_info(vccontext_t* context)
             result_set_branch(result, buf + 1);
         }
         else {
-            /* non-branch sticky tag or sticky date */            
-           result_set_branch(result, "(unknown)");
+            /* non-branch sticky tag or sticky date */
+            result_set_branch(result, "(unknown)");
         }
     }
     return result;
 }
 
 vccontext_t*
-get_cvs_context(options_t* options)
+get_cvs_context(options_t *options)
 {
     return init_context("cvs", options, cvs_probe, cvs_get_info);
 }

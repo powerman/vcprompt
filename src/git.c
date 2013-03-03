@@ -17,15 +17,15 @@
 
 
 static int
-git_probe(vccontext_t* context)
+git_probe(vccontext_t *context)
 {
     return isdir(".git");
 }
 
 static result_t*
-git_get_info(vccontext_t* context)
+git_get_info(vccontext_t *context)
 {
-    result_t* result = init_result();
+    result_t *result = init_result();
     char buf[1024];
 
     if (!read_first_line(".git/HEAD", buf, 1024)) {
@@ -33,7 +33,7 @@ git_get_info(vccontext_t* context)
         return NULL;
     }
     else {
-        char* prefix = "ref: refs/heads/";
+        char *prefix = "ref: refs/heads/";
         int prefixlen = strlen(prefix);
 
         if (context->options->show_branch || context->options->show_revision) {
@@ -86,7 +86,7 @@ git_get_info(vccontext_t* context)
 }
 
 vccontext_t*
-get_git_context(options_t* options)
+get_git_context(options_t *options)
 {
     return init_context("git", options, git_probe, git_get_info);
 }

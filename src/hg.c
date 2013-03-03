@@ -24,13 +24,13 @@
 #define NODEID_LEN 20
 
 static int
-hg_probe(vccontext_t* context)
+hg_probe(vccontext_t *context)
 {
     return isdir(".hg");
 }
 
 static int
-sum_bytes(const unsigned char* data, int size)
+sum_bytes(const unsigned char *data, int size)
 {
     int i, sum = 0;
     for (i = 0; i < size; ++i) {
@@ -62,14 +62,14 @@ typedef struct {
 
 //! get changeset info for the specified nodeid
 static csinfo_t
-get_csinfo(const char* nodeid)
+get_csinfo(const char *nodeid)
 {
     // only supports RevlogNG. See mercurial/parsers.c for details.
-    const char* REVLOG_FILENAME = ".hg/store/00changelog.i";
+    const char *REVLOG_FILENAME = ".hg/store/00changelog.i";
     const size_t ENTRY_LEN = 64, COMP_LEN_OFS = 8, NODEID_OFS = 32;
 
     char buf[ENTRY_LEN];
-    FILE* f;
+    FILE *f;
     int inlined;
     csinfo_t csinfo = {"", -1, 0};
     int i;
@@ -114,7 +114,7 @@ get_csinfo(const char* nodeid)
 }
 
 static size_t
-get_mq_patchname(char* str, const char* nodeid, size_t n)
+get_mq_patchname(char *str, const char *nodeid, size_t n)
 {
     char buf[1024];
     char status_filename[512] = ".hg/patches/status";
@@ -153,7 +153,7 @@ get_mq_patchname(char* str, const char* nodeid, size_t n)
 }
 
 static size_t
-put_nodeid(char* str, const char* nodeid)
+put_nodeid(char *str, const char *nodeid)
 {
     const size_t SHORT_NODEID_LEN = 6;  // size in binary repr
     char buf[512], *p = str;
@@ -183,7 +183,7 @@ put_nodeid(char* str, const char* nodeid)
 }
 
 static void
-read_parents(vccontext_t* context, result_t* result)
+read_parents(vccontext_t *context, result_t *result)
 {
     char buf[NODEID_LEN * 2];
     size_t readsize;
@@ -193,7 +193,7 @@ read_parents(vccontext_t* context, result_t* result)
     readsize = read_file(".hg/dirstate", buf, NODEID_LEN * 2);
     if (readsize == NODEID_LEN * 2) {
         char destbuf[1024] = {'\0'};
-        char* p = destbuf;
+        char *p = destbuf;
         debug("read nodeids from .hg/dirstate");
 
         // first parent
@@ -215,9 +215,9 @@ read_parents(vccontext_t* context, result_t* result)
 }
 
 static result_t*
-hg_get_info(vccontext_t* context)
+hg_get_info(vccontext_t *context)
 {
-    result_t* result = init_result();
+    result_t *result = init_result();
     char buf[1024];
 
     // prefer bookmark because it tends to be more informative
@@ -240,7 +240,7 @@ hg_get_info(vccontext_t* context)
 }
 
 vccontext_t*
-get_hg_context(options_t* options)
+get_hg_context(options_t *options)
 {
     return init_context("hg", options, hg_probe, hg_get_info);
 }

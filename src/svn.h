@@ -12,7 +12,7 @@
 
 #include "common.h"
 
-vccontext_t*
-get_svn_context(options_t* options);
+vccontext_t *
+get_svn_context(options_t *options);
 
 #endif

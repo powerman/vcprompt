@@ -29,7 +29,7 @@
 #define DEFAULT_FORMAT "[%n:%b%m%u] "
 
 void
-parse_args(int argc, char** argv, options_t* options)
+parse_args(int argc, char** argv, options_t *options)
 {
     int opt;
     while ((opt = getopt(argc, argv, "hf:dt:")) != -1) {
@@ -64,7 +64,7 @@ parse_args(int argc, char** argv, options_t* options)
 }
 
 void
-parse_format(options_t* options)
+parse_format(options_t *options)
 {
     size_t i;
 
@@ -72,7 +72,7 @@ parse_format(options_t* options)
     options->show_unknown = 0;
     options->show_modified = 0;
 
-    char* format = options->format;
+    char *format = options->format;
     size_t len = strlen(format);
     for (i = 0; i < len; i++) {
         if (format[i] == '%') {
@@ -106,10 +106,10 @@ parse_format(options_t* options)
 }
 
 void
-print_result(vccontext_t* context, options_t* options, result_t* result)
+print_result(vccontext_t *context, options_t *options, result_t *result)
 {
     size_t i;
-    char* format = options->format;
+    char *format = options->format;
     size_t len = strlen(format);
 
     for (i = 0; i < len; i++) {
@@ -154,7 +154,7 @@ probe_all(vccontext_t** contexts, int num_contexts)
 {
     int idx;
     for (idx = 0; idx < num_contexts; idx++) {
-        vccontext_t* ctx = contexts[idx];
+        vccontext_t *ctx = contexts[idx];
         if (ctx->probe(ctx)) {
             return ctx;
         }
@@ -166,7 +166,7 @@ probe_all(vccontext_t** contexts, int num_contexts)
 vccontext_t*
 probe_parents(vccontext_t** contexts, int num_contexts)
 {
-    vccontext_t* context;
+    vccontext_t *context;
     struct stat rootdir;
     struct stat curdir;
 
@@ -216,7 +216,7 @@ main(int argc, char** argv)
     /* Establish a handler for SIGALRM signals.  */
     signal(SIGALRM, exit_on_alarm);
 
-    char* format = getenv("VCPROMPT_FORMAT");
+    char *format = getenv("VCPROMPT_FORMAT");
     if (format == NULL)
         format = DEFAULT_FORMAT;
     options_t options = {
@@ -239,7 +239,7 @@ main(int argc, char** argv)
         debug("will never timeout");
     }
 
-    vccontext_t* contexts[] = {
+    vccontext_t *contexts[] = {
         get_cvs_context(&options),
         get_git_context(&options),
         get_hg_context(&options),
@@ -248,8 +248,8 @@ main(int argc, char** argv)
     };
     int num_contexts = sizeof(contexts) / sizeof(vccontext_t*);
 
-    result_t* result = NULL;
-    vccontext_t* context = NULL;
+    result_t *result = NULL;
+    vccontext_t *context = NULL;
 
     /* Starting in the current dir, walk up the directory tree until
        someone claims that this is a working copy. */

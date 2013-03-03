@@ -17,15 +17,15 @@
 #include "capture.h"
 
 static int
-fossil_probe(vccontext_t* context)
+fossil_probe(vccontext_t *context)
 {
     return isfile("_FOSSIL_") || isfile(".fslckout");
 }
 
 static result_t*
-fossil_get_info(vccontext_t* context)
+fossil_get_info(vccontext_t *context)
 {
-    result_t* result = init_result();
+    result_t *result = init_result();
     char *t;
     int tab_len = 14;
     char buf2[81];
@@ -97,7 +97,7 @@ fossil_get_info(vccontext_t* context)
 }
 
 vccontext_t*
-get_fossil_context(options_t* options)
+get_fossil_context(options_t *options)
 {
     return init_context("fossil", options, fossil_probe, fossil_get_info);
 }
