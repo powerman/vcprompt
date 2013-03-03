@@ -96,7 +96,8 @@ fossil_get_info(vccontext_t* context)
     return result;
 }
 
-vccontext_t* get_fossil_context(options_t* options)
+vccontext_t*
+get_fossil_context(options_t* options)
 {
     return init_context("fossil", options, fossil_probe, fossil_get_info);
 }

@@ -57,6 +57,7 @@ init_context(const char *name,
              options_t* options,
              int (*probe)(vccontext_t*),
              result_t* (*get_info)(vccontext_t*));
+
 void
 free_context(vccontext_t* context);
 

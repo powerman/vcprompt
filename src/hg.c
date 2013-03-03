@@ -29,7 +29,8 @@ hg_probe(vccontext_t* context)
     return isdir(".hg");
 }
 
-static int sum_bytes(const unsigned char* data, int size)
+static int
+sum_bytes(const unsigned char* data, int size)
 {
     int i, sum = 0;
     for (i = 0; i < size; ++i) {
@@ -38,7 +39,8 @@ static int sum_bytes(const unsigned char* data, int size)
     return sum;
 }
 
-static int is_revlog_inlined(FILE *f)
+static int
+is_revlog_inlined(FILE *f)
 {
     const unsigned int REVLOGNGINLINEDATA = 1 << 16;
     int revlog_ver;
@@ -59,7 +61,8 @@ typedef struct {
 } csinfo_t;
 
 //! get changeset info for the specified nodeid
-static csinfo_t get_csinfo(const char* nodeid)
+static csinfo_t
+get_csinfo(const char* nodeid)
 {
     // only supports RevlogNG. See mercurial/parsers.c for details.
     const char* REVLOG_FILENAME = ".hg/store/00changelog.i";
@@ -110,7 +113,8 @@ static csinfo_t get_csinfo(const char* nodeid)
     return csinfo;
 }
 
-static size_t get_mq_patchname(char* str, const char* nodeid, size_t n)
+static size_t
+get_mq_patchname(char* str, const char* nodeid, size_t n)
 {
     char buf[1024];
     char status_filename[512] = ".hg/patches/status";
@@ -148,7 +152,8 @@ static size_t get_mq_patchname(char* str, const char* nodeid, size_t n)
     }
 }
 
-static size_t put_nodeid(char* str, const char* nodeid)
+static size_t
+put_nodeid(char* str, const char* nodeid)
 {
     const size_t SHORT_NODEID_LEN = 6;  // size in binary repr
     char buf[512], *p = str;
@@ -234,7 +239,8 @@ hg_get_info(vccontext_t* context)
     return result;
 }
 
-vccontext_t* get_hg_context(options_t* options)
+vccontext_t*
+get_hg_context(options_t* options)
 {
     return init_context("hg", options, hg_probe, hg_get_info);
 }

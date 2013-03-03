@@ -18,12 +18,14 @@
 
 #include "common.h"
 
-result_t* init_result()
+result_t*
+init_result()
 {
     return (result_t*) calloc(1, sizeof(result_t));
 }
 
-void free_result(result_t* result)
+void
+free_result(result_t* result)
 {
     free(result->revision);
     free(result->branch);
@@ -32,17 +34,20 @@ void free_result(result_t* result)
 
 static options_t* _options = NULL;
 
-void set_options(options_t* options)
+void
+set_options(options_t* options)
 {
     _options = options;
 }
 
-int debug_mode()
+int
+debug_mode()
 {
     return _options->debug;
 }
 
-int result_set_revision(result_t* result, const char *revision, int len)
+int
+result_set_revision(result_t* result, const char *revision, int len)
 {
     if (result->revision)
         free(result->revision);
@@ -58,7 +63,8 @@ int result_set_revision(result_t* result, const char *revision, int len)
     return !!result->revision;
 }
 
-int result_set_branch(result_t* result, const char *branch)
+int
+result_set_branch(result_t* result, const char *branch)
 {
     if (result->branch)
         free(result->branch);

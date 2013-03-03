@@ -84,7 +84,8 @@ svn_get_info(vccontext_t* context)
     return result;
 }
 
-vccontext_t* get_svn_context(options_t* options)
+vccontext_t*
+get_svn_context(options_t* options)
 {
     return init_context("svn", options, svn_probe, svn_get_info);
 }

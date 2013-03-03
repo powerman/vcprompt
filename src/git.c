@@ -85,7 +85,8 @@ git_get_info(vccontext_t* context)
     return result;
 }
 
-vccontext_t* get_git_context(options_t* options)
+vccontext_t*
+get_git_context(options_t* options)
 {
     return init_context("git", options, git_probe, git_get_info);
 }

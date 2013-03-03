@@ -28,7 +28,8 @@
 
 #define DEFAULT_FORMAT "[%n:%b%m%u] "
 
-void parse_args(int argc, char** argv, options_t* options)
+void
+parse_args(int argc, char** argv, options_t* options)
 {
     int opt;
     while ((opt = getopt(argc, argv, "hf:dt:")) != -1) {
@@ -62,7 +63,8 @@ void parse_args(int argc, char** argv, options_t* options)
     }
 }
 
-void parse_format(options_t* options)
+void
+parse_format(options_t* options)
 {
     size_t i;
 
@@ -103,7 +105,8 @@ void parse_format(options_t* options)
     }
 }
 
-void print_result(vccontext_t* context, options_t* options, result_t* result)
+void
+print_result(vccontext_t* context, options_t* options, result_t* result)
 {
     size_t i;
     char* format = options->format;
@@ -146,7 +149,8 @@ void print_result(vccontext_t* context, options_t* options, result_t* result)
     }
 }
 
-vccontext_t* probe_all(vccontext_t** contexts, int num_contexts)
+vccontext_t*
+probe_all(vccontext_t** contexts, int num_contexts)
 {
     int idx;
     for (idx = 0; idx < num_contexts; idx++) {
@@ -159,7 +163,8 @@ vccontext_t* probe_all(vccontext_t** contexts, int num_contexts)
 }
 
 /* walk up the directory tree until the probes work or we hit / */
-vccontext_t* probe_parents(vccontext_t** contexts, int num_contexts)
+vccontext_t*
+probe_parents(vccontext_t** contexts, int num_contexts)
 {
     vccontext_t* context;
     struct stat rootdir;
@@ -205,7 +210,8 @@ set_alarm(unsigned int milliseconds)
         return old.it_value.tv_sec;
 }
 
-int main(int argc, char** argv)
+int
+main(int argc, char** argv)
 {
     /* Establish a handler for SIGALRM signals.  */
     signal(SIGALRM, exit_on_alarm);
