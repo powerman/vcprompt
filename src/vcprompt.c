@@ -14,7 +14,6 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <unistd.h>
-
 #include <signal.h>
 
 #include "common.h"
@@ -42,7 +41,7 @@ void parse_args(int argc, char** argv, options_t* options)
                 options->debug = 1;
                 break;
             case 't':
-                options->timeout = strtol(optarg,&timeoutstring,10);
+                options->timeout = strtol(optarg, &timeoutstring, 10);
                 break;
             case 'h':
             default:
@@ -185,24 +184,23 @@ vccontext_t* probe_parents(vccontext_t** contexts, int num_contexts)
     }
 }
 
-
 /* The signal handler just clears the flag and re-enables itself.  */
 void
-exit_on_alarm (int sig)
+exit_on_alarm(int sig)
 {
     printf("[unknown:timeout]");
     exit(1);
 }
 
 unsigned int
-msalarm (unsigned int milliseconds)
+msalarm(unsigned int milliseconds)
 {
     struct itimerval old, new;
     new.it_interval.tv_usec = 0;
     new.it_interval.tv_sec = 0;
     new.it_value.tv_usec = 1000 * (long int) milliseconds;
     new.it_value.tv_sec =  0;
-    if (setitimer (ITIMER_REAL, &new, &old) < 0)
+    if (setitimer(ITIMER_REAL, &new, &old) < 0)
         return 0;
     else
         return old.it_value.tv_sec;
@@ -211,7 +209,7 @@ msalarm (unsigned int milliseconds)
 int main(int argc, char** argv)
 {
     /* Establish a handler for SIGALRM signals.  */
-    signal (SIGALRM, exit_on_alarm);
+    signal(SIGALRM, exit_on_alarm);
 
     char* format = getenv("VCPROMPT_FORMAT");
     if (format == NULL)
@@ -224,13 +222,14 @@ int main(int argc, char** argv)
         .show_unknown  = 0,
         .show_modified = 0,
     };
+
     parse_args(argc, argv, &options);
     parse_format(&options);
     set_options(&options);
 
     if (options.timeout) {
         debug("will timeout after %d ms", options.timeout);
-        msalarm (options.timeout);
+        msalarm(options.timeout);
     } else {
         debug("will never timeout");
     }
