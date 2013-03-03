@@ -31,7 +31,6 @@
 void parse_args(int argc, char** argv, options_t* options)
 {
     int opt;
-    char* timeoutstring;
     while ((opt = getopt(argc, argv, "hf:dt:")) != -1) {
         switch (opt) {
             case 'f':
@@ -41,7 +40,7 @@ void parse_args(int argc, char** argv, options_t* options)
                 options->debug = 1;
                 break;
             case 't':
-                options->timeout = strtol(optarg, &timeoutstring, 10);
+                options->timeout = strtol(optarg, NULL, 10);
                 break;
             case 'h':
             default:
