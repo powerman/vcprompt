@@ -44,7 +44,7 @@ void parse_args(int argc, char** argv, options_t* options)
                 break;
             case 'h':
             default:
-                printf("usage: %s [-h] [-d] [-t ms_timeout] [-f FORMAT]\n", argv[0]);
+                printf("usage: %s [-h] [-d] [-t timeout_ms] [-f FORMAT]\n", argv[0]);
                 printf("FORMAT (default=\"%s\") may contain:\n%s",
                 DEFAULT_FORMAT,
                 " %b  show branch\n"
@@ -187,12 +187,12 @@ vccontext_t* probe_parents(vccontext_t** contexts, int num_contexts)
 void
 exit_on_alarm(int sig)
 {
-    printf("[unknown:timeout]");
+    printf("[timeout]");
     exit(1);
 }
 
 unsigned int
-msalarm(unsigned int milliseconds)
+set_alarm(unsigned int milliseconds)
 {
     struct itimerval old, new;
     new.it_interval.tv_usec = 0;
@@ -228,7 +228,7 @@ int main(int argc, char** argv)
 
     if (options.timeout) {
         debug("will timeout after %d ms", options.timeout);
-        msalarm(options.timeout);
+        set_alarm(options.timeout);
     } else {
         debug("will never timeout");
     }
