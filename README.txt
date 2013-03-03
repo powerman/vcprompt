@@ -121,7 +121,7 @@ Patches are welcome.  Please follow these guidelines:
   * Feel free to add yourself to the contributors list below.
     (If you don't do it, I'll probably forget.)
 
-  
+
 Author Contact
 ==============
 
@@ -131,7 +131,7 @@ The latest version is available from either of my public Mercurial
 repositories:
 
   http://hg.gerg.ca/vcprompt/
-  http://bitbucket.org/gward/vcprompt/overview
+  http://bitbucket.org/gward/vcprompt/
 
 
 Other Contributors
@@ -144,6 +144,8 @@ In chronological order:
   Yuya Nishihara
   KOIE Hidetaka
   Armin Ronacher
+  Jordi Fita
+  Gregg Lind
 
 Thanks to all!
 
@@ -151,7 +153,7 @@ Thanks to all!
 Copyright & License
 ===================
 
-Copyright (C) 2009, 2010, Gregory P. Ward and contributors.
+Copyright (C) 2009-2013, Gregory P. Ward and contributors.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
