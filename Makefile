@@ -48,7 +48,11 @@ clean:
 
 DESTDIR =
 PREFIX = /usr/local
+BINDIR = $(DESTDIR)$(PREFIX)/bin
+MANDIR = $(DESTDIR)/$(PREFIX)/man/man1
+
 .PHONY: install
 install: vcprompt
-	install -d $(DESTDIR)$(PREFIX)/bin
+	install -d $(BINDIR) $(MANDIR)
 	install -m 755 vcprompt $(DESTDIR)$(PREFIX)/bin
+	install vcprompt.1 $(MANDIR)

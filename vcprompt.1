@@ -1,0 +1,280 @@
+.TH VCPROMPT 1 "February 2013" "vcprompt" "User Commands"
+
+.SH NAME
+vcprompt \- show version control information in shell prompt
+
+.SH SYNOPSIS
+.B vcprompt
+[-h] [-d] [-t timeout_ms] [-f format]
+
+.SH DESCRIPTION
+
+Examine the current working directory, determine what version control
+system manages it, and print a short summary to stdout. You then
+configure your shell to run
+.B vcprompt
+for every prompt, and your prompt will include that short summary.
+
+By default,
+.B vcprompt
+just shows the name of the version control system and the current
+branch, e.g.
+.nf
+.in +4m
+[cvs:trunk]
+[git:master]
+[hg:default]
+[fossil:trunk]
+.in -4m
+.fi
+This is the default because it's useful, implemented, and fast for
+almost all supported version control systems.
+
+You can get different information by specifying a format string with
+the -f option. See \fBFORMAT STRINGS\fR below.
+
+In a directory that is not under the control of a supported version
+control system,
+.B vcprompt
+terminates quickly and with no output.
+
+.SH OPTIONS
+.IP -d
+Print debug messages to stdout, and always end with a newline. Useful
+for understanding why
+.B vcprompt
+does not print what you thought it should print. Do not use this in
+your shell prompt!
+.IP "-f format"
+Specify a custom format string (default: "[%n:%b] "). See \fBFORMAT
+STRINGS\fR below.
+.IP "-t timeout"
+Terminate after
+.I timeout
+milliseconds of attempting to analyze the working dir. Useful if you
+have slow operations (e.g. %m or %u) in your format string that are
+tolerable in small working dirs, but not in large ones. The timeout
+applies to the whole run of
+.B vcprompt.
+If it fires, no partial information will be printed; the entire
+operation fails.
+
+.SH FORMAT STRINGS
+
+.B vcprompt
+uses printf-style format strings, where % followed by a single letter
+expands to some piece of information about the current working dir.
+The supported format specifiers are:
+.TP
+.B %b
+The name of the current branch.
+.TP
+.B %r
+The current revision number, changeset ID, or commit ID.
+.TP
+.B %u
+A single "?" if there are any unknown (untracked) files in the working
+dir. Slow.
+.TP
+.B %m
+a single "+" if there are any uncommitted changes (modified, added, or
+removed files) in the working dir. Slow.
+.TP
+.B %n
+A short all-lowercase name for the version control system managing the
+working dir: e.g. "cvs", "svn", "hg", "git", "fossil".
+.TP
+.B %%
+A single "%" character.
+.PP
+
+Not all version control systems support all format specifiers. For
+example, CVS has no notion of a single revision identifier, so
+.B vcprompt
+ignores %r in a CVS working dir. See the section on each version
+control system below for more details.
+
+Some format specifiers are slow with most or all supported version
+control systems. "Slow" generally means that it requires spawning an
+external command, like "git status" or "fossil info".
+.B vcprompt
+tries hard to avoid spawning external commands, but sometimes it can't
+be helped.
+
+.SH CVS SUPPORT
+
+.B vcprompt
+considers the current directory a CVS working dir if file
+.I CVS/Entries
+exists.
+
+Format specifier
+.B %b
+(branch) is supported by reading
+.I CVS/Tag;
+if that file does not exist,
+.B vcprompt
+displays the branch as "trunk".
+
+.B vcprompt
+looks only in the current dir, not in any subdirectories, so it will
+not notice mixed-branch working dirs.
+
+Format specifier
+.B %r
+is not supported because CVS has no global revision ID.
+
+Format specifiers
+.B %m
+and
+.B %u
+are not supported because CVS has no easy way to get that
+information.
+
+.SH GIT SUPPORT
+
+.B vcprompt
+considers the current directory a git working dir if directory
+.I .git
+exists.
+
+Format specifier
+.B %b
+(branch) is supported by reading file
+.I .git/HEAD
+directly. If that file does not refer to a branch (e.g. you have
+checked out a specified commit), then
+.B vcprompt
+reports the branch as "unknown".
+
+Format specified
+.B %r
+(revision) expands to the first 12 characters of the commit ID of
+HEAD.
+
+Format specifier
+.B %m
+is supported by running "git diff --no-ext-diff --quiet --exit-code",
+so it can be expensive in a large working dir.
+
+Format specifier
+.B %u
+is supported by running "git ls-files --others --exclude-standard", so
+it can be expensive in a large working dir.
+
+The timeout (-t) option is useful to prevent
+.B vcprompt
+from taking too long in large working dirs.
+
+.SH MERCURIAL (HG) SUPPORT
+
+.B vcprompt
+considers the current directory a Mercurial (hg) working dir if
+directory
+.I .hg
+exists.
+
+Format specifier
+.B %b
+(branch) is supported by looking for the current Mercurial bookmark (
+.I .hg/bookmarks.current
+), or the current named branch (
+.I .hg/branch
+) if no bookmark is current.
+
+Format specifiers
+.B %m
+and
+.B %u
+are not implemented.
+
+.SH SUBVERSION (SVN) SUPPORT
+
+.B vcprompt
+currently supports Subversion up to version 1.6. It doesn't yet
+recognize Subversion 1.7 working copies. Patches are welcome!
+
+.B vcprompt
+considers the current directory a Subversion (svn) working dir if
+directory
+.I .svn
+exists.
+
+Format specifier
+.B %b
+is not supported because Subversion has no guaranteed way to figure
+out the branch; projects can structure their repository however they
+like, and there's no way to know which parts of the URL are just
+directories and which is the branch name. There might not even be a
+branch name.
+
+Format specifiers
+.B %m
+and
+.B %u
+are not implemented.
+
+.SH FOSSIL SUPPORT
+
+.B vcprompt
+considers the current directory a Fossil working dir if either of the
+files
+.I _FOSSIL_
+or
+.I .fslckout
+exist.
+
+All format specifiers depend on running "fossil" commands, so every
+operation in a Fossil working dir is slow. All format specifiers except
+.B %u
+depend on "fossil status", so there's no harm in using lots of format
+specifiers -- however, doing so
+.I is
+expensive for other version control systems.
+
+Format specifier
+.B %u
+requires running "fossil extra", so has an extra penalty compared to
+the ther format specifiers.
+
+.SH CONFIGURING BASH
+
+Set shell variable
+.B PROMPT_COMMAND
+to run
+.B vcprompt
+every time bash generates the prompt. For example, add
+.nf
+.in +2m
+PROMPT_COMMAND='vcprompt -f "[%b] "'
+.in -2m
+.fi
+(with your preferred format string) to
+.I ~/.bashrc.
+Set
+.B PS1
+as normal. This means that
+.B vcprompt
+output will always come first.
+
+.SH CONFIGURING ZSH
+Enable the
+.B PROMPT_SUBST
+option, and then use command substitution in
+.B PROMPT
+to run
+.B vcprompt
+every time zsh generates the prompt. For example, add
+.nf
+.in +2m
+if [ -n "$PROMPT" ]; then
+  setopt prompt_subst
+  PROMPT='$(vcprompt -f "[%b] ")$ '
+fi
+.in -2m
+.fi
+to your
+.I ~/.zshrc
+file. You can of course use all of zsh's prompt escapes in
+.B PROMPT;
+this example just uses "$ " for the rest of the prompt.
