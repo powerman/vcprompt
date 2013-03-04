@@ -26,7 +26,8 @@ typedef struct {
  * capture->stdout.len the number of bytes read. capture->stdout.buf
  * is null terminated, so as long as the child's output is textual,
  * you can use it as a string. Similarly, child's stderr is in
- * capture->stderr.buf and capture->stderr.len.
+ * capture->stderr.buf and capture->stderr.len. Caller is responsible
+ * for freeing the result with free_capture().
  */
 capture_t *
 capture_child(const char *file, char *const argv[]);

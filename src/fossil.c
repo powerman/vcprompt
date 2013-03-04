@@ -82,6 +82,10 @@ fossil_get_info(vccontext_t *context)
                             strstr(cstdout, "\nUPDATED") ||
                             strstr(cstdout, "\nMERGED"));
     }
+
+    cstdout = NULL;
+    free_capture(capture);
+
     if (context->options->show_unknown) {
         // This can't be read from 'fossil status' output
         char *argv[] = {"fossil", "extra", NULL};
@@ -91,6 +95,7 @@ fossil_get_info(vccontext_t *context)
             return NULL;
         }
         result->unknown = (capture->stdout.len > 0);
+        free_capture(capture);
     }
 
     return result;
