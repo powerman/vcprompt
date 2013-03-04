@@ -40,15 +40,15 @@ sum_bytes(const unsigned char *data, int size)
 }
 
 static int
-is_revlog_inlined(FILE *f)
+is_revlog_inlined(FILE *rlfile)
 {
     const unsigned int REVLOGNGINLINEDATA = 1 << 16;
     int revlog_ver;
     size_t origpos, rlen;
 
-    origpos = ftell(f);
-    rlen = fread(&revlog_ver, sizeof(revlog_ver), 1, f);
-    fseek(f, origpos, SEEK_SET);
+    origpos = ftell(rlfile);
+    rlen = fread(&revlog_ver, sizeof(revlog_ver), 1, rlfile);
+    fseek(rlfile, origpos, SEEK_SET);
 
     revlog_ver = ntohl(revlog_ver);
     return (rlen == 1) ? revlog_ver & REVLOGNGINLINEDATA : 0;
@@ -69,23 +69,23 @@ get_csinfo(const char *nodeid)
     const size_t ENTRY_LEN = 64, COMP_LEN_OFS = 8, NODEID_OFS = 32;
 
     char buf[ENTRY_LEN];
-    FILE *f;
+    FILE *rlfile;
     int inlined;
     csinfo_t csinfo = {"", -1, 0};
     int i;
 
-    f = fopen(REVLOG_FILENAME, "rb");
-    if (!f) {
+    rlfile = fopen(REVLOG_FILENAME, "rb");
+    if (!rlfile) {
         debug("error opening '%s': %s", REVLOG_FILENAME, strerror(errno));
         return csinfo;
     }
 
-    inlined = is_revlog_inlined(f);
+    inlined = is_revlog_inlined(rlfile);
 
-    for (i = 0; !feof(f); ++i) {
+    for (i = 0; !feof(rlfile); ++i) {
         size_t comp_len, rlen;
 
-        rlen = fread(buf, 1, ENTRY_LEN, f);
+        rlen = fread(buf, 1, ENTRY_LEN, rlfile);
         if (rlen == 0) break;
         if (rlen != ENTRY_LEN) {
             debug("error while reading '%s': incomplete entry (read = %d)",
@@ -106,15 +106,15 @@ get_csinfo(const char *nodeid)
             csinfo.istip = 1;
         }
 
-        if (inlined) fseek(f, comp_len, SEEK_CUR);
+        if (inlined) fseek(rlfile, comp_len, SEEK_CUR);
     }
 
-    fclose(f);
+    fclose(rlfile);
     return csinfo;
 }
 
 static size_t
-get_mq_patchname(char *str, const char *nodeid, size_t n)
+get_mq_patchname(char *dest, const char *nodeid, size_t n)
 {
     char buf[1024];
     char status_filename[512] = ".hg/patches/status";
@@ -134,17 +134,19 @@ get_mq_patchname(char *str, const char *nodeid, size_t n)
 
         debug("read last line from %s: '%s'", status_filename, buf);
         p = strchr(buf, ':');
-        if (!p) return 0;
+        if (!p)
+            return 0;
         *p = '\0';
         patch_nodeid_s = buf;
         patch = p + 1;
         debug("patch name found: '%s', nodeid: %s", patch, patch_nodeid_s);
 
-        if (strcmp(patch_nodeid_s, nodeid_s)) return 0;
+        if (strcmp(patch_nodeid_s, nodeid_s))
+            return 0;
 
-        strncpy(str, patch, n);
-        str[n - 1] = '\0';
-        return strlen(str);
+        strncpy(dest, patch, n);
+        dest[n - 1] = '\0';
+        return strlen(dest);
     }
     else {
         debug("failed to read from .hg/patches/status: assuming no mq patch applied");
@@ -153,10 +155,10 @@ get_mq_patchname(char *str, const char *nodeid, size_t n)
 }
 
 static size_t
-put_nodeid(char *str, const char *nodeid)
+put_nodeid(char *dest, const char *nodeid)
 {
     const size_t SHORT_NODEID_LEN = 6;  // size in binary repr
-    char *p = str;
+    char *p = dest;
 
     csinfo_t csinfo = get_csinfo(nodeid);
     if (csinfo.rev >= 0) {
@@ -166,7 +168,7 @@ put_nodeid(char *str, const char *nodeid)
         dump_hex(nodeid, p, SHORT_NODEID_LEN);
         p += SHORT_NODEID_LEN * 2;
     }
-    return p - str;
+    return p - dest;
 }
 
 static void
@@ -175,7 +177,8 @@ read_parents(vccontext_t *context, result_t *result)
     char buf[NODEID_LEN * 2];
     size_t readsize;
 
-    if (!context->options->show_revision) return;
+    if (!context->options->show_revision)
+        return;
 
     readsize = read_file(".hg/dirstate", buf, NODEID_LEN * 2);
     if (readsize == NODEID_LEN * 2) {
