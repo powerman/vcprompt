@@ -141,20 +141,20 @@ test_simple_hg_mq ()
     printf '0123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
     echo '303132333435363738396162636465666768696a:bar.diff' >> .hg/patches/status
-    assert_vcprompt "hg_mq applied 1" "hg:303132333435[bar.diff]/foo" "%n:%r/%b"
+    assert_vcprompt "hg_mq applied 1" "hg:303132333435/foo" "%n:%r/%b"
 
     printf 'a123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
     echo '613132333435363738396162636465666768696a:baz.diff' >> .hg/patches/status
     echo > .hg/patches.queue  # default queue
-    assert_vcprompt "hg_mq applied 2" "hg:613132333435[baz.diff]/foo" "%n:%r/%b"
+    assert_vcprompt "hg_mq applied 2" "hg:613132333435/foo" "%n:%r/%b"
 
     mkdir .hg/patches-foo
     printf 'a123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
     echo '613132333435363738396162636465666768696a:qux.diff' >> .hg/patches-foo/status
     echo 'foo' > .hg/patches.queue  # named queue
-    assert_vcprompt "hg_mq applied named mq" "hg:613132333435[qux.diff]/foo" "%n:%r/%b"
+    assert_vcprompt "hg_mq applied named mq" "hg:613132333435/foo" "%n:%r/%b"
 }
 
 test_simple_hg_revlog ()
@@ -174,11 +174,11 @@ test_simple_hg_revlog ()
 
     printf '0123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
-    assert_vcprompt "hg_revlog notip" "hg:0:303132333435" "%n:%r"
+    assert_vcprompt "hg_revlog notip" "hg:0" "%n:%r"
 
     printf 'a123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
-    assert_vcprompt "hg_revlog tip" "hg:1:613132333435[tip]" "%n:%r"
+    assert_vcprompt "hg_revlog tip" "hg:1" "%n:%r"
 
     # inlined
     (
@@ -193,11 +193,11 @@ test_simple_hg_revlog ()
 
     printf '0123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
-    assert_vcprompt "hg_revlog inlined notip" "hg:0:303132333435" "%n:%r"
+    assert_vcprompt "hg_revlog inlined notip" "hg:0" "%n:%r"
 
     printf 'a123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
-    assert_vcprompt "hg_revlog inlined tip" "hg:1:613132333435[tip]" "%n:%r"
+    assert_vcprompt "hg_revlog inlined tip" "hg:1" "%n:%r"
 }
 
 test_simple_svn()

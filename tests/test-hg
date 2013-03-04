@@ -42,14 +42,22 @@ test_basics()
 {
     pretest
     assert_vcprompt "show branch 1" "default" "%b"
+    assert_vcprompt "show rev 1" "[1]" "[%r]"
+
     hg -q update stable
     assert_vcprompt "show branch 2" "stable" "%b"
+    assert_vcprompt "show rev 2" "[2]" "[%r]"
 
     # not implemented yet
     #echo foo >> b
     #echo junk > junk
     #assert_vcprompt "show modified" "+" "%m"
     #assert_vcprompt "show unknown" "?" "%u"
+
+    hg -q update default
+    hg -q merge --tool internal:other stable
+    assert_vcprompt "show branch 3" "default" "%b"
+    assert_vcprompt "show rev 3" "[1,2]" "[%r]"
 
     posttest
 }

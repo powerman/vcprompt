@@ -156,29 +156,16 @@ static size_t
 put_nodeid(char *str, const char *nodeid)
 {
     const size_t SHORT_NODEID_LEN = 6;  // size in binary repr
-    char buf[512], *p = str;
-    size_t n;
+    char *p = str;
 
     csinfo_t csinfo = get_csinfo(nodeid);
-
-    if (csinfo.rev >= 0) p += sprintf(p, "%d:", csinfo.rev);
-
-    dump_hex(nodeid, p, SHORT_NODEID_LEN);
-    p += SHORT_NODEID_LEN * 2;
-
-    n = get_mq_patchname(buf, nodeid, sizeof(buf));
-    if (n) {
-        *p = '['; ++p;
-        memcpy(p, buf, n); p += n;
-        *p = ']'; ++p;
-        *p = '\0';
-    } else {
-        if (csinfo.istip) {
-            strcpy(p, "[tip]");
-            p += 5;
-        }
+    if (csinfo.rev >= 0) {
+        p += sprintf(p, "%d", csinfo.rev);
     }
-
+    else {
+        dump_hex(nodeid, p, SHORT_NODEID_LEN);
+        p += SHORT_NODEID_LEN * 2;
+    }
     return p - str;
 }
 

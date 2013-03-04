@@ -152,6 +152,18 @@ Format specifier
 .I .hg/branch
 ) if no bookmark is current.
 
+Format specifier
+.B %r
+(revision) expands to the revision number of the parent of the working
+dir, or a comma-separated pair of revision numbers if a merge is
+active (the working dir has two parents). If
+.B vcprompt
+fails to parse some of Mercurial's internal data, it might print a
+short changeset ID instead of a revision number. If that happens,
+please report a bug in
+.B vcprompt
+!
+
 Format specifiers
 .B %m
 and
