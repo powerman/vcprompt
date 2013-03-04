@@ -1,5 +1,5 @@
 
-CFLAGS = -Wall -Wextra -Wno-unused-parameter -g -O2
+CFLAGS = -Wall -Wextra -Wno-unused-parameter -std=gnu99 -g -O2
 
 headers = $(wildcard src/*.h)
 sources = $(wildcard src/*.c)
