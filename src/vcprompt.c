@@ -213,6 +213,8 @@ set_alarm(unsigned int milliseconds)
 int
 main(int argc, char** argv)
 {
+    int status = 0;
+
     /* Establish a handler for SIGALRM signals.  */
     signal(SIGALRM, exit_on_alarm);
 
@@ -258,7 +260,7 @@ main(int argc, char** argv)
 
     /* Nobody claimed it: bail now without printing anything. */
     if (context == NULL) {
-        return 0;
+        goto done;
     }
 
     /* Analyze the working copy metadata and print the result. */
@@ -269,5 +271,10 @@ main(int argc, char** argv)
         if (options.debug)
             putc('\n', stdout);
     }
-    return 0;
+
+ done:
+    for (int i = 0; i < num_contexts; i++) {
+        free(contexts[i]);
+    }
+    return status;
 }
