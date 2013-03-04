@@ -29,7 +29,7 @@ svn_get_info(vccontext_t *context)
 
     if (!read_first_line(".svn/entries", buf, 1024)) {
         debug("failed to read from .svn/entries: assuming not an svn repo");
-        return NULL;
+        goto err;
     }
     else {
         FILE *fp;
@@ -46,7 +46,7 @@ svn_get_info(vccontext_t *context)
                     fgets(line, sizeof(line), fp) == NULL) {
                     debug("early EOF reading .svn/entries");
                     fclose(fp);
-                    return NULL;
+                    goto err;
                 }
 
                 // Get the revision number
@@ -58,7 +58,7 @@ svn_get_info(vccontext_t *context)
                 else {
                     debug("early EOF: expected revision number");
                     fclose(fp);
-                    return NULL;
+                    goto err;
                 }
             }
             else {
@@ -71,7 +71,7 @@ svn_get_info(vccontext_t *context)
                         break;
                 if (p == NULL) {
                     debug("no 'revision=' line found in .svn/entries");
-                    return NULL;
+                    goto err;
                 }
                 if (sscanf(p, " %*[^\"]\"%[0-9]\"", rev) == 1) {
                     result_set_revision(result, rev, -1);
@@ -82,6 +82,9 @@ svn_get_info(vccontext_t *context)
         fclose(fp);
     }
     return result;
+ err:
+    free(result);
+    return NULL;
 }
 
 vccontext_t*

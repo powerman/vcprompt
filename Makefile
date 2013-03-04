@@ -25,6 +25,9 @@ fossilrepo = tests/fossil-repo
 check-simple: vcprompt
 	cd tests && ./test-simple
 
+grind: check-simple
+	(cd tests && VCPVALGRIND=y ./test-simple)
+
 check-hg: vcprompt $(hgrepo)
 	cd tests && ./test-hg
 

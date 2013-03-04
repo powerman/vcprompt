@@ -58,13 +58,25 @@ assert_vcprompt()
         format="%b"
     fi
 
-    if [ "$format" != '-' ]; then
-        actual=`VCPROMPT_FORMAT="$VCPROMPT_FORMAT" $vcprompt -f "$format"`
-    else
-        actual=`VCPROMPT_FORMAT="$VCPROMPT_FORMAT" $vcprompt`
+    prefix=""
+    if [ "$VCPVALGRIND" ]; then
+        prefix="valgrind --leak-check=full --error-exitcode=99 -q "
     fi
 
-    if [ "$expect" != "$actual" ]; then
+    if [ "$format" != '-' ]; then
+        cmd='VCPROMPT_FORMAT="$VCPROMPT_FORMAT" $prefix$vcprompt -f "$format"'
+    else
+        cmd='VCPROMPT_FORMAT="$VCPROMPT_FORMAT" $prefix$vcprompt'
+    fi
+    actual=`eval $cmd`
+    status=$?
+
+    if [ $status -ne 0 ]; then
+        echo "fail: child process terminated with exit status $status; command was:" >&2
+        eval echo $cmd >&2
+        failed="y"
+        return $status
+    elif [ "$expect" != "$actual" ]; then
         echo "fail: $message: expected \"$expect\", but got \"$actual\"" >&2
         failed="y"
         return 1
