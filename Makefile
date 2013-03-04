@@ -44,7 +44,7 @@ $(fossilrepo): tests/setup-fossil
 	cd tests && ./setup-fossil
 
 clean:
-	rm -f $(objects) vcprompt
+	rm -f $(objects) vcprompt $(hgrepo) $(gitrepo) $(fossilrepo)
 
 DESTDIR =
 PREFIX = /usr/local
