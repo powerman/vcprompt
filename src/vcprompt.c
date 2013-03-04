@@ -240,10 +240,11 @@ main(int argc, char** argv)
     }
 
     vccontext_t *contexts[] = {
-        get_cvs_context(&options),
+        /* ordered by popularity, so the common case is fast */
         get_git_context(&options),
         get_hg_context(&options),
         get_svn_context(&options),
+        get_cvs_context(&options),
         get_fossil_context(&options),
     };
     int num_contexts = sizeof(contexts) / sizeof(vccontext_t*);

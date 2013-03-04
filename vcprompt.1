@@ -101,36 +101,6 @@ external command, like "git status" or "fossil info".
 tries hard to avoid spawning external commands, but sometimes it can't
 be helped.
 
-.SH CVS SUPPORT
-
-.B vcprompt
-considers the current directory a CVS working dir if file
-.I CVS/Entries
-exists.
-
-Format specifier
-.B %b
-(branch) is supported by reading
-.I CVS/Tag;
-if that file does not exist,
-.B vcprompt
-displays the branch as "trunk".
-
-.B vcprompt
-looks only in the current dir, not in any subdirectories, so it will
-not notice mixed-branch working dirs.
-
-Format specifier
-.B %r
-is not supported because CVS has no global revision ID.
-
-Format specifiers
-.B %m
-and
-.B %u
-are not supported because CVS has no easy way to get that
-information.
-
 .SH GIT SUPPORT
 
 .B vcprompt
@@ -213,6 +183,36 @@ Format specifiers
 and
 .B %u
 are not implemented.
+
+.SH CVS SUPPORT
+
+.B vcprompt
+considers the current directory a CVS working dir if file
+.I CVS/Entries
+exists.
+
+Format specifier
+.B %b
+(branch) is supported by reading
+.I CVS/Tag;
+if that file does not exist,
+.B vcprompt
+displays the branch as "trunk".
+
+.B vcprompt
+looks only in the current dir, not in any subdirectories, so it will
+not notice mixed-branch working dirs.
+
+Format specifier
+.B %r
+is not supported because CVS has no global revision ID.
+
+Format specifiers
+.B %m
+and
+.B %u
+are not supported because CVS has no easy way to get that
+information.
 
 .SH FOSSIL SUPPORT
 
