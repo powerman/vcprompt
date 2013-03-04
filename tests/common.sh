@@ -72,7 +72,7 @@ assert_vcprompt()
     status=$?
 
     if [ $status -ne 0 ]; then
-        echo "fail: child process terminated with exit status $status; command was:" >&2
+        echo "fail: $message: child process terminated with exit status $status; command was:" >&2
         eval echo $cmd >&2
         failed="y"
         return $status

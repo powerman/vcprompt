@@ -32,54 +32,53 @@ git_get_info(vccontext_t *context)
         debug("unable to read .git/HEAD: assuming not a git repo");
         return NULL;
     }
-    else {
-        char *prefix = "ref: refs/heads/";
-        int prefixlen = strlen(prefix);
 
-        if (context->options->show_branch || context->options->show_revision) {
-            int found_branch = 0;
-            if (strncmp(prefix, buf, prefixlen) == 0) {
-                /* yep, we're on a known branch */
-                debug("read a head ref from .git/HEAD: '%s'", buf);
-                if (result_set_branch(result, buf + prefixlen))
-                    found_branch = 1;
-            }
-            else {
-                /* if it's not a branch name, assume it is a commit ID */
-                debug(".git/HEAD doesn't look like a head ref: unknown branch");
-                result_set_branch(result, "(unknown)");
+    char *prefix = "ref: refs/heads/";
+    int prefixlen = strlen(prefix);
+
+    if (context->options->show_branch || context->options->show_revision) {
+        int found_branch = 0;
+        if (strncmp(prefix, buf, prefixlen) == 0) {
+            /* yep, we're on a known branch */
+            debug("read a head ref from .git/HEAD: '%s'", buf);
+            if (result_set_branch(result, buf + prefixlen))
+                found_branch = 1;
+        }
+        else {
+            /* if it's not a branch name, assume it is a commit ID */
+            debug(".git/HEAD doesn't look like a head ref: unknown branch");
+            result_set_branch(result, "(unknown)");
+            result_set_revision(result, buf, 12);
+        }
+        if (context->options->show_revision && found_branch) {
+            char buf[1024];
+            char filename[1024] = ".git/refs/heads/";
+            int nchars = sizeof(filename) - strlen(filename) - 1;
+            strncat(filename, result->branch, nchars);
+            if (read_first_line(filename, buf, 1024)) {
                 result_set_revision(result, buf, 12);
             }
-            if (context->options->show_revision && found_branch) {
-                char buf[1024];
-                char filename[1024] = ".git/refs/heads/";
-                int nchars = sizeof(filename) - strlen(filename) - 1;
-                strncat(filename, result->branch, nchars);
-                if (read_first_line(filename, buf, 1024)) {
-                    result_set_revision(result, buf, 12);
-                }
-            }
         }
-        if (context->options->show_modified) {
-            char *argv[] = {
-                "git", "diff", "--no-ext-diff", "--quiet", "--exit-code", NULL};
-            capture_t *capture = capture_child("git", argv);
-            result->modified = (capture->status == 1);
+    }
+    if (context->options->show_modified) {
+        char *argv[] = {
+            "git", "diff", "--no-ext-diff", "--quiet", "--exit-code", NULL};
+        capture_t *capture = capture_child("git", argv);
+        result->modified = (capture->status == 1);
 
-            /* any other outcome (including failure to fork/exec,
-               failure to run git, or diff error): assume no
-               modifications */
-            free_capture(capture);
-        }
-        if (context->options->show_unknown) {
-            char *argv[] = {
-                "git", "ls-files", "--others", "--exclude-standard", NULL};
-            capture_t *capture = capture_child("git", argv);
-            result->unknown = (capture != NULL && capture->stdout.len > 0);
+        /* any other outcome (including failure to fork/exec,
+           failure to run git, or diff error): assume no
+           modifications */
+        free_capture(capture);
+    }
+    if (context->options->show_unknown) {
+        char *argv[] = {
+            "git", "ls-files", "--others", "--exclude-standard", NULL};
+        capture_t *capture = capture_child("git", argv);
+        result->unknown = (capture != NULL && capture->stdout.len > 0);
 
-            /* again, ignore other errors and assume no unknown files */
-            free_capture(capture);
-        }
+        /* again, ignore other errors and assume no unknown files */
+        free_capture(capture);
     }
 
     return result;
