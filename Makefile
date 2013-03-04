@@ -15,7 +15,7 @@ src/capture: src/capture.c src/capture.h src/common.c src/common.h
 # Maximally pessimistic view of header dependencies.
 $(objects): $(headers)
 
-.PHONY: check check-simple check-hg check-git check-fossil
+.PHONY: check check-simple check-hg check-git check-fossil grind
 check: check-simple check-hg check-git check-fossil
 
 hgrepo = tests/hg-repo.tar
@@ -24,9 +24,6 @@ fossilrepo = tests/fossil-repo
 
 check-simple: vcprompt
 	cd tests && ./test-simple
-
-grind: check-simple
-	(cd tests && VCPVALGRIND=y ./test-simple)
 
 check-hg: vcprompt $(hgrepo)
 	cd tests && ./test-hg
@@ -45,6 +42,9 @@ check-fossil: vcprompt $(fossilrepo)
 
 $(fossilrepo): tests/setup-fossil
 	cd tests && ./setup-fossil
+
+grind: check
+	make check VCPVALGRIND=y
 
 clean:
 	rm -f $(objects) vcprompt $(hgrepo) $(gitrepo) $(fossilrepo)
