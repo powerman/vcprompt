@@ -30,7 +30,7 @@ git_get_info(vccontext_t *context)
 
     if (!read_first_line(".git/HEAD", buf, 1024)) {
         debug("unable to read .git/HEAD: assuming not a git repo");
-        return NULL;
+        goto err;
     }
 
     char *prefix = "ref: refs/heads/";
@@ -82,6 +82,10 @@ git_get_info(vccontext_t *context)
     }
 
     return result;
+
+ err:
+    free_result(result);
+    return NULL;
 }
 
 vccontext_t*
