@@ -26,7 +26,7 @@
 #include "bzr.h"
 */
 
-#define DEFAULT_FORMAT "[%n:%b%m%u] "
+#define DEFAULT_FORMAT "[%n:%b] "
 
 void
 parse_args(int argc, char** argv, options_t *options)
