@@ -127,7 +127,7 @@ put_nodeid(char *dest, const char *nodeid)
         p += sprintf(p, "%d", csinfo.rev);
     }
     else {
-        dump_hex(nodeid, p, SHORT_NODEID_LEN);
+        dump_hex(p, nodeid, SHORT_NODEID_LEN);
         p += SHORT_NODEID_LEN * 2;
     }
     return p - dest;
@@ -227,7 +227,7 @@ read_patch_name(vccontext_t *context, result_t *result)
     debug("read last line from %s: '%s'", status_fn, last_line);
 
     char nodeid_s[NODEID_LEN * 2 + 1];
-    dump_hex(result->full_revision, nodeid_s, NODEID_LEN);
+    dump_hex(nodeid_s, result->full_revision, NODEID_LEN);
 
     if (strncmp(nodeid_s, last_line, NODEID_LEN * 2) == 0) {
         result->patch = strdup(last_line + NODEID_LEN * 2 + 1);

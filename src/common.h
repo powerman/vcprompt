@@ -121,11 +121,11 @@ read_file(const char *filename, char *buf, int size);
 void
 chop_newline(char *buf);
 
-/* Encode datasize bytes of binary data to hex chars in buf.  Caller
- * must allocate at least datasize*2 + 1 chars for buf.
+/* Encode datasize bytes of binary data to hex chars in dest. Caller
+ * must allocate at least datasize * 2 + 1 chars for dest.
  */
 void
-dump_hex(const char *data, char *buf, int datasize);
+dump_hex(char *dest, const char *data, int datasize);
 
 /* Copy up to nchars chars from src to dest, stopping at the first
  * newline and terminating dest with a NUL char.  On return, it is
