@@ -140,21 +140,22 @@ test_simple_hg_mq ()
 
     printf '0123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
-    echo '303132333435363738396162636465666768696a:bar.diff' >> .hg/patches/status
-    assert_vcprompt "hg_mq applied 1" "hg:303132333435/foo" "%n:%r/%b"
+    echo '303132333435363738396162636465666768696a:bar' >> .hg/patches/status
+    assert_vcprompt "hg_mq applied 1" "foo/bar" "%b/%p"
 
     printf 'a123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
-    echo '613132333435363738396162636465666768696a:baz.diff' >> .hg/patches/status
+    echo '613132333435363738396162636465666768696a:baz' >> .hg/patches/status
     echo > .hg/patches.queue  # default queue
-    assert_vcprompt "hg_mq applied 2" "hg:613132333435/foo" "%n:%r/%b"
+    assert_vcprompt "hg_mq applied 2" "foo/baz" "%b/%p"
 
     mkdir .hg/patches-foo
     printf 'a123456789abcdefghij\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' \
         > .hg/dirstate
-    echo '613132333435363738396162636465666768696a:qux.diff' >> .hg/patches-foo/status
+    echo '613132333435363738396162636465666768696a:qux' >> .hg/patches-foo/status
+    echo -e 'foo\npatches\n' > .hg/patches.queues
     echo 'foo' > .hg/patches.queue  # named queue
-    assert_vcprompt "hg_mq applied named mq" "hg:613132333435/foo" "%n:%r/%b"
+    assert_vcprompt "hg_mq applied named mq" "foo/qux" "%b/%p"
 }
 
 test_simple_hg_revlog ()

@@ -72,6 +72,10 @@ The name of the current branch.
 .B %r
 The current revision number, changeset ID, or commit ID.
 .TP
+.B %p
+The name of the currently applied patch, if any (Mercurial + MQ only,
+but it looks like this could easily be supported for git + guilt).
+.TP
 .B %u
 A single "?" if there are any unknown (untracked) files in the working
 dir. Slow.
@@ -117,10 +121,14 @@ checked out a specified commit), then
 .B vcprompt
 reports the branch as "unknown".
 
-Format specified
+Format specifier
 .B %r
 (revision) expands to the first 12 characters of the commit ID of
 HEAD.
+
+Format specifier
+.B %p
+is not yet implemented.
 
 Format specifier
 .B %m
@@ -164,6 +172,10 @@ please report a bug in
 .B vcprompt
 !
 
+Format specifier
+.B %p
+is implemented by reading MQ internals.
+
 Format specifiers
 .B %m
 and
@@ -189,6 +201,10 @@ out the branch; projects can structure their repository however they
 like, and there's no way to know which parts of the URL are just
 directories and which is the branch name. There might not even be a
 branch name.
+
+Format specifier
+.B %p
+is not implemented (it makes no sense with Subversion).
 
 Format specifiers
 .B %m
@@ -219,6 +235,10 @@ Format specifier
 .B %r
 is not supported because CVS has no global revision ID.
 
+Format specifier
+.B %p
+is not implemented (it makes no sense with CVS).
+
 Format specifiers
 .B %m
 and
@@ -243,6 +263,10 @@ depend on "fossil status", so there's no harm in using lots of format
 specifiers -- however, doing so
 .I is
 expensive for other version control systems.
+
+Format specifier
+.B %p
+is not implemented.
 
 Format specifier
 .B %u

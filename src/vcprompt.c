@@ -50,6 +50,7 @@ parse_args(int argc, char** argv, options_t *options)
                 DEFAULT_FORMAT,
                 " %b  show branch\n"
                 " %r  show revision\n"
+                " %p  show patch name (MQ, guilt, ...)\n"
                 " %u  show unknown\n"
                 " %m  show modified\n"
                 " %n  show VC name\n"
@@ -69,6 +70,8 @@ parse_format(options_t *options)
     size_t i;
 
     options->show_branch = 0;
+    options->show_revision = 0;
+    options->show_patch = 0;
     options->show_unknown = 0;
     options->show_modified = 0;
 
@@ -85,6 +88,9 @@ parse_format(options_t *options)
                     break;
                 case 'r':
                     options->show_revision = 1;
+                    break;
+            	case 'p':
+                    options->show_patch = 1;
                     break;
                 case 'u':
                     options->show_unknown = 1;
@@ -128,6 +134,9 @@ print_result(vccontext_t *context, options_t *options, result_t *result)
                     if (result->revision != NULL)
                         fputs(result->revision, stdout);
                     break;
+            	case 'p':
+                    if (result->patch != NULL)
+                        fputs(result->patch, stdout);
                 case 'u':
                     if (result->unknown)
                         putc('?', stdout);

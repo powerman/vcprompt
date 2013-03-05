@@ -17,6 +17,7 @@ typedef struct {
     char *format;                       /* e.g. "[%b%u%m]" */
     int show_branch;                    /* show current branch? */
     int show_revision;                  /* show current revision? */
+    int show_patch;                     /* show patch name? */
     int show_unknown;                   /* show ? if unknown files? */
     int show_modified;                  /* show + if local changes? */
     unsigned int timeout;               /* timeout in milliseconds */
@@ -28,7 +29,8 @@ typedef struct {
  */
 typedef struct {
     char *branch;                       /* name of current branch */
-    char *revision;                     /* current revision */
+    char *revision;                     /* current revision ID */
+    char *patch;                        /* name of current patch */
     int unknown;                        /* any unknown files? */
     int modified;                       /* any local changes? */
 

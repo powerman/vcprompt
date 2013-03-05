@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #if defined __BEOS__ && !defined __HAIKU__
 #include <ByteOrder.h>
@@ -114,47 +117,6 @@ get_csinfo(const char *nodeid)
 }
 
 static size_t
-get_mq_patchname(char *dest, const char *nodeid, size_t n)
-{
-    char buf[1024];
-    char status_filename[512] = ".hg/patches/status";
-    static const char QQ_STATUS_FILE_PAT[] = ".hg/patches-%s/status";
-    static const size_t MAX_QQ_NAME = sizeof(status_filename)
-        - (sizeof(QQ_STATUS_FILE_PAT) - 2 - 1);  // - "%s" - '\0'
-
-    // multiple patch queues, introduced in Mercurial 1.6
-    if (read_first_line(".hg/patches.queue", buf, MAX_QQ_NAME) && buf[0]) {
-        debug("read first line from .hg/patches.queue: '%s'", buf);
-        sprintf(status_filename, QQ_STATUS_FILE_PAT, buf);
-    }
-
-    if (read_last_line(status_filename, buf, 1024)) {
-        char nodeid_s[NODEID_LEN * 2 + 1], *p, *patch, *patch_nodeid_s;
-        dump_hex(nodeid, nodeid_s, NODEID_LEN);
-
-        debug("read last line from %s: '%s'", status_filename, buf);
-        p = strchr(buf, ':');
-        if (!p)
-            return 0;
-        *p = '\0';
-        patch_nodeid_s = buf;
-        patch = p + 1;
-        debug("patch name found: '%s', nodeid: %s", patch, patch_nodeid_s);
-
-        if (strcmp(patch_nodeid_s, nodeid_s))
-            return 0;
-
-        strncpy(dest, patch, n);
-        dest[n - 1] = '\0';
-        return strlen(dest);
-    }
-    else {
-        debug("failed to read from .hg/patches/status: assuming no mq patch applied");
-        return 0;
-    }
-}
-
-static size_t
 put_nodeid(char *dest, const char *nodeid)
 {
     const size_t SHORT_NODEID_LEN = 6;  // size in binary repr
@@ -174,11 +136,11 @@ put_nodeid(char *dest, const char *nodeid)
 static void
 read_parents(vccontext_t *context, result_t *result)
 {
+    if (!context->options->show_revision && !context->options->show_patch)
+        return;
+
     char *parent_nodes;         /* two binary changeset IDs */
     size_t readsize;
-
-    if (!context->options->show_revision)
-        return;
 
     parent_nodes = malloc(NODEID_LEN * 2);
     if (!parent_nodes) {
@@ -187,28 +149,93 @@ read_parents(vccontext_t *context, result_t *result)
     }
     result->full_revision = parent_nodes;
 
+    debug("reading first %d bytes of dirstate to parent_nodes (%p)",
+          NODEID_LEN * 2, parent_nodes);
     readsize = read_file(".hg/dirstate", parent_nodes, NODEID_LEN * 2);
-    if (readsize == NODEID_LEN * 2) {
-        char destbuf[1024] = {'\0'};
-        char *p = destbuf;
-        debug("read nodeids from .hg/dirstate");
-
-        // first parent
-        if (sum_bytes((unsigned char *) parent_nodes, NODEID_LEN)) {
-            p += put_nodeid(p, parent_nodes);
-        }
-
-        // second parent
-        if (sum_bytes((unsigned char *) parent_nodes + NODEID_LEN, NODEID_LEN)) {
-            *p = ','; ++p;
-            p += put_nodeid(p, parent_nodes + NODEID_LEN);
-        }
-
-        result_set_revision(result, destbuf, -1);
+    if (readsize != NODEID_LEN * 2) {
+        return;
     }
-    else {
-        debug("failed to read from .hg/dirstate");
+
+    readsize = read_file(".hg/dirstate", parent_nodes, NODEID_LEN * 2);
+    char destbuf[1024] = {'\0'};
+    char *p = destbuf;
+
+    // first parent
+    if (sum_bytes((unsigned char *) parent_nodes, NODEID_LEN)) {
+        p += put_nodeid(p, parent_nodes);
     }
+
+    // second parent
+    if (sum_bytes((unsigned char *) parent_nodes + NODEID_LEN, NODEID_LEN)) {
+        *p++ = ',';
+        p += put_nodeid(p, parent_nodes + NODEID_LEN);
+    }
+
+    result_set_revision(result, destbuf, -1);
+}
+
+static void
+read_patch_name(vccontext_t *context, result_t *result)
+{
+    if (!context->options->show_patch)
+        return;
+
+    static const char default_status[] = ".hg/patches/status";
+    static const char status_fmt[] = ".hg/patches-%s/status";
+
+    struct stat statbuf;
+    char *status_fn = NULL;
+    char *last_line = NULL;
+
+    if (stat(".hg/patches.queues", &statbuf) == 0) {
+        /* The name of the current patch queue cannot possibly be
+           longer than the name of all patch queues concatenated. */
+        size_t max_qname = (size_t) statbuf.st_size;
+        char *qname = malloc(max_qname + 1);
+        int ok = read_first_line(".hg/patches.queue", qname, max_qname);
+        if (ok && strlen(qname) > 0) {
+            debug("read queue name from .hg/patches.queue: '%s'", qname);
+            status_fn = malloc(strlen(default_status) + 1 + strlen(qname) + 1);
+            sprintf(status_fn, status_fmt, qname);
+        }
+        free(qname);
+    }
+
+    /* Failed to read patches.queues and/or patches.queue: assume
+       there is just a single patch queue. */
+    if (status_fn == NULL) {
+        status_fn = strdup(default_status);
+    }
+
+    if (stat(status_fn, &statbuf) < 0) {
+        debug("failed to stat %s: assuming no patch applied", status_fn);
+        goto done;
+    }
+    if (statbuf.st_size == 0) {
+        debug("status file %s is empty: no patch applied", status_fn);
+        goto done;
+    }
+
+    /* Last line of the file cannot possibly be longer than the whole
+       file */
+    size_t max_line = (size_t) statbuf.st_size;
+    last_line = malloc(max_line + 1);
+    if (!read_last_line(status_fn, last_line, max_line + 1)) {
+        debug("failed to read from %s: assuming no mq patch applied", status_fn);
+        goto done;
+    }
+    debug("read last line from %s: '%s'", status_fn, last_line);
+
+    char nodeid_s[NODEID_LEN * 2 + 1];
+    dump_hex(result->full_revision, nodeid_s, NODEID_LEN);
+
+    if (strncmp(nodeid_s, last_line, NODEID_LEN * 2) == 0) {
+        result->patch = strdup(last_line + NODEID_LEN * 2 + 1);
+    }
+
+ done:
+    free(status_fn);
+    free(last_line);
 }
 
 static result_t*
@@ -232,6 +259,7 @@ hg_get_info(vccontext_t *context)
     }
 
     read_parents(context, result);
+    read_patch_name(context, result);
 
     return result;
 }
