@@ -27,7 +27,7 @@ To install it:
 
 To use it with bash, just call it in PS1:
 
-  PS1='\u@\h:\w $(vcprompt)\$'
+  PS1='\u@\h $(vcprompt)\$ '
 
 To use it with zsh, you need to enable shell option PROMPT_SUBST, and
 then do similarly to bash:

@@ -274,23 +274,20 @@ the ther format specifiers.
 
 .SH CONFIGURING BASH
 
-Set shell variable
-.B PROMPT_COMMAND
-to run
+Use command substitution to include the output of
 .B vcprompt
-every time bash generates the prompt. For example, add
+in your prompt. For example, add
 .nf
 .in +2m
-PROMPT_COMMAND='vcprompt -f "[%b] "'
+if [ "$PS1" ]; then
+  PS1='\u@\h $(vcprompt -f "[%b]")\$ '
+fi
 .in -2m
 .fi
-(with your preferred format string) to
+to
 .I ~/.bashrc.
-Set
-.B PS1
-as normal. This means that
-.B vcprompt
-output will always come first.
+You can of course use all of bash's prompt escape sequences; the above
+is just an example.
 
 .SH CONFIGURING ZSH
 Enable the
@@ -304,7 +301,7 @@ every time zsh generates the prompt. For example, add
 .in +2m
 if [ -n "$PROMPT" ]; then
   setopt prompt_subst
-  PROMPT='$(vcprompt -f "[%b] ")$ '
+  PROMPT='%n@%m $(vcprompt -f "[%b]")$ '
 fi
 .in -2m
 .fi
