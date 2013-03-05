@@ -48,16 +48,16 @@ parse_args(int argc, char** argv, options_t *options)
                 printf("usage: %s [-h] [-d] [-t timeout_ms] [-f FORMAT]\n", argv[0]);
                 printf("FORMAT (default=\"%s\") may contain:\n%s",
                 DEFAULT_FORMAT,
-                " %b  show branch\n"
-                " %r  show revision\n"
-                " %p  show patch name (MQ, guilt, ...)\n"
-                " %u  show unknown\n"
-                " %m  show modified\n"
-                " %n  show VC name\n"
-                " %%  show '%'\n"
+                "  %n  show VC name\n"
+                "  %b  show branch\n"
+                "  %r  show revision\n"
+                "  %p  show patch name (MQ, guilt, ...)\n"
+                "  %u  indicate unknown (untracked) files\n"
+                "  %m  indicate uncommitted changes (modified/added/removed)\n"
+                "  %%  show '%'\n"
                 );
                 printf("Environment Variables:\n"
-                " VCPROMPT_FORMAT\n"
+                "  VCPROMPT_FORMAT\n"
                 );
                 exit(1);
         }
@@ -83,6 +83,8 @@ parse_format(options_t *options)
             switch (format[i]) {
                 case '\0':              /* at end of string: ignore */
                     break;
+                case 'n':               /* name of VC system */
+                    break;
                 case 'b':
                     options->show_branch = 1;
                     break;
@@ -98,7 +100,6 @@ parse_format(options_t *options)
                 case 'm':
                     options->show_modified = 1;
                     break;
-                case 'n':               /* name of VC system */
                 case '%':
                     break;
                 default:
@@ -123,8 +124,9 @@ print_result(vccontext_t *context, options_t *options, result_t *result)
             i++;
             switch (format[i]) {
                 case '0':               /* end of string */
-                case '%':               /* escaped % */
-                    putc('%', stdout);
+                    break;
+                case 'n':
+                    fputs(context->name, stdout);
                     break;
                 case 'b':
                     if (result->branch != NULL)
@@ -145,8 +147,8 @@ print_result(vccontext_t *context, options_t *options, result_t *result)
                     if (result->modified)
                         putc('+', stdout);
                     break;
-                case 'n':
-                    fputs(context->name, stdout);
+                case '%':               /* escaped % */
+                    putc('%', stdout);
                     break;
                 default:                /* %x printed as x */
                     putc(format[i], stdout);

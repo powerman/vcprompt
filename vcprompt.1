@@ -66,6 +66,10 @@ uses printf-style format strings, where % followed by a single letter
 expands to some piece of information about the current working dir.
 The supported format specifiers are:
 .TP
+.B %n
+A short all-lowercase name for the version control system managing the
+working dir: e.g. "cvs", "svn", "hg", "git", "fossil".
+.TP
 .B %b
 The name of the current branch.
 .TP
@@ -83,10 +87,6 @@ dir. Slow.
 .B %m
 a single "+" if there are any uncommitted changes (modified, added, or
 removed files) in the working dir. Slow.
-.TP
-.B %n
-A short all-lowercase name for the version control system managing the
-working dir: e.g. "cvs", "svn", "hg", "git", "fossil".
 .TP
 .B %%
 A single "%" character.
@@ -131,14 +131,14 @@ Format specifier
 is not yet implemented.
 
 Format specifier
-.B %m
-is supported by running "git diff --no-ext-diff --quiet --exit-code",
-so it can be expensive in a large working dir.
-
-Format specifier
 .B %u
 is supported by running "git ls-files --others --exclude-standard", so
 it can be expensive in a large working dir.
+
+Format specifier
+.B %m
+is supported by running "git diff --no-ext-diff --quiet --exit-code",
+so it can be expensive in a large working dir.
 
 The timeout (-t) option is useful to prevent
 .B vcprompt
@@ -177,9 +177,9 @@ Format specifier
 is implemented by reading MQ internals.
 
 Format specifiers
-.B %m
-and
 .B %u
+and
+.B %m
 are not implemented.
 
 .SH SUBVERSION (SVN) SUPPORT
@@ -207,9 +207,9 @@ Format specifier
 is not implemented (it makes no sense with Subversion).
 
 Format specifiers
-.B %m
-and
 .B %u
+and
+.B %m
 are not implemented.
 
 .SH CVS SUPPORT
@@ -226,7 +226,6 @@ Format specifier
 if that file does not exist,
 .B vcprompt
 displays the branch as "trunk".
-
 .B vcprompt
 looks only in the current dir, not in any subdirectories, so it will
 not notice mixed-branch working dirs.
@@ -240,9 +239,9 @@ Format specifier
 is not implemented (it makes no sense with CVS).
 
 Format specifiers
-.B %m
-and
 .B %u
+and
+.B %m
 are not supported because CVS has no easy way to get that
 information.
 
