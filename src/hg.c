@@ -174,27 +174,34 @@ put_nodeid(char *dest, const char *nodeid)
 static void
 read_parents(vccontext_t *context, result_t *result)
 {
-    char buf[NODEID_LEN * 2];
+    char *parent_nodes;         /* two binary changeset IDs */
     size_t readsize;
 
     if (!context->options->show_revision)
         return;
 
-    readsize = read_file(".hg/dirstate", buf, NODEID_LEN * 2);
+    parent_nodes = malloc(NODEID_LEN * 2);
+    if (!parent_nodes) {
+        debug("malloc failed: out of memory");
+        return;
+    }
+    result->full_revision = parent_nodes;
+
+    readsize = read_file(".hg/dirstate", parent_nodes, NODEID_LEN * 2);
     if (readsize == NODEID_LEN * 2) {
         char destbuf[1024] = {'\0'};
         char *p = destbuf;
         debug("read nodeids from .hg/dirstate");
 
         // first parent
-        if (sum_bytes((unsigned char *) buf, NODEID_LEN)) {
-            p += put_nodeid(p, buf);
+        if (sum_bytes((unsigned char *) parent_nodes, NODEID_LEN)) {
+            p += put_nodeid(p, parent_nodes);
         }
 
         // second parent
-        if (sum_bytes((unsigned char *) buf + NODEID_LEN, NODEID_LEN)) {
+        if (sum_bytes((unsigned char *) parent_nodes + NODEID_LEN, NODEID_LEN)) {
             *p = ','; ++p;
-            p += put_nodeid(p, buf + NODEID_LEN);
+            p += put_nodeid(p, parent_nodes + NODEID_LEN);
         }
 
         result_set_revision(result, destbuf, -1);

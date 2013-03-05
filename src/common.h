@@ -31,6 +31,9 @@ typedef struct {
     char *revision;                     /* current revision */
     int unknown;                        /* any unknown files? */
     int modified;                       /* any local changes? */
+
+    /* revision ID in VC-specific, not-necessarily-human-readable form */
+    void *full_revision;
 } result_t;
 
 int result_set_revision(result_t *result, const char *revision, int len);
