@@ -32,14 +32,16 @@ hg_probe(vccontext_t *context)
     return isdir(".hg");
 }
 
+/* return true if data contains any non-zero bytes */
 static int
-sum_bytes(const unsigned char *data, int size)
+non_zero(const unsigned char *data, int size)
 {
-    int i, sum = 0;
-    for (i = 0; i < size; ++i) {
-        sum += data[i];
+    int i;
+    for (i = 0; i < size; i++) {
+       if (data[i] != 0)
+           return 1;
     }
-    return sum;
+    return 0;
 }
 
 static int
@@ -161,12 +163,12 @@ read_parents(vccontext_t *context, result_t *result)
     char *p = destbuf;
 
     // first parent
-    if (sum_bytes((unsigned char *) parent_nodes, NODEID_LEN)) {
+    if (non_zero((unsigned char *) parent_nodes, NODEID_LEN)) {
         p += put_nodeid(p, parent_nodes);
     }
 
     // second parent
-    if (sum_bytes((unsigned char *) parent_nodes + NODEID_LEN, NODEID_LEN)) {
+    if (non_zero((unsigned char *) parent_nodes + NODEID_LEN, NODEID_LEN)) {
         *p++ = ',';
         p += put_nodeid(p, parent_nodes + NODEID_LEN);
     }
