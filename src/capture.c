@@ -58,12 +58,12 @@ new_capture()
     capture_t *result = malloc(sizeof(capture_t));
     if (result == NULL)
         goto err;
-    init_dynbuf(&result->stdout, bufsize);
-    if (result->stdout.buf == NULL)
+    init_dynbuf(&result->childout, bufsize);
+    if (result->childout.buf == NULL)
         goto err;
 
-    init_dynbuf(&result->stderr, bufsize);
-    if (result->stderr.buf == NULL)
+    init_dynbuf(&result->childerr, bufsize);
+    if (result->childerr.buf == NULL)
         goto err;
 
     return result;
@@ -77,10 +77,10 @@ void
 free_capture(capture_t *result)
 {
     if (result != NULL) {
-        if (result->stdout.buf != NULL)
-            free(result->stdout.buf);
-        if (result->stderr.buf != NULL)
-            free(result->stderr.buf);
+        if (result->childout.buf != NULL)
+            free(result->childout.buf);
+        if (result->childerr.buf != NULL)
+            free(result->childerr.buf);
         free(result);
     }
 }
@@ -158,11 +158,11 @@ capture_child(const char *file, char *const argv[])
         int maxfd = -1;
         fd_set child_fds;
         FD_ZERO(&child_fds);
-        if (!result->stdout.eof) {
+        if (!result->childout.eof) {
             FD_SET(cstdout, &child_fds);
             maxfd = cstdout;
         }
-        if (!result->stderr.eof) {
+        if (!result->childerr.eof) {
             FD_SET(cstderr, &child_fds);
             maxfd = cstderr;
         }
@@ -173,14 +173,14 @@ capture_child(const char *file, char *const argv[])
             break;
 
         if (FD_ISSET(cstdout, &child_fds)) {
-            if (read_dynbuf(cstdout, &result->stdout) < 0)
+            if (read_dynbuf(cstdout, &result->childout) < 0)
                 goto err;
         }
         if (FD_ISSET(cstderr, &child_fds)) {
-            if (read_dynbuf(cstderr, &result->stderr) < 0)
+            if (read_dynbuf(cstderr, &result->childerr) < 0)
                 goto err;
         }
-        done = result->stdout.eof && result->stderr.eof;
+        done = result->childout.eof && result->childerr.eof;
     }
 
     int status;
@@ -197,9 +197,9 @@ capture_child(const char *file, char *const argv[])
     if (result->signal != 0)
         debug("child process %s killed by signal %d",
               file, result->signal);
-    if (result->stderr.len > 0)
+    if (result->childerr.len > 0)
         debug("child process %s wrote to stderr:\n%s",
-              file, result->stderr.buf);
+              file, result->childerr.buf);
 
     return result;
  err:
@@ -255,9 +255,9 @@ main(int argc, char *argv[])
         return 1;
     }
     printf("read %ld bytes from child stdout: >%s<\n",
-           result->stdout.len, result->stdout.buf);
+           result->childout.len, result->childout.buf);
     printf("read %ld bytes from child stderr: >%s<\n",
-           result->stderr.len, result->stderr.buf);
+           result->childerr.len, result->childerr.buf);
     status = result->status;
     printf("child status = %d, signal =%d\n", status, result->signal);
     free_capture(result);

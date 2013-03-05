@@ -11,8 +11,8 @@ typedef struct {
 } dynbuf;
 
 typedef struct {
-    dynbuf stdout;
-    dynbuf stderr;
+    dynbuf childout;
+    dynbuf childerr;
     int status;                 /* exit status that child passed (if any) */
     int signal;                 /* signal that killed the child (if any) */
 } capture_t;
@@ -22,11 +22,11 @@ typedef struct {
  * be file (unless you are playing funny games) and the last element
  * of argv must be NULL.
  *
- * On return, capture->stdout.buf will be the child's stdout, and
- * capture->stdout.len the number of bytes read. capture->stdout.buf
+ * On return, capture->childout.buf will be the child's stdout, and
+ * capture->childout.len the number of bytes read. capture->childout.buf
  * is null terminated, so as long as the child's output is textual,
  * you can use it as a string. Similarly, child's stderr is in
- * capture->stderr.buf and capture->stderr.len. Caller is responsible
+ * capture->childerr.buf and capture->childerr.len. Caller is responsible
  * for freeing the result with free_capture().
  */
 capture_t *

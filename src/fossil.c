@@ -41,7 +41,7 @@ fossil_get_info(vccontext_t *context)
         debug("unable to execute 'fossil status'");
         return NULL;
     }
-    char *cstdout = capture->stdout.buf;
+    char *cstdout = capture->childout.buf;
 
     if (context->options->show_branch) {
         if ((t = strstr(cstdout, "\ntags:"))) {
@@ -94,7 +94,7 @@ fossil_get_info(vccontext_t *context)
             debug("unable to execute 'fossil extra'");
             return NULL;
         }
-        result->unknown = (capture->stdout.len > 0);
+        result->unknown = (capture->childout.len > 0);
         free_capture(capture);
     }
 

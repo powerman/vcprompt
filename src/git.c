@@ -75,7 +75,7 @@ git_get_info(vccontext_t *context)
         char *argv[] = {
             "git", "ls-files", "--others", "--exclude-standard", NULL};
         capture_t *capture = capture_child("git", argv);
-        result->unknown = (capture != NULL && capture->stdout.len > 0);
+        result->unknown = (capture != NULL && capture->childout.len > 0);
 
         /* again, ignore other errors and assume no unknown files */
         free_capture(capture);
