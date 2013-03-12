@@ -253,6 +253,11 @@ read_modified_unknown(vccontext_t *context, result_t *result)
     char *argv[] = {"hg", "--quiet", "status",
                     "--modified", "--added", "--removed",
                     "--unknown", NULL};
+    if (!context->options->show_unknown) {
+        // asking hg to search for unknown files can be expensive, so
+        // skip it unless the user wants it
+        argv[6] = NULL;
+    }
     capture_t *capture = capture_child("hg", argv);
     if (capture == NULL) {
         debug("unable to execute 'hg status'");
