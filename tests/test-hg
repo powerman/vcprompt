@@ -34,7 +34,8 @@ pretest()
 
 posttest()
 {
-    :
+    cd $tmpdir
+    rm -rf hg-repo
 }
 
 # default prompt format in test repo
@@ -80,7 +81,7 @@ test_status()
     assert_vcprompt "unknown only 2" "?" "%u"
     assert_vcprompt "unknown only 3" "?" "%m%u"
 
-    rm -f junk
+    posttest
 }
 
 test_status_goofy_filenames()
@@ -107,6 +108,7 @@ test_status_goofy_filenames()
     assert_vcprompt "1 modified" "+" "%m"
     assert_vcprompt "no unknown files" "" "%u"
     assert_vcprompt "1 modified, no unknown" "+" "%m%u"
+    posttest
 }
 
 check_hg

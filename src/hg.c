@@ -21,6 +21,7 @@
 #include <arpa/inet.h>
 #endif
 
+#include "capture.h"
 #include "common.h"
 #include "hg.h"
 
@@ -240,6 +241,37 @@ read_patch_name(vccontext_t *context, result_t *result)
     free(last_line);
 }
 
+static void
+read_modified_unknown(vccontext_t *context, result_t *result)
+{
+    // No easy way that we know to get the modified or unknown status
+    // without forking an hg process. Replace this with a more efficient version
+    // if you ever figure it out.
+    if (!context->options->show_modified && !context->options->show_unknown)
+        return;
+
+    char *argv[] = { "hg", "status", "--modified", "--unknown", "--quiet", NULL};
+    capture_t *capture = capture_child("hg", argv);
+    if (capture == NULL) {
+        debug("unable to execute 'hg status'");
+        return;
+    }
+    char *cstdout = capture->childout.buf;
+    if (context->options->show_unknown) {
+        result->unknown = (strstr(cstdout, "? ") != NULL);
+    }
+
+    if (context->options->show_modified) {
+	result->modified = (strstr(cstdout, "M ") != NULL ||
+			    strstr(cstdout, "A ") != NULL||
+			    strstr(cstdout, "! ") != NULL||
+			    strstr(cstdout, "R ") != NULL);
+    }
+
+    cstdout = NULL;
+    free_capture(capture);
+}
+
 static result_t*
 hg_get_info(vccontext_t *context)
 {
@@ -262,6 +294,7 @@ hg_get_info(vccontext_t *context)
 
     read_parents(context, result);
     read_patch_name(context, result);
+    read_modified_unknown(context, result);
 
     return result;
 }
