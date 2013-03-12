@@ -257,15 +257,17 @@ read_modified_unknown(vccontext_t *context, result_t *result)
         return;
     }
     char *cstdout = capture->childout.buf;
-    if (context->options->show_unknown) {
-        result->unknown = (strstr(cstdout, "? ") != NULL);
-    }
-
-    if (context->options->show_modified) {
-	result->modified = (strstr(cstdout, "M ") != NULL ||
-			    strstr(cstdout, "A ") != NULL||
-			    strstr(cstdout, "! ") != NULL||
-			    strstr(cstdout, "R ") != NULL);
+    for (char *ch = cstdout; *ch != 0; ch++) {
+        if (ch == cstdout || *(ch-1) == '\n') {
+            // at start of output or start of line: look for ?, M, etc.
+            if (context->options->show_unknown && *ch == '?') {
+                result->unknown = 1;
+            }
+            if (context->options->show_modified &&
+                (*ch == 'M' || *ch == 'A' || *ch == 'R')) {
+                result->modified = 1;
+            }
+        }
     }
 
     cstdout = NULL;

@@ -98,7 +98,7 @@ test_status_goofy_filenames()
 
     fn="crazy? filename"
     echo "not junk" > "$fn"
-    hg -q add "$fn"
+    hg -q add "$fn" 2>&1 | grep -iv "reserved on windows"
     hg -q commit -m"yes, it's a crazy filename"
     assert_vcprompt "no modified files" "" "%m"
     assert_vcprompt "no unknown files" "" "%u"
