@@ -250,7 +250,9 @@ read_modified_unknown(vccontext_t *context, result_t *result)
     if (!context->options->show_modified && !context->options->show_unknown)
         return;
 
-    char *argv[] = { "hg", "status", "--modified", "--unknown", "--quiet", NULL};
+    char *argv[] = {"hg", "--quiet", "status",
+                    "--modified", "--added", "--removed",
+                    "--unknown", NULL};
     capture_t *capture = capture_child("hg", argv);
     if (capture == NULL) {
         debug("unable to execute 'hg status'");

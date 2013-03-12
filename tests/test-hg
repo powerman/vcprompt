@@ -84,6 +84,38 @@ test_status()
     posttest
 }
 
+test_status_add_remove()
+{
+    # files that are hg add'ed or hg remove'd count as local modifications
+    echo "test_status_add_remove:"
+    pretest
+
+    echo hello > new
+    hg add new
+    assert_vcprompt "added 1" "+" "%m"
+    assert_vcprompt "added 2" "" "%u"
+    assert_vcprompt "added 3" "+" "%m%u"
+
+    hg -q remove b
+    assert_vcprompt "added + removed 1" "+" "%m"
+    assert_vcprompt "added + removed 2" "" "%u"
+    assert_vcprompt "added + removed 3" "+" "%m%u"
+
+    hg -q revert new
+    assert_vcprompt "removed + unknown 1" "+" "%m"
+    assert_vcprompt "removed + unknown 2" "?" "%u"
+    assert_vcprompt "removed + unknown 3" "+?" "%m%u"
+
+    # missing files do *not* count as local modifications: user has
+    # not said they're planning to remove them with "hg remove"
+    hg -q revert --all --no-backup
+    rm new
+    rm a
+    assert_vcprompt "missing 1" "" "%m"
+    assert_vcprompt "missing 2" "" "%u"
+    assert_vcprompt "missing 3" "" "%m%u"
+}
+
 test_status_goofy_filenames()
 {
     echo "test_status_goofy_filenames:"
@@ -118,6 +150,7 @@ setup
 
 test_basics
 test_status
+test_status_add_remove
 test_status_goofy_filenames
 
 report
