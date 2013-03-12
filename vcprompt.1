@@ -180,7 +180,12 @@ Format specifiers
 .B %u
 and
 .B %m
-are not implemented.
+are implemented by running "hg status", so they can be expensive in a
+large working dir. Mercurial has to work harder to find unknown files
+than it does to find uncommitted changes, so using
+.B %u
+can be considerably more expensive than just
+.B %m.
 
 .SH SUBVERSION (SVN) SUPPORT
 
