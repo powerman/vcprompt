@@ -40,6 +40,7 @@ posttest()
 # default prompt format in test repo
 test_basics()
 {
+    echo "test_basics:"
     pretest
     assert_vcprompt "show branch 1" "default" "%b"
     assert_vcprompt "show rev 1" "[1]" "[%r]"
@@ -47,12 +48,6 @@ test_basics()
     hg -q update stable
     assert_vcprompt "show branch 2" "stable" "%b"
     assert_vcprompt "show rev 2" "[2]" "[%r]"
-
-    # not implemented yet
-    #echo foo >> b
-    #echo junk > junk
-    #assert_vcprompt "show modified" "+" "%m"
-    #assert_vcprompt "show unknown" "?" "%u"
 
     hg -q update default
     hg -q merge --tool internal:other stable
@@ -62,11 +57,65 @@ test_basics()
     posttest
 }
 
+test_status()
+{
+    echo "test_status:"
+    pretest
+    assert_vcprompt "clean 1" "" "%m"
+    assert_vcprompt "clean 2" "" "%u"
+    assert_vcprompt "clean 3" "" "%m%u"
+
+    echo foo >> b
+    assert_vcprompt "mod only 1" "+" "%m"
+    assert_vcprompt "mod only 2" "" "%u"
+    assert_vcprompt "mod only 3" "+" "%m%u"
+
+    echo junk > junk
+    assert_vcprompt "mod+unknown 1" "+" "%m"
+    assert_vcprompt "mod+unknown 2" "?" "%u"
+    assert_vcprompt "mod+unknown 3" "+?" "%m%u"
+
+    hg -q update --clean .
+    assert_vcprompt "unknown only 1" "" "%m"
+    assert_vcprompt "unknown only 2" "?" "%u"
+    assert_vcprompt "unknown only 3" "?" "%m%u"
+
+    rm -f junk
+}
+
+test_status_goofy_filenames()
+{
+    echo "test_status_goofy_filenames:"
+    pretest
+
+    # goofy filenames to test parsing of "? " and "M "
+    echo junk > "junk M junk"
+    assert_vcprompt "no modified 2" "" "%m"
+    assert_vcprompt "no modified, 1 unknown" "?" "%u"
+    assert_vcprompt "no modified, 1 unknown" "?" "%m%u"
+    rm -f "junk M junk"
+
+    fn="crazy? filename"
+    echo "not junk" > "$fn"
+    hg -q add "$fn"
+    hg -q commit -m"yes, it's a crazy filename"
+    assert_vcprompt "no modified files" "" "%m"
+    assert_vcprompt "no unknown files" "" "%u"
+    assert_vcprompt "no modified/unknown files" "" "%m%u"
+
+    echo x >> "$fn"
+    assert_vcprompt "1 modified" "+" "%m"
+    assert_vcprompt "no unknown files" "" "%u"
+    assert_vcprompt "1 modified, no unknown" "+" "%m%u"
+}
+
 check_hg
 find_vcprompt
 find_hgrepo
 setup
 
 test_basics
+test_status
+test_status_goofy_filenames
 
 report
