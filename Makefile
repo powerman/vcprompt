@@ -6,7 +6,7 @@ sources = $(wildcard src/*.c)
 objects = $(subst .c,.o,$(sources))
 
 vcprompt: $(objects)
-	$(CC) -o $@ $(objects)
+	$(CC) -l sqlite3 -o $@ $(objects)
 
 # build a standalone version of capture_child() library for testing
 src/capture: src/capture.c src/capture.h src/common.c src/common.h
