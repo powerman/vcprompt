@@ -57,5 +57,5 @@ MANDIR = $(DESTDIR)$(PREFIX)/man/man1
 .PHONY: install
 install: vcprompt
 	install -d $(BINDIR) $(MANDIR)
-	install vcprompt $(BINDIR)/bin
+	install vcprompt $(BINDIR)
 	install vcprompt.1 $(MANDIR)
