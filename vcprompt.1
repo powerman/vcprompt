@@ -85,7 +85,7 @@ A single "?" if there are any unknown (untracked) files in the working
 dir. Slow.
 .TP
 .B %m
-a single "+" if there are any uncommitted changes (modified, added, or
+A single "+" if there are any uncommitted changes (modified, added, or
 removed files) in the working dir. Slow.
 .TP
 .B %%
@@ -139,10 +139,6 @@ Format specifier
 .B %m
 is supported by running "git diff --no-ext-diff --quiet --exit-code",
 so it can be expensive in a large working dir.
-
-The timeout (-t) option is useful to prevent
-.B vcprompt
-from taking too long in large working dirs.
 
 .SH MERCURIAL (HG) SUPPORT
 
@@ -233,7 +229,7 @@ if that file does not exist,
 displays the branch as "trunk".
 .B vcprompt
 looks only in the current dir, not in any subdirectories, so it will
-not notice mixed-branch working dirs.
+not detect mixed-branch working dirs.
 
 Format specifier
 .B %r
@@ -285,7 +281,7 @@ in your prompt. For example, add
 .nf
 .in +2m
 if [ "$PS1" ]; then
-  PS1='\u@\h $(vcprompt -f "[%b]")\$ '
+  PS1='\\u@\\h $(vcprompt -f "[%b]")\$ '
 fi
 .in -2m
 .fi

@@ -1,8 +1,8 @@
 vcprompt
 ========
 
-vcprompt is a little C program that prints a short string, designed to
-be included in your prompt, with barebones information about the
+vcprompt is a little C program that prints a short string, to be
+included in your shell prompt, with barebones information about the
 current working directory for various version control systems. It is
 designed to be small and lightweight rather than comprehensive.
 
@@ -25,6 +25,16 @@ To install it:
 
   make install PREFIX=$HOME
 
+To make life easier for packagers, the Makefile also supports DESTDIR:
+
+  make install DESTDIR=/tmp/packageroot PREFIX=/usr
+
+
+Configuration
+=============
+
+(For more details, see the man page.)
+
 To use it with bash, just call it in PS1:
 
   PS1='\u@\h $(vcprompt)\$ '
@@ -34,9 +44,6 @@ then do similarly to bash:
 
   setopt prompt_subst
   PROMPT='[%n@%m] [%~] $(vcprompt)'
-
-vcprompt prints nothing if the current directory is not managed by a
-recognized VC system.
 
 
 Format Strings
@@ -67,15 +74,7 @@ Format strings use printf-like "%" escape sequences:
 
 All other characters are expanded as-is.
 
-The default format string is
-
-  [%n:%b]
-
-which is notable because it works with every supported VC system. In
-fact, some features are meaningless with some systems: there is no
-single current revision with CVS, for example. (And there is no good
-way to quickly find out if there are any uncommitted changes or
-unknown files, for that matter.)
+(For more details, see the man page.)
 
 
 Contributing
@@ -155,6 +154,7 @@ In chronological order:
   Armin Ronacher
   Jordi Fita
   Gregg Lind
+  Jakob Kramer
 
 Thanks to all!
 
