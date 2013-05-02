@@ -1,0 +1,77 @@
+vcprompt release process
+========================
+
+* make sure "hg summary --remote" is clean (nothing uncommitted,
+  synced with remote)
+
+* read through README.txt and make sure it's still valid
+
+* read the man page and make sure it's still valid
+  (groff -Tascii -man vcprompt.1 | less)
+
+* commit any required changes
+
+* clone on at least one different machine and run the tests:
+
+    hg clone http://hg.gerg.ca/vcprompt
+    cd vcprompt
+    make grind      # requires valgrind
+    make check      # if valgrind not installed
+
+* select the version number, e.g.:
+
+    ver=1.1
+
+* tag the release and build the source tarball
+
+    hg tag $ver
+    hg archive -r $ver -t tgz -X ".hg*" /tmp/vcprompt-$ver.tar.gz
+
+* test the tarball locally
+
+    cd /tmp
+    tar -xzf vcprompt-$ver.tar.gz
+    cd vcprompt-$ver
+    make grind
+
+* copy to at least one different machine and test there
+
+    host=<something>
+    scp /tmp/vcprompt-$ver.tar.gz $host:/tmp
+    ssh $host "cd /tmp && tar -xzf vcprompt-$ver.tar.gz && cd vcprompt-$ver && make check"
+
+* push outgoing (tag) changeset
+
+    hg push
+
+* upload tarball to bitbucket from
+
+    https://bitbucket.org/gward/vcprompt/downloads
+
+* announce to mailing list (vcprompt-devel@googlegroups.com), e.g.:
+
+"""
+Hi all --
+
+I am pleased to announce the release of vcprompt 1.1. You can download
+the tarball from
+
+  https://bitbucket.org/gward/vcprompt/downloads/vcprompt-1.1.tar.gz
+
+Changes in this release:
+
+* add support for reporting modified/unknown files in Mercurial working
+  dirs (%m and %u format specifiers) (thanks to Geoff Lane)
+
+* tweaks to "make install" (thanks to Jakob Kramer)
+
+If you have any problems, please report them on this mailing list, or
+open a bug report on bitbucket.
+
+        Greg
+"""
+
+* announce on freecode.com
+  (https://freecode.com/projects/vcprompt/releases/new)
+
+* announce on twitter
