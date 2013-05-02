@@ -10,8 +10,8 @@ check_available "fossil version" "This is fossil"
 set -ex
 cd `dirname $0`
 rm -rf fossil-repo
+export USER=alice
 fossil init -A alice fossil-repo
-fossil user default alice -R fossil-repo
 rm -fr fossil-work
 mkdir fossil-work
 cd fossil-work
