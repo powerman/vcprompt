@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <sqlite3.h>
+#include <unistd.h>
 #include "common.h"
 #include "svn.h"
 
@@ -80,6 +82,11 @@ svn_get_info(vccontext_t *context)
     result_t *result = init_result();
     FILE *fp = NULL;
 
+    int retval;
+    sqlite3 *conn;
+    sqlite3_stmt *res;
+    const char *tail;
+
     fp = fopen(".svn/entries", "r");
     if (!fp) {
         debug("failed to open .svn/entries: not an svn working copy");
@@ -94,19 +101,46 @@ svn_get_info(vccontext_t *context)
     }
     line_num++;
 
-    // First line of the file tells us what the format is.
-    int ok;
-    if(isdigit(line[0])) {
-        // Custom file format (working copy created by svn >= 1.4)
-        ok = svn_read_custom(fp, line, sizeof(line), line_num, result);
+    if (access(".svn/wc.db", F_OK) == 0) {
+        // Custom file format (working copy created by svn >= 1.7)
+
+        retval = sqlite3_open(".svn/wc.db", &conn);
+        if (retval) {
+            debug("error opening database in .svn/wc.db");
+            goto err;
+        }
+        retval = sqlite3_prepare_v2(conn, "select max(revision) from NODES", 1000, &res, &tail);
+        if (retval) {
+            debug("error running query");
+            goto err_sqlite;
+        }
+        else {
+            char buf[1024];
+            sqlite3_step(res);
+            sprintf(buf, "%s", sqlite3_column_text(res, 0));
+            result->revision = strdup(buf);
+            sqlite3_finalize(res);
+            sqlite3_close(conn);
+        }
+    err_sqlite:
+        sqlite3_finalize(res);
+        sqlite3_close(conn);
     }
     else {
-        // XML file format (working copy created by svn < 1.4)
-        ok = svn_read_xml(fp, line, sizeof(line), line_num, result);
-    }
-    if (ok) {
-        fclose(fp);
-        return result;
+        // First line of the file tells us what the format is.
+        int ok;
+        if(isdigit(line[0])) {
+            // Custom file format (working copy created by svn >= 1.4)
+            ok = svn_read_custom(fp, line, sizeof(line), line_num, result);
+        }
+        else {
+            // XML file format (working copy created by svn < 1.4)
+            ok = svn_read_xml(fp, line, sizeof(line), line_num, result);
+        }
+        if (ok) {
+            fclose(fp);
+            return result;
+        }
     }
 
  err:
