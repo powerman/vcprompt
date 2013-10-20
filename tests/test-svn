@@ -46,9 +46,11 @@ test_basics()
     assert_vcprompt "vc name" "svn" "%n"
     # %b isn't implemented: when that is fixed, this will break!
     assert_vcprompt "no branch name on trunk" "" "%b"
+    assert_vcprompt "rev num on trunk" "2" "%r"
 
     svn -q switch $repourl/branches/stable
     assert_vcprompt "no branch name on branch" "" "%b"
+    assert_vcprompt "rev num on branch" "4" "%r"
 }
 
 check_svn
