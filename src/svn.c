@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2009-2013, Gregory P. Ward and contributors.
  *
@@ -33,8 +32,8 @@ svn_get_info(vccontext_t *context)
 
     int retval;
     sqlite3 *conn;
-    sqlite3_stmt    *res;
-    const char      *tail;
+    sqlite3_stmt *res;
+    const char *tail;
 
     if (!read_first_line(".svn/entries", buf, 1024)) {
         debug("failed to read from .svn/entries: not an svn working copy");
@@ -48,17 +47,17 @@ svn_get_info(vccontext_t *context)
     }
     char line[1024];
 
-    if( access( ".svn/wc.db", F_OK ) == 0 ) {
+    if (access(".svn/wc.db", F_OK) == 0) {
         // Custom file format (working copy created by svn >= 1.7)
 
         retval = sqlite3_open(".svn/wc.db", &conn);
-        if(retval) {
-            debug("Can not open database");
+        if (retval) {
+            debug("error opening database in .svn/wc.db");
             goto err;
         }
         retval = sqlite3_prepare_v2(conn, "select max(revision) from NODES", 1000, &res, &tail);
-        if(retval) {
-            debug("Can not run the query");
+        if (retval) {
+            debug("error running query");
             goto err_sqlite;
         }
         else {
