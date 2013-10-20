@@ -37,7 +37,9 @@ svn_read_sqlite(result_t *result)
         debug("error opening database in .svn/wc.db");
         goto err;
     }
-    char *sql = "select max(revision) from NODES";
+    // unclear when wc_id is anything other than 1
+    char *sql = ("select changed_revision from nodes "
+                 "where wc_id = 1 and local_relpath = ''");
     retval = sqlite3_prepare_v2(conn, sql, 1000, &res, &tail);
     if (retval != SQLITE_OK) {
         debug("error running query");
