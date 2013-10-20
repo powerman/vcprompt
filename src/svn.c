@@ -24,6 +24,40 @@ svn_probe(vccontext_t *context)
 }
 
 static int
+svn_read_sqlite(result_t *result)
+{
+    int ok = 0;
+    int retval;
+    sqlite3 *conn = NULL;
+    sqlite3_stmt *res = NULL;
+    const char *tail;
+
+    retval = sqlite3_open(".svn/wc.db", &conn);
+    if (retval != SQLITE_OK) {
+        debug("error opening database in .svn/wc.db");
+        goto err;
+    }
+    char *sql = "select max(revision) from NODES";
+    retval = sqlite3_prepare_v2(conn, sql, 1000, &res, &tail);
+    if (retval != SQLITE_OK) {
+        debug("error running query");
+        goto err;
+    }
+    char *buf = malloc(1024);
+    sqlite3_step(res);
+    sprintf(buf, "%s", sqlite3_column_text(res, 0));
+    result->revision = buf;
+    ok = 1;
+
+ err:
+    if (res != NULL)
+        sqlite3_finalize(res);
+    if (conn != NULL)
+        sqlite3_close(conn);
+    return ok;
+}
+
+static int
 svn_read_custom(FILE *fp, char line[], int size, int line_num, result_t *result)
 {
     // Caller has already read line 1. Read lines 2..5, discarding 2..4.
@@ -82,11 +116,6 @@ svn_get_info(vccontext_t *context)
     result_t *result = init_result();
     FILE *fp = NULL;
 
-    int retval;
-    sqlite3 *conn;
-    sqlite3_stmt *res;
-    const char *tail;
-
     fp = fopen(".svn/entries", "r");
     if (!fp) {
         debug("failed to open .svn/entries: not an svn working copy");
@@ -101,46 +130,23 @@ svn_get_info(vccontext_t *context)
     }
     line_num++;
 
+    int ok;
     if (access(".svn/wc.db", F_OK) == 0) {
-        // Custom file format (working copy created by svn >= 1.7)
-
-        retval = sqlite3_open(".svn/wc.db", &conn);
-        if (retval) {
-            debug("error opening database in .svn/wc.db");
-            goto err;
-        }
-        retval = sqlite3_prepare_v2(conn, "select max(revision) from NODES", 1000, &res, &tail);
-        if (retval) {
-            debug("error running query");
-            goto err_sqlite;
-        }
-        else {
-            char buf[1024];
-            sqlite3_step(res);
-            sprintf(buf, "%s", sqlite3_column_text(res, 0));
-            result->revision = strdup(buf);
-            sqlite3_finalize(res);
-            sqlite3_close(conn);
-        }
-    err_sqlite:
-        sqlite3_finalize(res);
-        sqlite3_close(conn);
+        // SQLite file format (working copy created by svn >= 1.7)
+        ok = svn_read_sqlite(result);
+    }
+    // First line of the file tells us what the format is.
+    else if (isdigit(line[0])) {
+        // Custom file format (working copy created by svn >= 1.4)
+        ok = svn_read_custom(fp, line, sizeof(line), line_num, result);
     }
     else {
-        // First line of the file tells us what the format is.
-        int ok;
-        if(isdigit(line[0])) {
-            // Custom file format (working copy created by svn >= 1.4)
-            ok = svn_read_custom(fp, line, sizeof(line), line_num, result);
-        }
-        else {
-            // XML file format (working copy created by svn < 1.4)
-            ok = svn_read_xml(fp, line, sizeof(line), line_num, result);
-        }
-        if (ok) {
-            fclose(fp);
-            return result;
-        }
+        // XML file format (working copy created by svn < 1.4)
+        ok = svn_read_xml(fp, line, sizeof(line), line_num, result);
+    }
+    if (ok) {
+        fclose(fp);
+        return result;
     }
 
  err:
