@@ -13,15 +13,22 @@ vcprompt has no external dependencies: it does everything with the
 standard C library and POSIX calls. It should work on any
 POSIX-compliant system with a C99 compiler.
 
-To compile vcprompt:
+To build vcprompt from the source tarball:
 
+  ./configure
+  make
+
+If you're building in a source checkout, you also need GNU autoconf:
+
+  autoconf
+  ./configure
   make
 
 (vcprompt requires GNU make, so if you are using a BSD variant where
 the default make is BSD make, you will need to install GNU make and
 run "gmake".)
 
-To install it:
+To install it in your home directory:
 
   make install PREFIX=$HOME
 

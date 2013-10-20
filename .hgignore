@@ -1,5 +1,10 @@
 ~$
 \.o$
 ^vcprompt$
-
+^aclocal
+^autom4te\.cache$
+^config\.
+^configure$
+^Makefile$
+^stamp-h
 ^tests/\w+-repo(\.tar)?$
