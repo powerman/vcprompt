@@ -201,6 +201,7 @@ test_simple_hg_revlog ()
     assert_vcprompt "hg_revlog inlined tip" "hg:1" "%n:%r"
 }
 
+# custom format for .svn/entries (svn 1.4 .. 1.6)
 test_simple_svn()
 {
     cd $tmpdir
@@ -225,6 +226,7 @@ EOF
     assert_vcprompt "svn revision" "svn:123" "%n:%r"
 }
 
+# XML format for .svn/entries (svn < 1.4)
 test_xml_svn()
 {
     cd $tmpdir

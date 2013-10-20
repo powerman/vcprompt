@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# Setup the test svn repository that will be used by test-svn.
+#
+# Output is svn-repo.tar, which will be unpacked for each test run.
+
+. ./common.sh
+
+check_available "svn --version" "svn, version "
+set -ex
+cd `dirname $`
+dir=`pwd`
+rm -rf svn-repo svn-wc
+
+svnadmin create svn-repo
+url=file://$dir/svn-repo
+svn mkdir -m"setup" $url/trunk $url/tags $url/branches
+svn checkout $url/trunk svn-wc
+cd svn-wc
+
+echo a > a
+echo b > b
+svn add a b
+svn commit -m"add a, b"
+
+svn copy -m"branch stable" . $url/branches/stable
+svn switch $url/branches/stable
+echo fix >> b
+svn commit -m"fix a bug"
+
+svn switch $url/trunk
+
+cd ..
+tar -cf svn-repo.tar svn-repo
+rm -rf svn-repo svn-wc

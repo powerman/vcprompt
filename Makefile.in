@@ -15,11 +15,12 @@ src/capture: src/capture.c src/capture.h src/common.c src/common.h
 # Maximally pessimistic view of header dependencies.
 $(objects): $(headers)
 
-.PHONY: check check-simple check-hg check-git check-fossil grind
-check: check-simple check-hg check-git check-fossil
+.PHONY: check check-simple check-hg check-git check-svn check-fossil grind
+check: check-simple check-hg check-git check-svn check-fossil
 
 hgrepo = tests/hg-repo.tar
 gitrepo = tests/git-repo.tar
+svnrepo = tests/svn-repo.tar
 fossilrepo = tests/fossil-repo
 
 check-simple: vcprompt
@@ -36,6 +37,12 @@ check-git: vcprompt $(gitrepo)
 
 $(gitrepo): tests/setup-git
 	cd tests && ./setup-git
+
+check-svn: vcprompt $(svnrepo)
+	cd tests && ./test-svn
+
+$(svnrepo): tests/setup-svn
+	cd tests && ./setup-svn
 
 check-fossil: vcprompt $(fossilrepo)
 	cd tests && ./test-fossil

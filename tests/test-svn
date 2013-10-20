@@ -1,0 +1,59 @@
+#!/bin/sh
+
+# Tests that require a real svn repository and executable.
+
+. ./common.sh
+
+check_svn()
+{
+    check_available \
+        "svn --version" \
+        "svn, version " \
+        "svn not found: skipping this test script"
+}
+
+find_svnrepo()
+{
+    svnrepo="$testdir/svn-repo.tar"
+    if [ ! -f $svnrepo ]; then
+        echo "$svnrepo not found" >&2
+        exit 1
+    fi
+}
+
+pretest()
+{
+    [ -d $tmpdir ] || die "tmpdir ($tmpdir) does not exist"
+    cd $tmpdir
+    rm -rf svn-repo svn-wc
+    tar -xf $svnrepo
+    repourl=file://$tmpdir/svn-repo
+    svn -q checkout $repourl/trunk svn-wc
+    cd svn-wc
+}
+
+posttest()
+{
+    cd $tmpdir
+    rm -rf svn-repo svn-wc
+}
+
+# default prompt format in test repo
+test_basics()
+{
+    echo "test_basics:"
+    pretest
+    assert_vcprompt "vc name" "svn" "%n"
+    # %b isn't implemented: when that is fixed, this will break!
+    assert_vcprompt "no branch name on trunk" "" "%b"
+
+    svn -q switch $repourl/branches/stable
+    assert_vcprompt "no branch name on branch" "" "%b"
+}
+
+check_svn
+find_vcprompt
+find_svnrepo
+setup
+
+test_basics
