@@ -1,12 +1,13 @@
 
 CFLAGS = -Wall -Wextra -Wno-unused-parameter -std=gnu99 -g
+LIBS = @LIBS@
 
 headers = $(wildcard src/*.h)
 sources = $(wildcard src/*.c)
 objects = $(subst .c,.o,$(sources))
 
 vcprompt: $(objects)
-	$(CC) -o $@ $(objects) -l sqlite3
+	$(CC) -o $@ $(objects) $(LIBS)
 
 # build a standalone version of capture_child() library for testing
 src/capture: src/capture.c src/capture.h src/common.c src/common.h

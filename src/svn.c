@@ -7,11 +7,16 @@
  * (at your option) any later version.
  */
 
+#include "../config.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <sqlite3.h>
 #include <unistd.h>
+#if HAVE_SQLITE3_H
+# include <sqlite3.h>
+#endif
+
 #include "common.h"
 #include "svn.h"
 
@@ -23,6 +28,7 @@ svn_probe(vccontext_t *context)
     return isdir(".svn");
 }
 
+#if HAVE_SQLITE3_H
 static int
 svn_read_sqlite(result_t *result)
 {
@@ -58,6 +64,14 @@ svn_read_sqlite(result_t *result)
         sqlite3_close(conn);
     return ok;
 }
+#else
+static int
+svn_read_sqlite(result_t *result)
+{
+    debug("vcprompt built without sqlite3 (cannot support svn >= 1.7)");
+    return 0;
+}
+#endif
 
 static int
 svn_read_custom(FILE *fp, char line[], int size, int line_num, result_t *result)
