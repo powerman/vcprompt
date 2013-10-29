@@ -2,7 +2,7 @@
 CFLAGS = -Wall -Wextra -Wno-unused-parameter -std=gnu99 -g
 LIBS = @LIBS@
 
-headers = $(wildcard src/*.h)
+headers = $(wildcard src/*.h) config.h
 sources = $(wildcard src/*.c)
 objects = $(subst .c,.o,$(sources))
 
