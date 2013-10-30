@@ -6,15 +6,25 @@ headers = $(wildcard src/*.h) config.h
 sources = $(wildcard src/*.c)
 objects = $(subst .c,.o,$(sources))
 
-vcprompt: $(objects)
+vcprompt: $(objects) Makefile
 	$(CC) -o $@ $(objects) $(LIBS)
+
+Makefile: Makefile.in configure
+	./configure -C
+
+config.h: config.h.in
+	rm -f $@
+	./configure -C
+
+configure: configure.ac
+	autoconf
 
 # build a standalone version of capture_child() library for testing
 src/capture: src/capture.c src/capture.h src/common.c src/common.h
 	$(CC) -DTEST_CAPTURE $(CFLAGS) -o $@ src/capture.c src/common.c
 
 # Maximally pessimistic view of header dependencies.
-$(objects): $(headers)
+$(objects): $(headers) Makefile
 
 .PHONY: check check-simple check-hg check-git check-svn check-fossil grind
 check: check-simple check-hg check-git check-svn check-fossil
