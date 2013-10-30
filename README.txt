@@ -9,9 +9,10 @@ designed to be small and lightweight rather than comprehensive.
 Currently, it has varying degrees of recognition for Mercurial, Git,
 Subversion, CVS, and Fossil working copies.
 
-vcprompt has no external dependencies: it does everything with the
+vcprompt has minimal dependencies: it does as much as it can with the
 standard C library and POSIX calls. It should work on any
-POSIX-compliant system with a C99 compiler.
+POSIX-compliant system with a C99 compiler. Some features will only
+work with the help of an external library (see "Dependencies" below).
 
 To build vcprompt from the source tarball:
 
@@ -35,6 +36,27 @@ To install it in your home directory:
 To make life easier for packagers, the Makefile also supports DESTDIR:
 
   make install DESTDIR=/tmp/packageroot PREFIX=/usr
+
+
+Dependencies
+============
+
+vcprompt always requires GNU make to build.
+
+vcprompt requires GNU autoconf to build from a source checkout (but
+not if you are building from a source tarball).
+
+Support for Subversion >= 1.7 requires SQLite 3. If it's not present on
+the build system, vcprompt will support Subversion <= 1.6. Either way,
+the build should succeed and the tests should pass. To install the
+required files:
+
+  sudo apt-get install libsqlite3-dev   # Debian, Ubuntu
+  sudo yum install libsqlite3x-devel    # Fedora, Red Hat
+
+To see which features are built-in to your vcprompt binary, run
+
+  ./vcprompt -F
 
 
 Configuration
