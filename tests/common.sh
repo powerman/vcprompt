@@ -34,6 +34,18 @@ find_vcprompt()
         die "vcprompt executable not found (expected $vcprompt)"
 }
 
+# Check if some feature was built in to the current vcprompt binary;
+# exit with a message if not.
+check_feature()
+{
+    feature=$1
+    msg=$2
+    if ! $vcprompt -F | fgrep -q -x -e "$feature"; then
+        echo $msg
+        exit 0
+    fi
+}
+
 setup()
 {
     tmpdir=`mktemp -d /tmp/vcprompt.XXXXXX`

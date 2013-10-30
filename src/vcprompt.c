@@ -7,6 +7,8 @@
  * (at your option) any later version.
  */
 
+#include "../config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,13 +28,35 @@
 #include "bzr.h"
 */
 
+static char* features[] = {
+    /* Some version control systems don't change their working copy
+       format every couple of versions (or they are just
+       unmaintained), so we don't need versioned feature strings. */
+    "cvs",
+    "hg",
+    "git",
+    "fossil",
+
+    /* Support for Subversion up to 1.6 is unconditional, because those
+       versions don't require any additional libraries. Subversion >= 1.7
+       requires SQLite, so it's conditional. */
+    "svn-1.3",
+    "svn-1.4",
+    "svn-1.5",
+    "svn-1.6",
+#if HAVE_SQLITE3_H
+    "svn-1.7",
+#endif
+    0,
+};
+
 #define DEFAULT_FORMAT "[%n:%b] "
 
 void
 parse_args(int argc, char** argv, options_t *options)
 {
     int opt;
-    while ((opt = getopt(argc, argv, "hf:dt:")) != -1) {
+    while ((opt = getopt(argc, argv, "hf:dt:F")) != -1) {
         switch (opt) {
             case 'f':
                 options->format = optarg;
@@ -42,6 +66,9 @@ parse_args(int argc, char** argv, options_t *options)
                 break;
             case 't':
                 options->timeout = strtol(optarg, NULL, 10);
+                break;
+            case 'F':
+                options->show_features = 1;
                 break;
             case 'h':
             default:
@@ -61,6 +88,14 @@ parse_args(int argc, char** argv, options_t *options)
                 );
                 exit(1);
         }
+    }
+}
+
+void
+show_features(void)
+{
+    for (char **f = features; *f != NULL; f++) {
+        puts(*f);
     }
 }
 
@@ -239,9 +274,15 @@ main(int argc, char** argv)
         .show_revision = 0,
         .show_unknown  = 0,
         .show_modified = 0,
+        .show_features = 0,
     };
 
     parse_args(argc, argv, &options);
+    if (options.show_features) {
+        show_features();
+        return 0;
+    }
+
     parse_format(&options);
     set_options(&options);
 

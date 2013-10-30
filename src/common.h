@@ -21,6 +21,7 @@ typedef struct {
     int show_unknown;                   /* show ? if unknown files? */
     int show_modified;                  /* show + if local changes? */
     unsigned int timeout;               /* timeout in milliseconds */
+    int show_features;                  /* list builtin features */
 } options_t;
 
 /* What we figured out by analyzing the working dir: info that

@@ -10,6 +10,8 @@ check_svn()
         "svn --version" \
         "svn, version " \
         "svn not found: skipping this test script"
+    need=`svn --version | head -n1 | sed 's/, version /-/; s/\.[0-9]* .*//'`
+    check_feature $need "$need not built in: skipping this test script"
 }
 
 find_svnrepo()
@@ -53,8 +55,8 @@ test_basics()
     assert_vcprompt "rev num on branch" "4" "%r"
 }
 
-check_svn
 find_vcprompt
+check_svn
 find_svnrepo
 setup
 
