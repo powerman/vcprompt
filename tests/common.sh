@@ -12,6 +12,16 @@ die()
     exit 1
 }
 
+# Prepend $TOOLPATH to $PATH (if $TOOLPATH set), so caller can
+# influence where external tools (e.g. svn, hg) are found. Must be
+# called before check_available if it's to be of any use.
+set_path()
+{
+    if [ -s "$TOOLPATH" ]; then
+        PATH=$TOOLPATH:$PATH
+    fi
+}
+
 # Check if some external command is available by running it
 # and ensuring that it prints an expected string.  If not,
 # exit with optional message.

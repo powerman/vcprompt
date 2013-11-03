@@ -37,6 +37,12 @@ To make life easier for packagers, the Makefile also supports DESTDIR:
 
   make install DESTDIR=/tmp/packageroot PREFIX=/usr
 
+Please report build failures to the development mailing list,
+vcprompt-devel@googlegroups.com.
+
+vcprompt includes a fairly comprehensive test suite. If you want to
+run it, see "Testing" below.
+
 
 Dependencies
 ============
@@ -104,6 +110,46 @@ Format strings use printf-like "%" escape sequences:
 All other characters are expanded as-is.
 
 (For more details, see the man page.)
+
+
+Testing
+=======
+
+To run vcprompt's test suite:
+
+  make check
+
+If it fails, it should be loud and obvious. Please report any test
+failures to the development mailing list:
+vcprompt-devel@googlegroups.com.
+
+To check for memory errors, you can run vcprompt's test suite under
+valgrind:
+
+  make grind
+
+Obviously, this requires that you have valgrind installed.
+
+Testing different Subversion versions
+-------------------------------------
+
+Subversion changes its working copy format every couple of years, so
+vcprompt supports three formats: the pre-1.4 XML format, the 1.4..1.6
+plain-text format, and the post-1.7 SQLite format. Actually testing
+these requires that you have different versions of Subversion on hand,
+each installed in a separate prefix.
+
+For example, I keep multiple versions in /usr/local/subversion-1.x, so
+I can test them like this:
+
+  rm -f tests/svn-repo.tar && make check-svn TOOLPATH=/usr/local/subversion-1.6/bin
+  rm -f tests/svn-repo.tar && make check-svn TOOLPATH=/usr/local/subversion-1.7/bin
+
+Actually *building* multiple versions of Subversion is harder than you
+would believe. (In fact, I've been unable to build anything older than
+1.5, so vcprompt's support for pre-1.4 working copies is currently
+untested.)
+
 
 
 Contributing

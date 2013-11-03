@@ -6,6 +6,7 @@
 
 . ./common.sh
 
+set_path
 check_available "svn --version" "svn, version "
 set -ex
 cd `dirname $`

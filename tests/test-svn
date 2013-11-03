@@ -53,8 +53,11 @@ test_basics()
     svn -q switch $repourl/branches/stable
     assert_vcprompt "no branch name on branch" "" "%b"
     assert_vcprompt "rev num on branch" "4" "%r"
+
+    posttest
 }
 
+set_path
 find_vcprompt
 check_svn
 find_svnrepo
