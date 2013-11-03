@@ -130,8 +130,8 @@ valgrind:
 
 Obviously, this requires that you have valgrind installed.
 
-Testing different Subversion versions
--------------------------------------
+Testing multiple versions of the same tool
+------------------------------------------
 
 Subversion changes its working copy format every couple of years, so
 vcprompt supports three formats: the pre-1.4 XML format, the 1.4..1.6
@@ -150,6 +150,12 @@ would believe. (In fact, I've been unable to build anything older than
 1.5, so vcprompt's support for pre-1.4 working copies is currently
 untested.)
 
+TOOLPATH is supported for all tools; I also keep multiple versions of
+Mercurial around, so I can test vcprompt against them:
+
+  rm -f tests/hg-repo.tar && make check-svn TOOLPATH=/usr/local/mercurial-2.4/bin
+  rm -f tests/hg-repo.tar && make check-svn TOOLPATH=/usr/local/mercurial-2.5/bin
+  [...etc...]
 
 
 Contributing

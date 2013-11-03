@@ -13,8 +13,8 @@ die()
 }
 
 # Prepend $TOOLPATH to $PATH (if $TOOLPATH set), so caller can
-# influence where external tools (e.g. svn, hg) are found. Must be
-# called before check_available if it's to be of any use.
+# influence where external tools (e.g. svn, hg) are found. Called
+# automatically when you include this file.
 set_path()
 {
     if [ -s "$TOOLPATH" ]; then
@@ -117,3 +117,5 @@ report()
 	exit 0
     fi
 }
+
+set_path
