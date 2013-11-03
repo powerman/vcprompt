@@ -51,7 +51,7 @@ test_basics()
     assert_vcprompt "show rev 2" "[2]" "[%r]"
 
     hg -q update default
-    hg -q merge --tool internal:other stable
+    HGMERGE=internal:other hg -q merge stable
     assert_vcprompt "show branch 3" "default" "%b"
     assert_vcprompt "show rev 3" "[1,2]" "[%r]"
 
