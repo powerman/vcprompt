@@ -46,6 +46,7 @@ static char* features[] = {
     "svn-1.6",
 #if HAVE_SQLITE3_H
     "svn-1.7",
+    "svn-1.8",
 #endif
     0,
 };
