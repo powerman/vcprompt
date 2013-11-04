@@ -189,11 +189,12 @@ currently supports Subversion up to version 1.7 (version 1.8
 untested).
 
 .B %b
-is not supported because Subversion has no guaranteed way to figure
-out the branch; projects can structure their repository however they
-like, and there's no way to know which parts of the URL are just
-directories and which is the branch name. There might not even be a
-branch name.
+is supported by parsing the repository URL corresponding to the
+current working dir: if we're in a checkout of
+.I .../trunk
+then branch is "trunk"; if we're in a checkout of
+.I .../branches/FOO
+then branch is "FOO"; otherwise the branch is unknown.
 
 .B %p
 is not implemented (it makes no sense with Subversion).

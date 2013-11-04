@@ -46,13 +46,15 @@ test_basics()
     echo "test_basics:"
     pretest
     assert_vcprompt "vc name" "svn" "%n"
-    # %b isn't implemented: when that is fixed, this will break!
-    assert_vcprompt "no branch name on trunk" "" "%b"
+    assert_vcprompt "branch name on trunk" "trunk" "%b"
     assert_vcprompt "rev num on trunk" "2" "%r"
 
     svn -q switch $repourl/branches/stable
-    assert_vcprompt "no branch name on branch" "" "%b"
+    assert_vcprompt "branch name on non-trunk branch" "stable" "%b"
     assert_vcprompt "rev num on branch" "4" "%r"
+
+    # XXX checkout whole project: /trunk + /branches + /tags
+    # XXX in a subdir: /trunk/d, /branches/stable/d
 
     posttest
 }
