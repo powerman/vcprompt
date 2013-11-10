@@ -1,5 +1,5 @@
-
 CFLAGS = -Wall -Wextra -Wno-unused-parameter -std=gnu99 -g
+LDFLAGS = -g
 LIBS = @LIBS@
 
 headers = $(wildcard src/*.h) config.h
@@ -7,7 +7,7 @@ sources = $(wildcard src/*.c)
 objects = $(subst .c,.o,$(sources))
 
 vcprompt: $(objects) Makefile
-	$(CC) -o $@ $(objects) $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $(objects) $(LIBS)
 
 Makefile: Makefile.in configure
 	./configure -C
