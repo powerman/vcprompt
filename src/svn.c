@@ -83,19 +83,23 @@ svn_read_sqlite(vccontext_t *context, result_t *result)
     // unclear when wc_id is anything other than 1
     char *sql = ("select changed_revision from nodes "
                  "where wc_id = 1 and local_relpath = ''");
-    retval = sqlite3_prepare_v2(conn, sql, 1000, &res, &tail);
+    const char *textval;
+    retval = sqlite3_prepare_v2(conn, sql, strlen(sql), &res, &tail);
     if (retval != SQLITE_OK) {
         debug("error running query: %s", sqlite3_errstr(retval));
         goto err;
     }
-    char *buf = malloc(1024);
     retval = sqlite3_step(res);
     if (retval != SQLITE_DONE && retval != SQLITE_ROW) {
         debug("error fetching result row");
         goto err;
     }
-    sprintf(buf, "%s", sqlite3_column_text(res, 0));
-    result->revision = buf;
+    textval = (const char *) sqlite3_column_text(res, 0);
+    if (textval == NULL) {
+        debug("could not retrieve value of nodes.changed_revision");
+        goto err;
+    }
+    result->revision = strdup(textval);
     sqlite3_finalize(res);
 
     sql = "select repos_path from nodes where local_relpath = ?";
@@ -117,7 +121,12 @@ svn_read_sqlite(vccontext_t *context, result_t *result)
         goto err;
     }
 
-    repos_path = strdup((const char *) sqlite3_column_text(res, 0));
+    textval = (const char *) sqlite3_column_text(res, 0);
+    if (textval == NULL) {
+        debug("could not retrieve value of nodes.repos_path");
+        goto err;
+    }
+    repos_path = strdup(textval);
     result->branch = get_branch_name(repos_path);
 
     ok = 1;
