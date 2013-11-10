@@ -62,7 +62,7 @@ get_branch_name(const char *repos_path)
 
 #if HAVE_SQLITE3_H
 static int
-svn_read_sqlite(result_t *result)
+svn_read_sqlite(vccontext_t *context, result_t *result)
 {
     int ok = 0;
     int retval;
@@ -89,10 +89,17 @@ svn_read_sqlite(result_t *result)
     result->revision = buf;
     sqlite3_finalize(res);
 
-    sql = "select repos_path from nodes where local_relpath = ''";
+    sql = "select repos_path from nodes where local_relpath = ?";
     retval = sqlite3_prepare_v2(conn, sql, strlen(sql), &res, &tail);
     if (retval != SQLITE_OK) {
         debug("error querying for repos_path");
+        goto err;
+    }
+    retval = sqlite3_bind_text(res, 1,
+                               context->rel_path, strlen(context->rel_path),
+                               SQLITE_STATIC);
+    if (retval != SQLITE_OK) {
+        debug("error binding parameter");
         goto err;
     }
     sqlite3_step(res);
@@ -110,7 +117,7 @@ svn_read_sqlite(result_t *result)
 }
 #else
 static int
-svn_read_sqlite(result_t *result)
+svn_read_sqlite(vccontext_t *context, result_t *result)
 {
     debug("vcprompt built without sqlite3 (cannot support svn >= 1.7)");
     return 0;
@@ -215,7 +222,7 @@ svn_get_info(vccontext_t *context)
     int ok;
     if (access(".svn/wc.db", F_OK) == 0) {
         // SQLite file format (working copy created by svn >= 1.7)
-        ok = svn_read_sqlite(result);
+        ok = svn_read_sqlite(context, result);
     }
     // First line of the file tells us what the format is.
     else if (isdigit(line[0])) {

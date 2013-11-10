@@ -25,12 +25,13 @@ find_svnrepo()
 
 pretest()
 {
+    checkout_path=$1
     [ -d $tmpdir ] || die "tmpdir ($tmpdir) does not exist"
     cd $tmpdir
     rm -rf svn-repo svn-wc
     tar -xf $svnrepo
     repourl=file://$tmpdir/svn-repo
-    svn -q checkout $repourl/trunk svn-wc
+    svn -q checkout $repourl/$checkout_path svn-wc
     cd svn-wc
 }
 
@@ -44,7 +45,7 @@ posttest()
 test_basics()
 {
     echo "test_basics:"
-    pretest
+    pretest "trunk"
     assert_vcprompt "vc name" "svn" "%n"
     assert_vcprompt "branch name on trunk" "trunk" "%b"
     assert_vcprompt "rev num on trunk" "2" "%r"
@@ -59,9 +60,28 @@ test_basics()
     posttest
 }
 
+test_weird_checkout()
+{
+    # checkout the whole repo, ie. parent of trunk/, tags/, branches/
+    echo "test_weird_checkout:"
+    pretest ""
+    assert_vcprompt "vc name" "svn" "%n"
+    assert_vcprompt "no branch name (in project root)" "" "%b"
+
+    cd trunk
+    assert_vcprompt "branch name on trunk" "trunk" "%b"
+
+    cd ../branches/stable
+    assert_vcprompt "branch name on non-trunk branch" "stable" "%b"
+
+
+    posttest
+}
+
 find_vcprompt
 check_svn
 find_svnrepo
 setup
 
 test_basics
+test_weird_checkout
