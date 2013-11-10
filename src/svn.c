@@ -75,9 +75,9 @@ svn_read_sqlite(vccontext_t *context, result_t *result)
     const char *tail;
     char * repos_path = NULL;
 
-    retval = sqlite3_open(".svn/wc.db", &conn);
+    retval = sqlite3_open_v2(".svn/wc.db", &conn, SQLITE_OPEN_READONLY, NULL);
     if (retval != SQLITE_OK) {
-        debug("error opening database in .svn/wc.db");
+        debug("error opening database in .svn/wc.db: %s", sqlite3_errstr(retval));
         goto err;
     }
     // unclear when wc_id is anything other than 1
@@ -85,7 +85,7 @@ svn_read_sqlite(vccontext_t *context, result_t *result)
                  "where wc_id = 1 and local_relpath = ''");
     retval = sqlite3_prepare_v2(conn, sql, 1000, &res, &tail);
     if (retval != SQLITE_OK) {
-        debug("error running query");
+        debug("error running query: %s", sqlite3_errstr(retval));
         goto err;
     }
     char *buf = malloc(1024);
