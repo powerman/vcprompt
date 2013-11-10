@@ -91,7 +91,7 @@ svn_read_sqlite(vccontext_t *context, result_t *result)
     }
     retval = sqlite3_step(res);
     if (retval != SQLITE_DONE && retval != SQLITE_ROW) {
-        debug("error fetching result row");
+        debug("error fetching result row: %s", sqlite3_errstr(retval));
         goto err;
     }
     textval = (const char *) sqlite3_column_text(res, 0);
@@ -105,19 +105,19 @@ svn_read_sqlite(vccontext_t *context, result_t *result)
     sql = "select repos_path from nodes where local_relpath = ?";
     retval = sqlite3_prepare_v2(conn, sql, strlen(sql), &res, &tail);
     if (retval != SQLITE_OK) {
-        debug("error querying for repos_path");
+        debug("error querying for repos_path: %s", sqlite3_errstr(retval));
         goto err;
     }
     retval = sqlite3_bind_text(res, 1,
                                context->rel_path, strlen(context->rel_path),
                                SQLITE_STATIC);
     if (retval != SQLITE_OK) {
-        debug("error binding parameter");
+        debug("error binding parameter: %s", sqlite3_errstr(retval));
         goto err;
     }
     retval = sqlite3_step(res);
     if (retval != SQLITE_DONE && retval != SQLITE_ROW) {
-        debug("error fetching result row");
+        debug("error fetching result row: %s", sqlite3_errstr(retval));
         goto err;
     }
 
