@@ -13,7 +13,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
-#if HAVE_SQLITE3_H
+#if HAVE_SQLITE3
 # include <sqlite3.h>
 #endif
 
@@ -64,7 +64,7 @@ get_branch_name(char *repos_path)
 }
 
 
-#if HAVE_SQLITE3_H
+#if HAVE_SQLITE3
 static int
 svn_read_sqlite(vccontext_t *context, result_t *result)
 {

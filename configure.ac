@@ -10,12 +10,12 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CC
 AC_PROG_MAKE_SET
 
-# Checks for libraries.
-AC_CHECK_LIB(sqlite3, sqlite3_open)
-
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h stdlib.h string.h sys/time.h unistd.h])
+
+# Checks for third-party libraries.
 AC_CHECK_HEADERS([sqlite3.h])
+AC_CHECK_LIB(sqlite3, sqlite3_open_v2)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_MODE_T
