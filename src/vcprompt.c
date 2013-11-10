@@ -129,7 +129,7 @@ parse_format(options_t *options)
                 case 'r':
                     options->show_revision = 1;
                     break;
-            	case 'p':
+                case 'p':
                     options->show_patch = 1;
                     break;
                 case 'u':
@@ -174,7 +174,7 @@ print_result(vccontext_t *context, options_t *options, result_t *result)
                     if (result->revision != NULL)
                         fputs(result->revision, stdout);
                     break;
-            	case 'p':
+                case 'p':
                     if (result->patch != NULL)
                         fputs(result->patch, stdout);
                 case 'u':

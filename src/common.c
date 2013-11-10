@@ -120,7 +120,7 @@ _testmode(char *name, mode_t bits, char what[])
     }
     if ((statbuf.st_mode & bits) == 0) {
         debug("'%s' not a %s", name, what);
-	return 0;
+        return 0;
     }
     return 1;
 }
