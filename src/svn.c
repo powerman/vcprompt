@@ -89,7 +89,11 @@ svn_read_sqlite(vccontext_t *context, result_t *result)
         goto err;
     }
     char *buf = malloc(1024);
-    sqlite3_step(res);
+    retval = sqlite3_step(res);
+    if (retval != SQLITE_DONE && retval != SQLITE_ROW) {
+        debug("error fetching result row");
+        goto err;
+    }
     sprintf(buf, "%s", sqlite3_column_text(res, 0));
     result->revision = buf;
     sqlite3_finalize(res);
@@ -107,7 +111,12 @@ svn_read_sqlite(vccontext_t *context, result_t *result)
         debug("error binding parameter");
         goto err;
     }
-    sqlite3_step(res);
+    retval = sqlite3_step(res);
+    if (retval != SQLITE_DONE && retval != SQLITE_ROW) {
+        debug("error fetching result row");
+        goto err;
+    }
+
     repos_path = strdup((const char *) sqlite3_column_text(res, 0));
     result->branch = get_branch_name(repos_path);
 
