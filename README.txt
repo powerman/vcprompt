@@ -189,10 +189,10 @@ Patches are welcome.  Please follow these guidelines:
 
   * Performance matters! I wrote vcprompt so that people wouldn't have
     to spawn and initialize an entire Python or Perl interpreter every
-    time they execute a new shell command. Using system() to turn
-    around and spawn external commands -- especially ones that involve
-    a relatively large runtime penalty like Python scripts -- misses
-    the point of vcprompt.
+    time they get a new shell prompt. Using system() to turn around
+    and spawn external commands -- especially ones that involve a
+    relatively large runtime penalty like Python scripts -- misses the
+    point of vcprompt.
 
     In fact, you'll find that vcprompt contains hacky little
     reimplementations of select bits and pieces of Mercurial, git,
