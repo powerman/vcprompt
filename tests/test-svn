@@ -16,21 +16,26 @@ check_svn()
 
 find_svnrepo()
 {
-    svnrepo="$testdir/svn-repo.tar"
-    if [ ! -f $svnrepo ]; then
-        echo "$svnrepo not found" >&2
+    if [ ! -f $testdir/svn-repo-1.tar ]; then
+        echo "svn-repo-1.tar not found" >&2
+        exit 1
+    fi
+    if [ ! -f $testdir/svn-repo-2.tar ]; then
+        echo "svn-repo-2.tar not found" >&2
         exit 1
     fi
 }
 
 pretest()
 {
-    checkout_path=$1
+    repobase=$1
+    checkout_path=$2
     [ -d $tmpdir ] || die "tmpdir ($tmpdir) does not exist"
     cd $tmpdir
-    rm -rf svn-repo svn-wc
+    svnrepo=$testdir/$repobase.tar
+    rm -rf $repobase svn-wc
     tar -xf $svnrepo
-    repourl=file://$tmpdir/svn-repo
+    repourl=file://$tmpdir/$repobase
     svn -q checkout $repourl/$checkout_path svn-wc
     cd svn-wc
 }
@@ -38,14 +43,14 @@ pretest()
 posttest()
 {
     cd $tmpdir
-    rm -rf svn-repo svn-wc
+    rm -rf svn-repo-* svn-wc
 }
 
 # default prompt format in test repo
 test_basics()
 {
     echo "test_basics:"
-    pretest "trunk"
+    pretest "svn-repo-1" "trunk"
     assert_vcprompt "vc name" "svn" "%n"
     assert_vcprompt "branch name on trunk" "trunk" "%b"
     assert_vcprompt "rev num on trunk" "2" "%r"
@@ -64,7 +69,7 @@ test_weird_checkout()
 {
     # checkout the whole repo, ie. parent of trunk/, tags/, branches/
     echo "test_weird_checkout:"
-    pretest ""
+    pretest "svn-repo-1" ""
     assert_vcprompt "vc name" "svn" "%n"
     assert_vcprompt "no branch name (in project root)" "" "%b"
 
@@ -78,6 +83,23 @@ test_weird_checkout()
     posttest
 }
 
+test_multiproject_repo()
+{
+    echo "test_multiproject_repo"
+    pretest "svn-repo-2" "proj1/trunk"
+    assert_vcprompt "trunk in multiproject repo" "[svn,1,trunk]" "[%n,%r,%b]"
+
+    # argh, 'svn switch' doesn't work reliably (in 1.7 it requires
+    # --ignore-ancestry, and in 1.6 that option doesn't exist) -- so
+    # avoid it
+    cd ..
+    svn checkout $repourl/proj1/branches/1.0 wc2
+    cd wc2
+    assert_vcprompt "branch in multiproject repo" "[svn,2,1.0]" "[%n,%r,%b]"
+
+    posttest
+}
+
 find_vcprompt
 check_svn
 find_svnrepo
@@ -85,3 +107,4 @@ setup
 
 test_basics
 test_weird_checkout
+test_multiproject_repo

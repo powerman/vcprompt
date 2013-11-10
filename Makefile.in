@@ -31,7 +31,7 @@ check: check-simple check-hg check-git check-svn check-fossil
 
 hgrepo = tests/hg-repo.tar
 gitrepo = tests/git-repo.tar
-svnrepo = tests/svn-repo.tar
+svnrepos = tests/svn-repo-1.tar tests/svn-repo-2.tar
 fossilrepo = tests/fossil-repo
 
 check-simple: vcprompt
@@ -49,10 +49,10 @@ check-git: vcprompt $(gitrepo)
 $(gitrepo): tests/setup-git
 	cd tests && ./setup-git
 
-check-svn: vcprompt $(svnrepo)
+check-svn: vcprompt $(svnrepos)
 	cd tests && ./test-svn
 
-$(svnrepo): tests/setup-svn
+$(svnrepos): tests/setup-svn
 	cd tests && ./setup-svn
 
 check-fossil: vcprompt $(fossilrepo)

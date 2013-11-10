@@ -29,34 +29,38 @@ svn_probe(vccontext_t *context)
 }
 
 static char *
-get_branch_name(const char *repos_path)
+get_branch_name(char *repos_path)
 {
-    if (strcmp(repos_path, "trunk") == 0) {
-        return strdup(repos_path);
+    // if repos_path endswith "trunk"
+    //     return "trunk"
+    // else if repos_path endswith "branches/*"
+    //     return whatever matched "*"
+    // else
+    //     no idea
+
+    // if the final component is "trunk", that's where we are
+    char *slash = strrchr(repos_path, '/');
+    char *name = slash ? slash + 1 : repos_path;
+    if (strcmp(name, "trunk") == 0) {
+        debug("found svn trunk");
+        return strdup(name);
     }
-    else if (strncmp(repos_path, "trunk/", 6) == 0) {
-        return strndup(repos_path, 5);
-    }
-    else if (strcmp(repos_path, "branches") == 0 ||
-             strcmp(repos_path, "tags") == 0) {
-        // checking out /branches or /tags is legal but weird: there
-        // is certainly no single branch name for this working dir
-        debug("no svn branch due to peculiar repos_path: '%s'", repos_path);
+    if (slash == NULL) {
+        debug("no branch in svn repos_path '%s'", repos_path);
         return NULL;
     }
-    else if (strncmp(repos_path, "branches/", 9) == 0) {
-        char *slash2 = strchr(repos_path + 9, '/');
-        if (slash2 == NULL) {
-            return strdup(repos_path + 9);
-        }
-        else {
-            return strndup(repos_path + 9, slash2 - repos_path + 9);
-        }
+
+    // backup and see if the previous component is "branches", in which
+    // case 'name' points to the branch name
+    *slash = 0;
+    slash = strrchr(repos_path, '/');
+    char *prev = slash ? slash + 1 : repos_path;
+    if (strncmp(prev, "branches", 8) == 0) {
+        debug("found svn branch name: %s", name);
+        return strdup(name);
     }
-    else {
-        debug("no svn branch: unexpected repos_path '%s'", repos_path);
-        return NULL;
-    }
+    debug("could not find branch name in svn repos_path '%s'", repos_path);
+    return NULL;
 }
 
 
@@ -69,6 +73,7 @@ svn_read_sqlite(vccontext_t *context, result_t *result)
     sqlite3 *conn = NULL;
     sqlite3_stmt *res = NULL;
     const char *tail;
+    char * repos_path = NULL;
 
     retval = sqlite3_open(".svn/wc.db", &conn);
     if (retval != SQLITE_OK) {
@@ -103,8 +108,8 @@ svn_read_sqlite(vccontext_t *context, result_t *result)
         goto err;
     }
     sqlite3_step(res);
-    const unsigned char *repos_path = sqlite3_column_text(res, 0);
-    result->branch = get_branch_name((const char *)repos_path);
+    repos_path = strdup((const char *) sqlite3_column_text(res, 0));
+    result->branch = get_branch_name(repos_path);
 
     ok = 1;
 
@@ -113,6 +118,8 @@ svn_read_sqlite(vccontext_t *context, result_t *result)
         sqlite3_finalize(res);
     if (conn != NULL)
         sqlite3_close(conn);
+    if (repos_path != NULL)
+        free(repos_path);
     return ok;
 }
 #else

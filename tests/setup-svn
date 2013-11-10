@@ -2,7 +2,7 @@
 
 # Setup the test svn repository that will be used by test-svn.
 #
-# Output is svn-repo.tar, which will be unpacked for each test run.
+# Output is svn-repo-1.tar, which will be unpacked for each test run.
 
 . ./common.sh
 
@@ -10,10 +10,12 @@ check_available "svn --version" "svn, version "
 set -ex
 cd `dirname $`
 dir=`pwd`
-rm -rf svn-repo svn-wc
+rm -rf svn-repo-1 svn-wc
 
-svnadmin create svn-repo
-url=file://$dir/svn-repo
+# repo-1 is a simple one-project repo: the only top-level dirs
+# are trunk/, branches/, and tags/
+svnadmin create svn-repo-1
+url=file://$dir/svn-repo-1
 svn mkdir -m"setup" $url/trunk $url/tags $url/branches
 svn checkout $url/trunk svn-wc
 cd svn-wc
@@ -31,5 +33,19 @@ svn commit -m"fix a bug"
 svn switch $url/trunk
 
 cd ..
-tar -cf svn-repo.tar svn-repo
-rm -rf svn-repo svn-wc
+tar -cf svn-repo-1.tar svn-repo-1
+rm -rf svn-repo-1 svn-wc
+
+# repo-2 is a more complex multi-project repo: proj1 has
+# tags/branches/trunk, but junk1 and junk2 do not
+rm -rf svn-repo-2
+svnadmin create svn-repo-2
+url=file://$dir/svn-repo-2
+svn mkdir \
+  --parents \
+  -m"setup" \
+  $url/proj1/tags $url/proj1/branches $url/proj1/trunk \
+  $url/junk/junk1 $url/junk/junk2
+svn mkdir -m"make a branch" $url/proj1/branches/1.0
+tar -cf svn-repo-2.tar svn-repo-2
+rm -rf svn-repo-2

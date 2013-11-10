@@ -142,8 +142,8 @@ each installed in a separate prefix.
 For example, I keep multiple versions in /usr/local/subversion-1.x, so
 I can test them like this:
 
-  rm -f tests/svn-repo.tar && make check-svn TOOLPATH=/usr/local/subversion-1.6/bin
-  rm -f tests/svn-repo.tar && make check-svn TOOLPATH=/usr/local/subversion-1.7/bin
+  rm -f tests/svn-repo*.tar && make check-svn TOOLPATH=/usr/local/subversion-1.6/bin
+  rm -f tests/svn-repo*.tar && make check-svn TOOLPATH=/usr/local/subversion-1.7/bin
 
 Actually *building* multiple versions of Subversion is harder than you
 would believe. (In fact, I've been unable to build anything older than
