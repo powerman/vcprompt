@@ -47,6 +47,13 @@ struct vccontext_t {
     const char *name;                   /* name of the VC system */
     options_t *options;
 
+    /* Path from wc root to cwd: eg. if we're in foo/bar/baz, but wc
+     * metadata is in foo/.hg (or whatever), rel_path is "bar/baz".
+     * Only makes sense for VC systems with a single metadata
+     * directory for a whole tree: git, hg, svn >= 1.7, etc.
+     */
+    char *rel_path;
+
     /* context methods */
     int (*probe)(vccontext_t*);
     result_t* (*get_info)(vccontext_t*);

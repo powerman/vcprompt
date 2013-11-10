@@ -17,6 +17,8 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <signal.h>
+#include <errno.h>
+#include <limits.h>
 
 #include "common.h"
 #include "cvs.h"
@@ -211,28 +213,42 @@ probe_all(vccontext_t** contexts, int num_contexts)
 
 /* walk up the directory tree until the probes work or we hit / */
 vccontext_t*
-probe_parents(vccontext_t** contexts, int num_contexts)
+probe_dirs(vccontext_t** contexts, int num_contexts)
 {
-    vccontext_t *context;
-    struct stat rootdir;
-    struct stat curdir;
+    char *start_dir = malloc(PATH_MAX);
+    if (getcwd(start_dir, PATH_MAX) == NULL) {
+        debug("getcwd() failed: %s", strerror(errno));
+        free(start_dir);
+        return NULL;
+    }
+    char *rel_path = start_dir + strlen(start_dir);
 
-    stat("/", &rootdir);
+    vccontext_t *context = NULL;
     while (1) {
         context = probe_all(contexts, num_contexts);
         if (context != NULL) {
-            debug("found a context");
-            return context;
+            break;
+        }
+        if (rel_path == start_dir + 1) {
+            debug("reached the root: %s not under version control", start_dir);
+            break;
         }
 
-        stat(".", &curdir);
-        int isroot = (rootdir.st_dev == curdir.st_dev &&
-                      rootdir.st_ino == curdir.st_ino);
-        if (isroot || (-1 == chdir(".."))) {
-            return NULL;
+        debug("no context claimed current dir: walking up the tree");
+        if (-1 == chdir("..")) {
+            debug("chdir(\"..\") failed: %s", strerror(errno));
+            break;
         }
-	debug("no context claimed current dir: walking up the tree");
+        do {
+            rel_path--;
+        } while (rel_path > start_dir && rel_path[-1] != '/');
     }
+    if (context != NULL) {
+        debug("found a context: %s (rel_path=%s)", context->name, rel_path);
+        context->rel_path = strdup(rel_path);
+    }
+    free(start_dir);
+    return context;
 }
 
 /* The signal handler just clears the flag and re-enables itself.  */
@@ -309,7 +325,7 @@ main(int argc, char** argv)
 
     /* Starting in the current dir, walk up the directory tree until
        someone claims that this is a working copy. */
-    context = probe_parents(contexts, num_contexts);
+    context = probe_dirs(contexts, num_contexts);
 
     /* Nobody claimed it: bail now without printing anything. */
     if (context == NULL) {
@@ -327,7 +343,7 @@ main(int argc, char** argv)
 
  done:
     for (int i = 0; i < num_contexts; i++) {
-        free(contexts[i]);
+        free_context(contexts[i]);
     }
     return status;
 }
