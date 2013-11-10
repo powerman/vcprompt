@@ -6,8 +6,9 @@ vcprompt release process
 
 * read through README.txt and make sure it's still valid
 
-* read the man page and make sure it's still valid
-  (groff -Tascii -man vcprompt.1 | less)
+* read the man page and make sure it's still valid:
+
+    groff -Tascii -man vcprompt.1 | less
 
 * commit any required changes
 

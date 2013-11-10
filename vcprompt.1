@@ -10,7 +10,7 @@ vcprompt \- show version control information in shell prompt
 .SH DESCRIPTION
 
 Examine the current working directory, determine what version control
-system manages it, and print a short summary to stdout. You then
+system manages it, and print a short summary to stdout. You must
 configure your shell to run
 .B vcprompt
 for every prompt, and your prompt will include that short summary.
@@ -21,9 +21,10 @@ just shows the name of the version control system and the current
 branch, e.g.
 .nf
 .in +4m
-[cvs:trunk]
 [git:master]
 [hg:default]
+[svn:trunk]
+[cvs:trunk]
 [fossil:trunk]
 .in -4m
 .fi
@@ -35,7 +36,7 @@ the -f option. See \fBFORMAT STRINGS\fR below.
 
 If the current directory is not under version control,
 .B vcprompt
-terminates quickly with no output.
+prints nothing and exits.
 
 .SH OPTIONS
 .IP -d
@@ -185,8 +186,7 @@ directory
 .I .svn
 exists.
 .B vcprompt
-currently supports Subversion up to version 1.7 (version 1.8
-untested).
+currently supports Subversion up to version 1.8.
 
 .B %b
 is supported by parsing the repository URL corresponding to the

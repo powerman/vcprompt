@@ -11,8 +11,8 @@ Subversion, CVS, and Fossil working copies.
 
 vcprompt has minimal dependencies: it does as much as it can with the
 standard C library and POSIX calls. It should work on any
-POSIX-compliant system with a C99 compiler. Some features will only
-work with the help of an external library (see "Dependencies" below).
+POSIX-compliant system with a C99 compiler. Some optional features
+require external libraries (see "Dependencies" below).
 
 To build vcprompt from the source tarball:
 
@@ -49,8 +49,8 @@ Dependencies
 
 vcprompt always requires GNU make to build.
 
-vcprompt requires GNU autoconf to build from a source checkout (but
-not if you are building from a source tarball).
+vcprompt requires GNU autoconf to build from a source checkout (not
+from a source tarball).
 
 Support for Subversion >= 1.7 requires SQLite 3. If it's not present on
 the build system, vcprompt will support Subversion <= 1.6. Either way,
@@ -119,9 +119,10 @@ To run vcprompt's test suite:
 
   make check
 
-If it fails, it should be loud and obvious. Please report any test
+Test failures should be loud and obvious. Please report any test
 failures to the development mailing list:
-vcprompt-devel@googlegroups.com.
+
+  vcprompt-devel@googlegroups.com.
 
 To check for memory errors, you can run vcprompt's test suite under
 valgrind:
