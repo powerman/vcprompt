@@ -10,18 +10,19 @@ vcprompt release process
 
     groff -Tascii -man vcprompt.1 | less
 
-* commit any required changes
+* commit and push any required changes
 
 * clone on at least one different machine and run the tests:
 
     hg clone http://hg.gerg.ca/vcprompt
     cd vcprompt
+    autoconf && ./configure
     make grind      # requires valgrind
     make check      # if valgrind not installed
 
 * select the version number, e.g.:
 
-    ver=1.1
+    ver=x.y.z
 
 * tag the release and build the source tarball
 

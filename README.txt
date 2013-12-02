@@ -1,13 +1,15 @@
-vcprompt
-========
+vcprompt: version control information in your prompt
+====================================================
 
-vcprompt is a little C program that prints a short string, to be
-included in your shell prompt, with barebones information about the
-current working directory for various version control systems. It is
-designed to be small and lightweight rather than comprehensive.
+vcprompt is a little C program that prints a short string with
+barebones information about the current working directory for various
+version control systems. You configure your shell to include the
+output of vcprompt in your prompt, and you get version control
+information in your prompt.
 
-Currently, it has varying degrees of recognition for Mercurial, Git,
-Subversion, CVS, and Fossil working copies.
+vcprompt is designed to be small and lightweight rather than
+comprehensive. Currently, it has varying degrees of support for
+Mercurial, Git, Subversion, CVS, and Fossil working copies.
 
 vcprompt has minimal dependencies: it does as much as it can with the
 standard C library and POSIX calls. It should work on any
@@ -47,10 +49,10 @@ run it, see "Testing" below.
 Dependencies
 ============
 
-vcprompt always requires GNU make to build.
+vcprompt requires GNU make to build.
 
-vcprompt requires GNU autoconf to build from a source checkout (not
-from a source tarball).
+vcprompt requires GNU autoconf to build from a source checkout (but
+not from a source tarball).
 
 Support for Subversion >= 1.7 requires SQLite 3. If it's not present on
 the build system, vcprompt will support Subversion <= 1.6. Either way,
