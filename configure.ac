@@ -8,7 +8,13 @@ AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_CC_C99
 AC_PROG_MAKE_SET
+
+# crank up the warnings if building with GCC
+if echo $CC | grep gcc; then
+    CFLAGS="$CFLAGS -Wall -Wextra -Wno-unused-parameter"
+fi
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h stdlib.h string.h sys/time.h unistd.h])

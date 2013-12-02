@@ -1,5 +1,7 @@
-CFLAGS = -Wall -Wextra -Wno-unused-parameter -std=gnu99 -g
-LDFLAGS = -g
+CC = @CC@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 
 headers = $(wildcard src/*.h) config.h
