@@ -27,13 +27,15 @@ vcprompt release process
 * tag the release and build the source tarball
 
     hg tag $ver
-    hg archive -r $ver -t tgz -X ".hg*" /tmp/vcprompt-$ver.tar.gz
+    make dist ver=$ver
 
 * test the tarball locally
 
+    cp dist/vcprompt-$ver.tar.gz /tmp
     cd /tmp
     tar -xzf vcprompt-$ver.tar.gz
     cd vcprompt-$ver
+    ./configure
     make grind
 
 * copy to at least one different machine and test there
