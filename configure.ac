@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69])
+AC_PREREQ([2.63])
 AC_INIT([vcprompt], [1.1], [vcprompt-devel@googlegroups.com])
 AC_CONFIG_SRCDIR([src/fossil.h])
 AC_CONFIG_HEADERS([config.h])
