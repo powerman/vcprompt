@@ -15,6 +15,16 @@ die()
     exit 1
 }
 
+# Prepend $TOOLPATH to $PATH (if $TOOLPATH set), so caller can
+# influence where external tools (e.g. svn, hg) are found. Called
+# automatically when you include this file.
+set_path()
+{
+    if [ -s "$TOOLPATH" ]; then
+        PATH=$TOOLPATH:$PATH
+    fi
+}
+
 # Check if some external command is available by running it
 # and ensuring that it prints an expected string.  If not,
 # exit with optional message.
@@ -35,6 +45,18 @@ find_vcprompt()
     vcprompt=$testdir/../vcprompt
     [ -x $vcprompt ] ||
         die "vcprompt executable not found (expected $vcprompt)"
+}
+
+# Check if some feature was built in to the current vcprompt binary;
+# exit with a message if not.
+check_feature()
+{
+    feature=$1
+    msg=$2
+    if ! $vcprompt -F | fgrep -q -x -e "$feature"; then
+        echo $msg
+        exit 0
+    fi
 }
 
 setup()
@@ -61,13 +83,25 @@ assert_vcprompt()
         format="%b"
     fi
 
-    if [ "$format" != '-' ]; then
-        actual=`VCPROMPT_FORMAT="$VCPROMPT_FORMAT" $vcprompt -f "$format"`
-    else
-        actual=`VCPROMPT_FORMAT="$VCPROMPT_FORMAT" $vcprompt`
+    prefix=""
+    if [ "$VCPVALGRIND" ]; then
+        prefix="valgrind --leak-check=full --error-exitcode=99 -q "
     fi
 
-    if [ "$expect" != "$actual" ]; then
+    if [ "$format" != '-' ]; then
+        cmd='VCPROMPT_FORMAT="$VCPROMPT_FORMAT" $prefix$vcprompt -f "$format"'
+    else
+        cmd='VCPROMPT_FORMAT="$VCPROMPT_FORMAT" $prefix$vcprompt'
+    fi
+    actual=`eval $cmd`
+    status=$?
+
+    if [ $status -ne 0 ]; then
+        echo "fail: $message: child process terminated with exit status $status; command was:" >&2
+        eval echo $cmd >&2
+        failed="y"
+        return $status
+    elif [ "$expect" != "$actual" ]; then
         echo "fail: $message: expected \"$expect\", but got \"$actual\"" >&2
         failed="y"
         return 1
@@ -86,3 +120,5 @@ report()
 	exit 0
     fi
 }
+
+set_path

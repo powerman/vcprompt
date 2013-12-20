@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009, 2010, Gregory P. Ward and contributors.
+ * Copyright (C) 2009-2013, Gregory P. Ward and contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,31 +18,38 @@
 
 #include "common.h"
 
-result_t* init_result()
+result_t*
+init_result()
 {
     return (result_t*) calloc(1, sizeof(result_t));
 }
 
-void free_result(result_t* result)
+void
+free_result(result_t *result)
 {
-    free(result->revision);
     free(result->branch);
+    free(result->revision);
+    free(result->patch);
+    free(result->full_revision);
     free(result);
 }
 
 static options_t* _options = NULL;
 
-void set_options(options_t* options)
+void
+set_options(options_t *options)
 {
     _options = options;
 }
 
-int debug_mode()
+int
+debug_mode()
 {
     return _options->debug;
 }
 
-int result_set_revision(result_t* result, const char *revision, int len)
+int
+result_set_revision(result_t *result, const char *revision, int len)
 {
     if (result->revision)
         free(result->revision);
@@ -58,7 +65,8 @@ int result_set_revision(result_t* result, const char *revision, int len)
     return !!result->revision;
 }
 
-int result_set_branch(result_t* result, const char *branch)
+int
+result_set_branch(result_t *result, const char *branch)
 {
     if (result->branch)
         free(result->branch);
@@ -68,11 +76,11 @@ int result_set_branch(result_t* result, const char *branch)
 
 vccontext_t*
 init_context(const char *name,
-             options_t* options,
+             options_t *options,
              int (*probe)(vccontext_t*),
              result_t* (*get_info)(vccontext_t*))
 {
-    vccontext_t* context = (vccontext_t*) calloc(1, sizeof(vccontext_t));
+    vccontext_t *context = (vccontext_t*) calloc(1, sizeof(vccontext_t));
     context->options = options;
     context->name = name;
     context->probe = probe;
@@ -81,13 +89,14 @@ init_context(const char *name,
 }
 
 void
-free_context(vccontext_t* context)
+free_context(vccontext_t *context)
 {
+    free(context->rel_path);
     free(context);
 }
 
 void
-debug(char* fmt, ...)
+debug(char *fmt, ...)
 {
     va_list args;
 
@@ -102,7 +111,7 @@ debug(char* fmt, ...)
 }
 
 static int
-_testmode(char* name, mode_t bits, char what[])
+_testmode(char *name, mode_t bits, char what[])
 {
     struct stat statbuf;
     if (stat(name, &statbuf) < 0) {
@@ -111,27 +120,27 @@ _testmode(char* name, mode_t bits, char what[])
     }
     if ((statbuf.st_mode & bits) == 0) {
         debug("'%s' not a %s", name, what);
-	return 0;
+        return 0;
     }
     return 1;
 }
 
 int
-isdir(char* name)
+isdir(char *name)
 {
     return _testmode(name, S_IFDIR, "directory");
 }
 
 int
-isfile(char* name)
+isfile(char *name)
 {
     return _testmode(name, S_IFREG, "regular file");
 }
 
 int
-read_first_line(char* filename, char* buf, int size)
+read_first_line(char *filename, char *buf, int size)
 {
-    FILE* file;
+    FILE *file;
 
     file = fopen(filename, "r");
     if (file == NULL) {
@@ -153,9 +162,9 @@ read_first_line(char* filename, char* buf, int size)
 }
 
 int
-read_last_line(char* filename, char* buf, int size)
+read_last_line(char *filename, char *buf, int size)
 {
-    FILE* file;
+    FILE *file;
 
     file = fopen(filename, "r");
     if (file == NULL) {
@@ -179,9 +188,9 @@ read_last_line(char* filename, char* buf, int size)
 }
 
 int
-read_file(const char* filename, char* buf, int size)
+read_file(const char *filename, char *buf, int size)
 {
-    FILE* file;
+    FILE *file;
     int readsize;
 
     file = fopen(filename, "r");
@@ -198,7 +207,7 @@ read_file(const char* filename, char* buf, int size)
 }
 
 void
-chop_newline(char* buf)
+chop_newline(char *buf)
 {
     int len = strlen(buf);
     if (buf[len-1] == '\n')
@@ -206,18 +215,18 @@ chop_newline(char* buf)
 }
 
 void
-dump_hex(const char* data, char* buf, int datasize)
+dump_hex(char *dest, const char *data, int datasize)
 {
     const char HEXSTR[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
                              '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
     int i;
 
     for (i = 0; i < datasize; ++i) {
-        buf[i * 2] = HEXSTR[(unsigned char) data[i] >> 4];
-        buf[i * 2 + 1] = HEXSTR[(unsigned char) data[i] & 0x0f];
+        dest[i * 2] = HEXSTR[(unsigned char) data[i] >> 4];
+        dest[i * 2 + 1] = HEXSTR[(unsigned char) data[i] & 0x0f];
     }
 
-    buf[i * 2] = '\0';
+    dest[i * 2] = '\0';
 }
 
 void

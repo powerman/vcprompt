@@ -17,15 +17,15 @@
 #include "capture.h"
 
 static int
-fossil_probe(vccontext_t* context)
+fossil_probe(vccontext_t *context)
 {
     return isfile("_FOSSIL_") || isfile(".fslckout");
 }
 
 static result_t*
-fossil_get_info(vccontext_t* context)
+fossil_get_info(vccontext_t *context)
 {
-    result_t* result = init_result();
+    result_t *result = init_result();
     char *t;
     int tab_len = 14;
     char buf2[81];
@@ -41,7 +41,7 @@ fossil_get_info(vccontext_t* context)
         debug("unable to execute 'fossil status'");
         return NULL;
     }
-    char *cstdout = capture->stdout.buf;
+    char *cstdout = capture->childout.buf;
 
     if (context->options->show_branch) {
         if ((t = strstr(cstdout, "\ntags:"))) {
@@ -82,6 +82,10 @@ fossil_get_info(vccontext_t* context)
                             strstr(cstdout, "\nUPDATED") ||
                             strstr(cstdout, "\nMERGED"));
     }
+
+    cstdout = NULL;
+    free_capture(capture);
+
     if (context->options->show_unknown) {
         // This can't be read from 'fossil status' output
         char *argv[] = {"fossil", "extra", NULL};
@@ -90,13 +94,15 @@ fossil_get_info(vccontext_t* context)
             debug("unable to execute 'fossil extra'");
             return NULL;
         }
-        result->unknown = (capture->stdout.len > 0);
+        result->unknown = (capture->childout.len > 0);
+        free_capture(capture);
     }
 
     return result;
 }
 
-vccontext_t* get_fossil_context(options_t* options)
+vccontext_t*
+get_fossil_context(options_t *options)
 {
     return init_context("fossil", options, fossil_probe, fossil_get_info);
 }
