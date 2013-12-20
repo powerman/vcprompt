@@ -303,7 +303,7 @@ hg_get_info(vccontext_t *context)
 
     read_parents(context, result);
     read_patch_name(context, result);
-    read_modified_unknown(context, result);
+/*     read_modified_unknown(context, result); */
 
     if (context->options->show_modified || context->options->show_unknown) {
         int status = system(context->options->show_unknown ? "vcprompt-hgst -u" : "vcprompt-hgst");

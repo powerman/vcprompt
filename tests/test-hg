@@ -59,6 +59,7 @@ test_status()
 {
     echo "test_status:"
     pretest
+    sleep 1; hg st # workaround bug in vcprompt-hgst
     assert_vcprompt "clean 1" "" "%m"
     assert_vcprompt "clean 2" "" "%u"
     assert_vcprompt "clean 3" "" "%m%u"
