@@ -54,10 +54,10 @@ vcprompt requires GNU make to build.
 vcprompt requires GNU autoconf to build from a source checkout (but
 not from a source tarball).
 
-Support for Subversion >= 1.7 requires SQLite >= 3.7.15. If it's not
-present on the build system, vcprompt will still support older
-versions of Subversion. Either way, the build should succeed and the
-tests should pass. To install the required files:
+Support for Subversion >= 1.7 requires SQLite 3. If it's not present on
+the build system, vcprompt will support Subversion <= 1.6. Either way,
+the build should succeed and the tests should pass. To install the
+required files:
 
   sudo apt-get install libsqlite3-dev   # Debian, Ubuntu
   sudo yum install libsqlite3x-devel    # Fedora, Red Hat

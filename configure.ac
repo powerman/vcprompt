@@ -29,12 +29,12 @@ AC_CHECK_HEADERS([arpa/inet.h stdlib.h string.h sys/time.h unistd.h])
 # Checks for third-party libraries.
 if test "$with_sqlite3" = "check" -o "$with_sqlite3" = "yes"; then
     AC_CHECK_HEADERS([sqlite3.h])
-    AC_CHECK_LIB(sqlite3, sqlite3_errstr)
+    AC_CHECK_LIB(sqlite3, sqlite3_open_v2)
 elif test "$with_sqlite3" != "no"; then
     CPPFLAGS="$CPPFLAGS -I${with_sqlite3}/include"
     LDFLAGS="$LDFLAGS -L${with_sqlite3}/lib"
     AC_CHECK_HEADERS([sqlite3.h])
-    AC_CHECK_LIB(sqlite3, sqlite3_errstr)
+    AC_CHECK_LIB(sqlite3, sqlite3_open_v2)
 fi
 
 # Checks for typedefs, structures, and compiler characteristics.
