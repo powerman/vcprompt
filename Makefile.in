@@ -63,7 +63,7 @@ check-fossil: vcprompt $(fossilrepo)
 $(fossilrepo): tests/setup-fossil
 	cd tests && ./setup-fossil
 
-grind: check
+grind:
 	make check VCPVALGRIND=y
 
 clean:
