@@ -84,6 +84,6 @@ install: vcprompt
 dist: configure
 	[ "$$ver" ] || (echo "\$$ver not set" >&2; exit 1)
 	hg archive -r $$ver -t files -X ".hg*" dist/vcprompt-$$ver
-	install -m 0755 configure dist/vcprompt-$$ver/configure
+	(cd dist/vcprompt-$$ver && autoconf && rm -rf autom4te.cache)
 	(cd dist && tar -czf vcprompt-$$ver.tar.gz vcprompt-$$ver)
 	rm -rf dist/vcprompt-$$ver
