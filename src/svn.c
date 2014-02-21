@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2013, Gregory P. Ward and contributors.
+ * Copyright (C) 2009-2014, Gregory P. Ward and contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
