@@ -121,7 +121,7 @@ test_simple_hg_bookmarks ()
     touch .hg/bookmarks.current
     assert_vcprompt "hg_bookmarks nobookmark" "hg:default" "%n:%b"
 
-    echo -n blah > .hg/bookmarks.current
+    /bin/echo -n blah > .hg/bookmarks.current
     assert_vcprompt "hg_bookmarks bookmark" "hg:blah" "%n:%b"
 }
 
