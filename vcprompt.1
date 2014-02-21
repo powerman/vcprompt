@@ -29,10 +29,10 @@ branch, e.g.
 .in -4m
 .fi
 This is the default because it's useful, implemented, and fast for
-almost all supported version control systems.
+all supported version control systems.
 
 You can get different information by specifying a format string with
-the -f option. See \fBFORMAT STRINGS\fR below.
+the -f option: see \fBFORMAT STRINGS\fR below.
 
 If the current directory is not under version control,
 .B vcprompt
@@ -56,8 +56,8 @@ have slow operations (e.g. %m or %u) in your format string that are
 tolerable in small working dirs, but not in large ones. The timeout
 applies to the whole run of
 .B vcprompt.
-If it fires, no partial information will be printed; the entire
-operation fails.
+If it fires, the entire operation fails: no partial information will
+be printed.
 .IP -F
 List features built-in to this
 .B vcprompt
@@ -72,7 +72,7 @@ The supported format specifiers are:
 .TP
 .B %n
 A short all-lowercase name for the version control system managing the
-working dir: e.g. "cvs", "svn", "hg", "git", "fossil".
+working dir: e.g. "git", "hg", "svn", "cvs", "fossil".
 .TP
 .B %b
 The name of the current branch.
@@ -148,11 +148,9 @@ directory
 exists.
 
 .B %b
-(branch) is supported by looking for the current Mercurial bookmark (
-.I .hg/bookmarks.current
-), or the current named branch (
-.I .hg/branch
-) if no bookmark is current.
+(branch) is supported by looking for the current Mercurial bookmark
+(\fI.hg/bookmarks.current\fP), or the current named branch
+(\fI.hg/branch\fP) if no bookmark is current.
 
 .B %r
 (revision) expands to the revision number of the parent of the working
@@ -161,9 +159,7 @@ active (the working dir has two parents). If
 .B vcprompt
 fails to parse some of Mercurial's internal data, it might print a
 short changeset ID instead of a revision number. If that happens,
-please report a bug in
-.B vcprompt
-!
+please report a bug in \fBvcprompt\fP!
 
 .B %p
 is implemented by reading MQ internals.
