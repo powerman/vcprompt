@@ -229,7 +229,7 @@ svn_get_info(vccontext_t *context)
 {
     result_t *result = init_result();
     FILE *fp = NULL;
-    int ok;
+    int ok = 0;
 
     if (access(".svn/wc.db", F_OK) == 0) {
         // SQLite file format (working copy created by svn >= 1.7)
@@ -264,17 +264,14 @@ svn_get_info(vccontext_t *context)
         }
     }
 
-    if (ok) {
-        if (fp)
-            fclose(fp);
-        return result;
-    }
-
  err:
-    free(result);
     if (fp)
         fclose(fp);
-    return NULL;
+    if (!ok) {
+        free(result);
+        result = NULL;
+    }
+    return result;
 }
 
 vccontext_t*
