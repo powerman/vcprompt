@@ -229,37 +229,44 @@ svn_get_info(vccontext_t *context)
 {
     result_t *result = init_result();
     FILE *fp = NULL;
-
-    fp = fopen(".svn/entries", "r");
-    if (!fp) {
-        debug("failed to open .svn/entries: not an svn working copy");
-        goto err;
-    }
-    char line[1024];
-    int line_num = 1;                   // the line we're about to read
-
-    if (fgets(line, sizeof(line), fp) == NULL) {
-        debug(".svn/entries: empty file");
-        goto err;
-    }
-    line_num++;
-
     int ok;
+
     if (access(".svn/wc.db", F_OK) == 0) {
         // SQLite file format (working copy created by svn >= 1.7)
+        // Some repositories do not have the ".svn/entries" file anymore
         ok = svn_read_sqlite(context, result);
     }
-    // First line of the file tells us what the format is.
-    else if (isdigit(line[0])) {
-        // Custom file format (working copy created by svn >= 1.4)
-        ok = svn_read_custom(fp, line, sizeof(line), line_num, result);
-    }
     else {
-        // XML file format (working copy created by svn < 1.4)
-        ok = svn_read_xml(fp, line, sizeof(line), line_num, result);
+        debug("Cannot access() .svn/wc.db: not an svn >= 1.7 working copy");
+
+        fp = fopen(".svn/entries", "r");
+        if (!fp) {
+            debug("failed to open .svn/entries: not an svn < 1.7 working copy");
+            goto err;
+        }
+        char line[1024];
+        int line_num = 1;                   // the line we're about to read
+
+        if (fgets(line, sizeof(line), fp) == NULL) {
+            debug(".svn/entries: empty file");
+            goto err;
+        }
+        line_num++;
+
+        // First line of the file tells us what the format is.
+        if (isdigit(line[0])) {
+            // Custom file format (working copy created by svn >= 1.4)
+            ok = svn_read_custom(fp, line, sizeof(line), line_num, result);
+        }
+        else {
+            // XML file format (working copy created by svn < 1.4)
+            ok = svn_read_xml(fp, line, sizeof(line), line_num, result);
+        }
     }
+
     if (ok) {
-        fclose(fp);
+        if (fp)
+            fclose(fp);
         return result;
     }
 
