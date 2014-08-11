@@ -71,11 +71,9 @@ cleanup()
     rm -rf $tmpdir
 }
 
-assert_vcprompt()
+run_vcprompt()
 {
-    message=$1
-    expect=$2
-    format=$3
+    format=$1
     if [ -z "$format" ]; then
         format="%b"
     fi
@@ -90,7 +88,17 @@ assert_vcprompt()
     else
         cmd='VCPROMPT_FORMAT="$VCPROMPT_FORMAT" $prefix$vcprompt'
     fi
-    actual=`eval $cmd`
+
+    eval $cmd
+}
+
+assert_vcprompt()
+{
+    message=$1
+    expect=$2
+    format=$3
+
+    actual=`run_vcprompt "$format"`
     status=$?
 
     if [ $status -ne 0 ]; then
