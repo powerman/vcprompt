@@ -291,6 +291,24 @@ test_env_var()
     VCPROMPT_FORMAT='foo:%n' assert_vcprompt 'env var override' 'bar:hg' 'bar:%n'
 }
 
+test_format_trailing_percent()
+{
+   cd $tmpdir
+
+   mkdir format_trailing_percent
+   cd format_trailing_percent
+   mkdir .hg
+
+   # unfortunately, this won't catch the problem, because the shell
+   # filters trailing \0 characters in command substitution
+   assert_vcprompt 'format trailing percent' 'foo:hg' 'foo:%n%'
+   # therefore, we have to roll our own check
+   if run_vcprompt 'foo:%n%' | od -b | grep -q ' 000'; then
+       echo 'fail: trailing percent resulted in \\0 being printed' >&2
+       failed='y'
+   fi
+}
+
 test_help()
 {
     cd $tmpdir
@@ -332,6 +350,7 @@ test_xml_svn
 test_truncated_svn
 test_bad_dir
 test_env_var
+test_format_trailing_percent
 test_help
 
 report

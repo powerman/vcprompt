@@ -161,7 +161,7 @@ print_result(vccontext_t *context, options_t *options, result_t *result)
         if (format[i] == '%') {
             i++;
             switch (format[i]) {
-                case '0':               /* end of string */
+                case 0:               /* end of string */
                     break;
                 case 'n':
                     fputs(context->name, stdout);
