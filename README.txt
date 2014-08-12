@@ -247,6 +247,7 @@ In chronological order:
   Jakob Kramer
   Robson Roberto Souza Peixoto
   Alexandre Carmel-Veilleux
+  Felix Eckhofer
 
 Thanks to all!
 
