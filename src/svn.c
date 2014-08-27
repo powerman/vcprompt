@@ -237,7 +237,7 @@ svn_get_info(vccontext_t *context)
         ok = svn_read_sqlite(context, result);
     }
     else {
-        debug("Cannot access() .svn/wc.db: not an svn >= 1.7 working copy");
+        debug("cannot access() .svn/wc.db: not an svn >= 1.7 working copy");
 
         fp = fopen(".svn/entries", "r");
         if (!fp) {
@@ -265,8 +265,9 @@ svn_get_info(vccontext_t *context)
     }
 
  err:
-    if (fp)
+    if (fp) {
         fclose(fp);
+    }
     if (!ok) {
         free(result);
         result = NULL;
