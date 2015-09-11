@@ -62,7 +62,7 @@ parse_args(int argc, char** argv, options_t *options)
     while ((opt = getopt(argc, argv, "hf:dt:F")) != -1) {
         switch (opt) {
             case 'f':
-                options->format = optarg;
+                options->format = strdup(optarg);
                 break;
             case 'd':
                 options->debug = 1;
@@ -281,12 +281,9 @@ main(int argc, char** argv)
     /* Establish a handler for SIGALRM signals.  */
     signal(SIGALRM, exit_on_alarm);
 
-    char *format = getenv("VCPROMPT_FORMAT");
-    if (format == NULL)
-        format = DEFAULT_FORMAT;
     options_t options = {
         .debug         = 0,
-        .format        = format,
+        .format        = NULL,
         .show_branch   = 0,
         .show_revision = 0,
         .show_unknown  = 0,
@@ -298,6 +295,12 @@ main(int argc, char** argv)
     if (options.show_features) {
         show_features();
         return 0;
+    }
+    if (options.format == NULL) {
+        char *format = getenv("VCPROMPT_FORMAT");
+        if (format == NULL)
+            format = DEFAULT_FORMAT;
+        options.format = strdup(format);
     }
 
     parse_format(&options);
@@ -344,6 +347,9 @@ main(int argc, char** argv)
  done:
     for (int i = 0; i < num_contexts; i++) {
         free_context(contexts[i]);
+    }
+    if (options.format != NULL) {
+        free(options.format);
     }
     return status;
 }
