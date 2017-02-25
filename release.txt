@@ -42,7 +42,7 @@ vcprompt release process
 
     host=<something>
     scp /tmp/vcprompt-$ver.tar.gz $host:/tmp
-    ssh $host "cd /tmp && tar -xzf vcprompt-$ver.tar.gz && cd vcprompt-$ver && make check"
+    ssh $host "cd /tmp && tar -xzf vcprompt-$ver.tar.gz && cd vcprompt-$ver && ./configure && make check"
 
 * push outgoing (tag) changeset
 

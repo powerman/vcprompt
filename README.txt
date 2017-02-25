@@ -62,6 +62,12 @@ required files:
   sudo apt-get install libsqlite3-dev   # Debian, Ubuntu
   sudo yum install libsqlite3x-devel    # Fedora, Red Hat
 
+If you have multiple versions of SQLite installed (this can be a
+problem on Mac OS X), you might need to specify the installation
+prefix of the one you want -- e.g., to use the brew package:
+
+  ./configure --with-sqlite3=/usr/local
+
 To see which features are built-in to your vcprompt binary, run
 
   ./vcprompt -F
@@ -240,6 +246,8 @@ In chronological order:
   Gregg Lind
   Jakob Kramer
   Robson Roberto Souza Peixoto
+  Alexandre Carmel-Veilleux
+  Felix Eckhofer
 
 Thanks to all!
 
@@ -247,7 +255,7 @@ Thanks to all!
 Copyright & License
 ===================
 
-Copyright (C) 2009-2013, Gregory P. Ward and contributors.
+Copyright (C) 2009-2014, Gregory P. Ward and contributors.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2013, Gregory P. Ward and contributors.
+ * Copyright (C) 2009-2014, Gregory P. Ward and contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ svn_read_sqlite(vccontext_t *context, result_t *result)
 
     retval = sqlite3_open_v2(".svn/wc.db", &conn, SQLITE_OPEN_READONLY, NULL);
     if (retval != SQLITE_OK) {
-        debug("error opening database in .svn/wc.db: %s", sqlite3_errstr(retval));
+        debug("error opening database in .svn/wc.db: %s", sqlite3_errmsg(conn));
         goto err;
     }
     // unclear when wc_id is anything other than 1
@@ -86,12 +86,12 @@ svn_read_sqlite(vccontext_t *context, result_t *result)
     const char *textval;
     retval = sqlite3_prepare_v2(conn, sql, strlen(sql), &res, &tail);
     if (retval != SQLITE_OK) {
-        debug("error running query: %s", sqlite3_errstr(retval));
+        debug("error running query: %s", sqlite3_errmsg(conn));
         goto err;
     }
     retval = sqlite3_step(res);
     if (retval != SQLITE_DONE && retval != SQLITE_ROW) {
-        debug("error fetching result row: %s", sqlite3_errstr(retval));
+        debug("error fetching result row: %s", sqlite3_errmsg(conn));
         goto err;
     }
     textval = (const char *) sqlite3_column_text(res, 0);
@@ -105,19 +105,19 @@ svn_read_sqlite(vccontext_t *context, result_t *result)
     sql = "select repos_path from nodes where local_relpath = ?";
     retval = sqlite3_prepare_v2(conn, sql, strlen(sql), &res, &tail);
     if (retval != SQLITE_OK) {
-        debug("error querying for repos_path: %s", sqlite3_errstr(retval));
+        debug("error querying for repos_path: %s", sqlite3_errmsg(conn));
         goto err;
     }
     retval = sqlite3_bind_text(res, 1,
                                context->rel_path, strlen(context->rel_path),
                                SQLITE_STATIC);
     if (retval != SQLITE_OK) {
-        debug("error binding parameter: %s", sqlite3_errstr(retval));
+        debug("error binding parameter: %s", sqlite3_errmsg(conn));
         goto err;
     }
     retval = sqlite3_step(res);
     if (retval != SQLITE_DONE && retval != SQLITE_ROW) {
-        debug("error fetching result row: %s", sqlite3_errstr(retval));
+        debug("error fetching result row: %s", sqlite3_errmsg(conn));
         goto err;
     }
 
@@ -229,45 +229,50 @@ svn_get_info(vccontext_t *context)
 {
     result_t *result = init_result();
     FILE *fp = NULL;
+    int ok = 0;
 
-    fp = fopen(".svn/entries", "r");
-    if (!fp) {
-        debug("failed to open .svn/entries: not an svn working copy");
-        goto err;
-    }
-    char line[1024];
-    int line_num = 1;                   // the line we're about to read
-
-    if (fgets(line, sizeof(line), fp) == NULL) {
-        debug(".svn/entries: empty file");
-        goto err;
-    }
-    line_num++;
-
-    int ok;
     if (access(".svn/wc.db", F_OK) == 0) {
         // SQLite file format (working copy created by svn >= 1.7)
+        // Some repositories do not have the ".svn/entries" file anymore
         ok = svn_read_sqlite(context, result);
     }
-    // First line of the file tells us what the format is.
-    else if (isdigit(line[0])) {
-        // Custom file format (working copy created by svn >= 1.4)
-        ok = svn_read_custom(fp, line, sizeof(line), line_num, result);
-    }
     else {
-        // XML file format (working copy created by svn < 1.4)
-        ok = svn_read_xml(fp, line, sizeof(line), line_num, result);
-    }
-    if (ok) {
-        fclose(fp);
-        return result;
+        debug("cannot access() .svn/wc.db: not an svn >= 1.7 working copy");
+
+        fp = fopen(".svn/entries", "r");
+        if (!fp) {
+            debug("failed to open .svn/entries: not an svn < 1.7 working copy");
+            goto err;
+        }
+        char line[1024];
+        int line_num = 1;                   // the line we're about to read
+
+        if (fgets(line, sizeof(line), fp) == NULL) {
+            debug(".svn/entries: empty file");
+            goto err;
+        }
+        line_num++;
+
+        // First line of the file tells us what the format is.
+        if (isdigit(line[0])) {
+            // Custom file format (working copy created by svn >= 1.4)
+            ok = svn_read_custom(fp, line, sizeof(line), line_num, result);
+        }
+        else {
+            // XML file format (working copy created by svn < 1.4)
+            ok = svn_read_xml(fp, line, sizeof(line), line_num, result);
+        }
     }
 
  err:
-    free(result);
-    if (fp)
+    if (fp) {
         fclose(fp);
-    return NULL;
+    }
+    if (!ok) {
+        free(result);
+        result = NULL;
+    }
+    return result;
 }
 
 vccontext_t*
