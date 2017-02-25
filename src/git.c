@@ -73,9 +73,22 @@ git_get_info(vccontext_t *context)
     }
     if (context->options->show_unknown) {
         char *argv[] = {
-            "git", "ls-files", "--others", "--exclude-standard", NULL};
+            "git", "status", "--porcelain", "--untracked-files=normal", NULL};
         capture_t *capture = capture_child("git", argv);
-        result->unknown = (capture != NULL && capture->childout.len > 0);
+        if (capture == NULL) {
+            debug("unable to execute 'git status'");
+            goto err;
+        }
+        char *cstdout = capture->childout.buf;
+        for (char *ch = cstdout; *ch != 0; ch++) {
+            if (ch == cstdout || *(ch-1) == '\n') {
+            	if (*ch == '?') {
+            		result->unknown = 1;
+            		break;
+            	}
+            }
+        }
+        cstdout = NULL;
 
         /* again, ignore other errors and assume no unknown files */
         free_capture(capture);
