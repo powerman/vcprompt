@@ -59,7 +59,7 @@ test_status()
 {
     echo "test_status:"
     pretest
-    sleep 1; hg st # workaround bug in vcprompt-hgst
+    sleep 1; hg -q st # workaround bug in vcprompt-hgst
     assert_vcprompt "clean 1" "" "%m"
     assert_vcprompt "clean 2" "" "%u"
     assert_vcprompt "clean 3" "" "%m%u"
@@ -75,7 +75,7 @@ test_status()
     assert_vcprompt "mod+unknown 3" "+?" "%m%u"
 
     hg -q update --clean .
-    sleep 1; hg st # workaround bug in vcprompt-hgst
+    sleep 1; hg -q st # workaround bug in vcprompt-hgst
     assert_vcprompt "unknown only 1" "" "%m"
     assert_vcprompt "unknown only 2" "?" "%u"
     assert_vcprompt "unknown only 3" "?" "%m%u"
@@ -90,7 +90,7 @@ test_status_add_remove()
     pretest
 
     echo hello > new
-    hg add new
+    hg -q add new
     assert_vcprompt "added 1" "+" "%m"
     assert_vcprompt "added 2" "" "%u"
     assert_vcprompt "added 3" "+" "%m%u"
@@ -110,7 +110,7 @@ test_status_add_remove()
     hg -q revert --all --no-backup
     rm new
     rm a
-    sleep 1; hg st # workaround bug in vcprompt-hgst
+    sleep 1; hg -q st # workaround bug in vcprompt-hgst
     assert_vcprompt "missing 1" "" "%m"
     assert_vcprompt "missing 2" "" "%u"
     assert_vcprompt "missing 3" "" "%m%u"
@@ -132,7 +132,7 @@ test_status_goofy_filenames()
     echo "not junk" > "$fn"
     hg -q add "$fn" 2>&1 | grep -iv "reserved on windows"
     hg -q commit -m"yes, it's a crazy filename"
-    sleep 1; hg st # workaround bug in vcprompt-hgst
+    sleep 1; hg -q st # workaround bug in vcprompt-hgst
     assert_vcprompt "no modified files" "" "%m"
     assert_vcprompt "no unknown files" "" "%u"
     assert_vcprompt "no modified/unknown files" "" "%m%u"
