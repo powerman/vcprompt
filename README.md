@@ -13,6 +13,8 @@ There is also another similar project: [djl/vcprompt](https://github.com/djl/vcp
 
 So, I've implemented fast Perl script, which is able to detect unknown/modified status of Mercurial repository in **0.002 sec**… but it doesn't correct in all cases (intentionally, for speed) - sometimes (when `.hg/dirstate` cache outdated) it report presence of modified files when there is no modified files. This can be fixed by updating cache, for ex.  by running `hg status`. Anyway, it's usually safer to think for a second there are modified files while there is no modified files, than opposite.  So, for me in this case speed is more important than correctness.
 
+Another performance issue with original vcprompt is not using git cache for untracked files (user can enable it with `git update-index --untracked-cache`). I've fixed this, and this result in 3 times speedup on large repository (Gentoo portage) when `%u` used.
+
 On Gentoo Linux it can be easily installed from `powerman` overlay:
 
 ```
