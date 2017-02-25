@@ -83,7 +83,7 @@ git_get_info(vccontext_t *context)
             if (context->options->show_unknown && *ch == '?') {
                 result->unknown = 1;
             }
-            if (context->options->show_modified && *(ch+1) != ' ') {
+            else if (context->options->show_modified && *(ch+1) != ' ') {
                 result->modified = 1;
             }
         }
