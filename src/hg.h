@@ -12,6 +12,10 @@
 
 #include "common.h"
 
+#if __FreeBSD__
+#include <sys/wait.h>
+#endif
+
 vccontext_t *
 get_hg_context(options_t *options);
 
